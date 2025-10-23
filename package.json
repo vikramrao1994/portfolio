@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "npx serve out",
-    "lint": "eslint"
+    "lint": "eslint",
+    "format": "prettier --ignore-path .gitignore \"**/src/**/*.+(ts|js|tsx)\" --write"
   },
   "dependencies": {
     "@publicplan/kern-react-kit": "^1.0.1",
@@ -22,6 +23,7 @@
     "babel-plugin-react-compiler": "^1.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.0.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "prettier": "^3.5.3"
   }
 }
