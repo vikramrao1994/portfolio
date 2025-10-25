@@ -3,7 +3,7 @@
 import { useBreakpointFlags } from "@/hooks/useBreakpoints";
 import { SITE } from "@/lib/content";
 import { spacing } from "@/utils/utils";
-import { Body, Card, Grid, Heading } from "@publicplan/kern-react-kit";
+import { Body, Card, Grid, Heading, Link } from "@publicplan/kern-react-kit";
 
 const Education = () => {
   const { isDesktop } = useBreakpointFlags();
@@ -55,6 +55,19 @@ const Education = () => {
               <Body text={edu.school} size={"small"} />
               <Body text={edu.location} size={"small"} />
               {!isDesktop && <Body isBold text={edu.duration} size={"small"} />}
+              <Link
+                href="https://www.w3.org/WAI/standards-guidelines/wcag/"
+                icon={{
+                  "aria-hidden": true,
+                  name: "open-in-new",
+                  size: "default",
+                }}
+                target="_blank"
+                iconLeft
+                title="View Certificate"
+                aria-label={`View ${edu.degree} Certificate`}
+                variant="small"
+              />
             </div>
             {isDesktop && (
               <div style={{ marginLeft: "auto" }}>

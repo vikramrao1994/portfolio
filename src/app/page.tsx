@@ -12,17 +12,17 @@ export default function Home() {
       <Grid.Root>
         <Grid.Row>
           <Grid.Column>
-            <Education />
-          </Grid.Column>
-        </Grid.Row>
-        <Grid.Row>
-          <Grid.Column>
             <Skills />
           </Grid.Column>
         </Grid.Row>
         <Grid.Row>
           <Grid.Column>
             <Work />
+          </Grid.Column>
+        </Grid.Row>
+        <Grid.Row>
+          <Grid.Column>
+            <Education />
           </Grid.Column>
         </Grid.Row>
       </Grid.Root>
