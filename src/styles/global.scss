@@ -19,6 +19,12 @@
   top: 0;
   width: 100%;
 }
+.kern-footer-custom {
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  padding: 16px 0;
+  margin-top: 40px;
+}
 
 .kern-body-custom {
   margin-top: 80px; /* Adjust based on header height */
