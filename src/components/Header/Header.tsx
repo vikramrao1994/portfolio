@@ -29,7 +29,7 @@ const Header = () => {
           />
           {isDesktop && <span>{SITE.heading.phone}</span>}
         </Link>
-        <Link href={SITE.heading.email} target="_blank" variant="small">
+        <Link href={`mailto:${SITE.heading.email}`} target="_blank" variant="small">
           <img
             src={`mail.png`}
             alt="Email Logo"
