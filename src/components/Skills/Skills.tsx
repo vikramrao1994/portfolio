@@ -53,23 +53,27 @@ const Skills = () => {
                 minWidth: 220,
                 maxWidth: 320,
                 flex: "1 1 220px",
-                background: "#f8f8f8",
-                borderRadius: spacing(1),
                 padding: spacing(2),
-                boxSizing: "border-box",
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "flex-start",
                 textAlign: "left",
               }}
             >
-              <Heading title={`${skill.key}: `} type={"small"} headerElement={"h3"} style={{ textAlign: "left", width: "100%" }} />
+              <Heading
+                title={`${skill.key}: `}
+                type={"small"}
+                headerElement={"h3"}
+                style={{ textAlign: "left", width: "100%" }}
+              />
               <Body
-                style={{ color: "red", textAlign: "left", width: "100%" }}
-                isBold
+                style={{ color: "green", textAlign: "left", width: "100%" }}
                 text={skill.most_used_skills.join(", ")}
               />
-              <Body text={skill.skills.join(", ")} style={{ textAlign: "left", width: "100%" }} />
+              <Body
+                text={skill.skills.join(", ")}
+                style={{ textAlign: "left", width: "100%" }}
+              />
             </div>
           ))}
         </div>

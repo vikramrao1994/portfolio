@@ -46,8 +46,6 @@ const Header = () => {
           />
           {isDesktop && <span>{SITE.heading.email}</span>}
         </Link>
-      </div>
-      <div style={{ display: "flex", alignItems: "center", gap: spacing(4) }}>
         <Link href={SITE.heading.linkedin} target="_blank" variant="small">
           <img
             src={`linkedin.png`}
@@ -66,6 +64,8 @@ const Header = () => {
           />
           {isDesktop && <span>vikramrao1994</span>}
         </Link>
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: spacing(4) }}>
         <Button
           icon={{ name: "download" }}
           iconLeft
