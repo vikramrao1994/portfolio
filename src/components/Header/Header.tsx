@@ -3,8 +3,11 @@
 import { SITE } from "@/lib/content";
 import { spacing } from "@/utils/utils";
 import { Button, Grid, Link } from "@publicplan/kern-react-kit";
+import { useBreakpointFlags } from "@/hooks/useBreakpoints";
 
 const Header = () => {
+  const { isDesktop } = useBreakpointFlags();
+
   return (
     <Grid
       style={{
@@ -24,7 +27,7 @@ const Header = () => {
             height={24}
             style={{ display: "block", margin: "0 auto" }}
           />
-          <span>{SITE.heading.phone}</span>
+          {isDesktop && <span>{SITE.heading.phone}</span>}
         </Link>
         <Link href={SITE.heading.email} target="_blank" variant="small">
           <img
@@ -33,7 +36,7 @@ const Header = () => {
             height={24}
             style={{ display: "block", margin: "0 auto" }}
           />
-          <span>{SITE.heading.email}</span>
+          {isDesktop && <span>{SITE.heading.email}</span>}
         </Link>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: spacing(4) }}>
@@ -44,7 +47,7 @@ const Header = () => {
             height={24}
             style={{ display: "block", margin: "0 auto" }}
           />
-          <span>linkedin</span>
+          {isDesktop && <span>linkedin</span>}
         </Link>
         <Link href={SITE.heading.github} target="_blank" variant="small">
           <img
@@ -53,12 +56,12 @@ const Header = () => {
             height={24}
             style={{ display: "block", margin: "0 auto" }}
           />
-          <span>vikramrao1994</span>
+          {isDesktop && <span>vikramrao1994</span>}
         </Link>
         <Button
           icon={{ name: "download" }}
           iconLeft
-          text="View CV"
+          text={isDesktop ? "View CV" : "CV"}
           variant="primary"
         />
       </div>
