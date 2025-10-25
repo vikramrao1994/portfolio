@@ -1,118 +1,29 @@
 @import '@publicplan/kern-react-kit/index.css';
 
-/* Kern/Figma Design Tokens */
-:root {
-  /* Typography */
-  --typography-font-family-default: var(
-    --kern-typography-font-family-default,
-    'Fira Sans'
-  );
-  --typography-font-weight-regular: 400;
-  --typography-font-weight-semi-bold: 600;
-  --typography-font-size-static-medium: 1rem; /* 16px */
-  --typography-font-size-adaptive-medium: 1.125rem; /* 18px */
-  --typography-line-height-static-medium: 1.5;
-  --typography-line-height-adaptive-medium: 1.4;
-
-  /* Spacing & Layout */
-  --metric-space-none: 0;
-  --metric-space-medium: 24px;
-  --metric-space-x-large: 48px;
-  --metric-space-small: 8px;
-  --metric-border-radius-none: 0;
-  --metric-border-width-light: 1px;
-  --card-width: 622px;
-  --card-height: 256px;
-  --card-max-width: 736px;
-  --card-gap: 16px;
-  --container-width: 1380px;
-  --container-gap: 32px;
-
-  /* Colors */
-  --color-heading: #003064;
-  --color-bg-card: #fff;
-  --color-bg-main: #eaeff6;
-  --color-text: #222;
-  --color-bg-support: #f2f9f7;
-  --color-bg-support-icon: #e6f4ef;
-}
-
-body {
-  width: 100%;
-  margin: 0 auto;
-  font-family: var(--typography-font-family-default);
-}
-
-.kern-container {
-  width: 100%;
-  padding: 0;
-}
-
-.text-decoration {
-  height: 24px;
-  padding: 0;
-  text-decoration: underline;
-  text-decoration-style: solid;
-  text-underline-offset: 2px;
-  text-decoration-thickness: 1px;
-  text-decoration-skip-ink: auto;
-}
-
-@media (min-width: 1600px) {
-  .kern-container {
-    max-width: 1728px;
-  }
-}
-
-.kern-row,
-.kern-col,
-[class^='kern-col'],
-[class*='kern-col'] {
-  padding: 0;
-}
-body {
+/* app/globals.css */
+.hero {
+  background-image: url("/background.webp");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
   margin: 0;
 }
 
-.kern-footer-custom {
-  background-color: #003064;
-  bottom: 0;
-  width: 100%;
-}
-.body {
-  margin: 0 auto;
-  min-height: 100vh;
-}
-
 .kern-header-custom {
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  padding: 16px;
+  // box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: fixed;
   top: 0;
   width: 100%;
-  color: #003064;
-}
-.search-bar .kern-icon {
-  background-color: var(--color-layout-background-overlay, #ffffff);
 }
 
-.search-input-row .kern-label,
-.show-filter-row .kern-label {
-  color: var(--color-layout-background-overlay, #ffffff);
-  font-size: var(--typography-font-size-static-medium, 18px);
-  font-weight: var(--typography-font-weight-regular, 500);
-  line-height: var(--typography-line-height-static-medium, 24px);
+.kern-body-custom {
+  margin-top: 80px; /* Adjust based on header height */
 }
 
-.show-filter-row .kern-label {
-  font-weight: var(--typography-font-weight-regular, 400);
-}
-
-.filter-top-row .filter-column {
-  padding: var(--metric-space-default, 16px);
-}
-
-.filter-top-row .kern-label {
-  color: var(--Colours-Blue-blue-500, #003064);
-}
-
-.filter-bottom-row .kern-form-check .kern-label {
-  color: var(--color-layout-background-default, #171a2b);
+.body {
+  margin: 0 auto;
 }

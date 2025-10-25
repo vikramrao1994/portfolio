@@ -1,12 +1,10 @@
-'use client';
-import { ThemeProvider } from '@publicplan/kern-react-kit';
-import '@/styles/global.scss';
-
-import { useKernTheme } from '@/styles/themes/kernTheme';
+"use client";
+import { ThemeProvider } from "@publicplan/kern-react-kit";
+import { useKernTheme } from "@/styles/themes/kernTheme";
 
 export function BodyProvider({ children }: { children: React.ReactNode }) {
   return (
-    <ThemeProvider global={false} theme={useKernTheme()}>
+    <ThemeProvider global={false} theme={useKernTheme()} className="kern-body-custom">
       {children}
     </ThemeProvider>
   );
@@ -14,11 +12,7 @@ export function BodyProvider({ children }: { children: React.ReactNode }) {
 
 export function FooterProvider({ children }: { children: React.ReactNode }) {
   return (
-    <ThemeProvider
-      global={false}
-      className="kern-footer-custom"
-      data-kern-theme="dark"
-    >
+    <ThemeProvider global={false} className="kern-footer-custom">
       {children}
     </ThemeProvider>
   );
