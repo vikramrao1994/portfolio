@@ -1,11 +1,10 @@
 /* eslint-disable @next/next/no-img-element */
-import { useBreakpointFlags } from "@/hooks/useBreakpoints";
 import { spacing } from "@/utils/utils";
-import { Card, Heading } from "@publicplan/kern-react-kit";
+import { Body, Card, Heading } from "@publicplan/kern-react-kit";
 import { SITE } from "@/lib/content";
 
 const Intro = () => {
-  const { isMobile } = useBreakpointFlags();
+  // const { isMobile } = useBreakpointFlags();
   return (
     <Card.Root
       size="small"
@@ -54,11 +53,34 @@ const Intro = () => {
               width: "100%",
             }}
           >
-            <Heading title={`Hello ! I am ${SITE.heading.name}`} type={"large"} headerElement={"h1"} />
+            <Heading
+              title={`Hello ! I am ${SITE.heading.name}`}
+              type={"large"}
+              headerElement={"h1"}
+            />
             <img src="/smile.webp" alt="Smile Icon" width={50} height={50} />
           </div>
+          <Body
+            isBold
+            text={SITE.heading.headline}
+            size="small"
+            style={{ textAlign: "center", width: "100%" }}
+          />
         </Card.Header>
-        <Card.Body style={{ textAlign: "center" }}>{SITE.executive_summary}</Card.Body>
+        <Card.Body style={{ textAlign: "center" }}>
+          {SITE.executive_summary}
+        </Card.Body>
+        <Card.Footer
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: spacing(1),
+          }}
+        >
+          <img src="/address.png" alt="Address Icon" width={24} height={24} />
+          <span style={{ marginLeft: spacing(1) }}>{SITE.heading.address}</span>
+        </Card.Footer>
       </Card.Container>
     </Card.Root>
   );

@@ -48,75 +48,89 @@ const Work = () => {
         </Card.Header>
         {SITE.experience.map((work, index) => (
           <Fragment key={index}>
-          <Grid
-            key={index}
-            style={{
-              marginTop: spacing(2),
-              marginBottom: spacing(2),
-              display: "flex",
-              // alignItems: "center",
-              gap: spacing(3),
-              justifyContent: isDesktop ? "space-between" : "flex-start",
-            }}
-          >
-            {isDesktop && (
-              <img src={work.logo} alt={work.title} height={70} width={70} />
-            )}
-            <div style={{ display: "flex", flexDirection: "column", width: isDesktop ? undefined : "80%" }}>
-              <Body isBold text={work.title} />
-              <Body text={work.company} size={"small"} />
-              <Body text={work.type} size={"small"} />
-              <Body text={work.location} size={"small"} />
-              {!isDesktop && (
-                <>
+            <Grid
+              key={index}
+              style={{
+                marginTop: spacing(2),
+                marginBottom: spacing(2),
+                display: "flex",
+                // alignItems: "center",
+                gap: spacing(3),
+                justifyContent: isDesktop ? "space-between" : "flex-start",
+              }}
+            >
+              {isDesktop && (
+                <img src={work.logo} alt={work.title} height={70} width={70} />
+              )}
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  width: isDesktop ? undefined : "80%",
+                }}
+              >
+                <Body isBold text={work.title} />
+                <Body text={work.company} size={"small"} />
+                <Body text={work.type} size={"small"} />
+                <Body text={work.location} size={"small"} />
+                {!isDesktop && (
+                  <>
+                    <Body isBold text={work.duration} size={"small"} />
+                    <Body
+                      isBold
+                      text={getDurationString(work.exact_duration)}
+                      size={"small"}
+                    />
+                  </>
+                )}
+                <Link
+                  href="https://www.w3.org/WAI/standards-guidelines/wcag/"
+                  icon={{
+                    "aria-hidden": true,
+                    name: "open-in-new",
+                    size: "default",
+                  }}
+                  target="_blank"
+                  iconLeft
+                  title="View Experience Certificate"
+                  aria-label={`View Experience Certificate for ${work.title} at ${work.company}`}
+                  variant="small"
+                />
+              </div>
+              {isDesktop && (
+                <div style={{ marginLeft: "auto" }}>
                   <Body isBold text={work.duration} size={"small"} />
                   <Body
                     isBold
                     text={getDurationString(work.exact_duration)}
                     size={"small"}
                   />
-                </>
+                </div>
               )}
-              <Link
-                href="https://www.w3.org/WAI/standards-guidelines/wcag/"
-                icon={{
-                  "aria-hidden": true,
-                  name: "open-in-new",
-                  size: "default",
-                }}
-                target="_blank"
-                iconLeft
-                title="View Experience Certificate"
-                aria-label={`View Experience Certificate for ${work.title} at ${work.company}`}
-                variant="small"
-              />
-            </div>
-            {isDesktop && (
-              <div style={{ marginLeft: "auto" }}>
-                <Body isBold text={work.duration} size={"small"} />
-                <Body
-                  isBold
-                  text={getDurationString(work.exact_duration)}
-                  size={"small"}
-                />
-              </div>
-            )}
-            {!isDesktop && (
-              <div style={{ display: "flex", justifyContent: "flex-end", width: "20%" }}>
-                <img src={work.logo} alt={work.title} height={70} width={70} />
-              </div>
-            )}
-          </Grid>
-          <Grid style={{ marginBottom: spacing(2) }}>
-          <Lists.Root
-                size="small"
-                type="bullet"
-              >
+              {!isDesktop && (
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    width: "20%",
+                  }}
+                >
+                  <img
+                    src={work.logo}
+                    alt={work.title}
+                    height={70}
+                    width={70}
+                  />
+                </div>
+              )}
+            </Grid>
+            <Grid style={{ marginBottom: spacing(2) }}>
+              <Lists.Root size="small" type="bullet">
                 {work.summary.map((item, index) => (
                   <Lists.Item key={index} text={item} />
                 ))}
               </Lists.Root>
-              </Grid>
+            </Grid>
           </Fragment>
         ))}
       </Card.Container>

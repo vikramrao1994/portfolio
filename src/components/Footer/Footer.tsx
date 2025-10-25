@@ -16,12 +16,12 @@ const Footer = () => {
     >
       <Subline
         text={`© ${new Date().getFullYear()} ${SITE.heading.name} — Frontend Engineer`}
-        style={{textAlign: 'center'}}
+        style={{ textAlign: "center" }}
         variant="small"
       />
       <Preline
         text={`Built with Next.js v${pkg.dependencies.next} & TypeScript · Deployed on Github Pages`}
-        style={{textAlign: 'center'}}
+        style={{ textAlign: "center" }}
         variant="small"
       />
     </Grid>

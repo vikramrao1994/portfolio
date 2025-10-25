@@ -30,6 +30,6 @@ const Home = () => {
       </Grid.Row>
     </Grid.Root>
   );
-}
+};
 
 export default Home;
