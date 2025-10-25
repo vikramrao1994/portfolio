@@ -74,7 +74,7 @@ const Skills = () => {
                 text={skill.most_used_skills.join(", ")}
               />
               <Body
-                text={skill.skills.join(", ")}
+                text={skill.skills?.join(", ")}
                 style={{ textAlign: "left", width: "100%" }}
               />
             </div>
