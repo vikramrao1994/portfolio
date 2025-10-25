@@ -30,8 +30,8 @@ export const metadata: Metadata = {
     canonical: "https://www.vikramrao.me",
   },
   robots: {
-    index: false,
-    follow: false,
+    index: true,
+    follow: true,
   },
 };
 

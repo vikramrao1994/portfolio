@@ -20,7 +20,11 @@ const Header = () => {
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: spacing(4) }}>
-        <Link href={`tel:${SITE.heading.phone}`} target="_blank" variant="small">
+        <Link
+          href={`tel:${SITE.heading.phone}`}
+          target="_blank"
+          variant="small"
+        >
           <img
             src={`phone.png`}
             alt="Phone Logo"
@@ -29,7 +33,11 @@ const Header = () => {
           />
           {isDesktop && <span>{SITE.heading.phone}</span>}
         </Link>
-        <Link href={`mailto:${SITE.heading.email}`} target="_blank" variant="small">
+        <Link
+          href={`mailto:${SITE.heading.email}`}
+          target="_blank"
+          variant="small"
+        >
           <img
             src={`mail.png`}
             alt="Email Logo"

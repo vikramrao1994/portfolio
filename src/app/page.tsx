@@ -1,19 +1,20 @@
 "use client";
+import Education from "@/components/Education";
 import Intro from "@/components/Intro";
 import Skills from "@/components/Skills";
 import { useBreakpointFlags } from "@/hooks/useBreakpoints";
 import { Grid } from "@publicplan/kern-react-kit";
 
 export default function Home() {
-  const { isMobile } = useBreakpointFlags();
+  const { isDesktop } = useBreakpointFlags();
   return (
     <div>
       <Intro />
       <Grid.Root>
-        {!isMobile ? (
+        {isDesktop ? (
           <Grid.Row>
             <Grid.Column>
-              <Skills />
+              <Education />
             </Grid.Column>
             <Grid.Column>
               <Skills />
@@ -23,7 +24,7 @@ export default function Home() {
           <>
             <Grid.Row>
               <Grid.Column>
-                <Skills />
+                <Education />
               </Grid.Column>
             </Grid.Row>
             <Grid.Row>

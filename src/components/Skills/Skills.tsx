@@ -1,9 +1,9 @@
-import { useBreakpointFlags } from "@/hooks/useBreakpoints";
+// import { useBreakpointFlags } from "@/hooks/useBreakpoints";
 import { spacing } from "@/utils/utils";
-import { Card, Button } from "@publicplan/kern-react-kit";
+import { Card } from "@publicplan/kern-react-kit";
 
 const Skills = () => {
-  const { isMobile } = useBreakpointFlags();
+  // const { isMobile } = useBreakpointFlags();
   return (
     <Card.Root
       size="small"

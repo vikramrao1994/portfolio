@@ -24,8 +24,7 @@ const Intro = () => {
           <Card.Title>{SITE.heading.name}</Card.Title>
         </Card.Header>
         <Card.Body>{SITE.executive_summary}</Card.Body>
-        <Card.Footer>
-        </Card.Footer>
+        <Card.Footer></Card.Footer>
       </Card.Container>
     </Card.Root>
   );
