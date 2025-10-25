@@ -54,10 +54,11 @@ const Intro = () => {
               width: "100%",
             }}
           >
-            <Heading title={`Hello ! My name is ${SITE.heading.name}`} type={"medium"} headerElement={"h2"} />
+            <Heading title={`Hello ! I am ${SITE.heading.name}`} type={"large"} headerElement={"h1"} />
+            <img src="/smile.webp" alt="Smile Icon" width={50} height={50} />
           </div>
         </Card.Header>
-        <Card.Body>{SITE.executive_summary}</Card.Body>
+        <Card.Body style={{ textAlign: "center" }}>{SITE.executive_summary}</Card.Body>
       </Card.Container>
     </Card.Root>
   );

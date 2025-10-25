@@ -10,6 +10,7 @@ import {
   Link,
   Lists,
 } from "@publicplan/kern-react-kit";
+import { Fragment } from "react";
 
 const Work = () => {
   const { isDesktop } = useBreakpointFlags();
@@ -19,7 +20,7 @@ const Work = () => {
       style={{
         borderRadius: spacing(1),
         marginTop: spacing(4),
-        maxWidth: "1000px",
+        maxWidth: "800px",
         margin: "0 auto",
         backgroundColor: `rgba(255, 255, 255, 0.8)`,
         backdropFilter: `blur(${spacing(1.25)})`,
@@ -46,12 +47,14 @@ const Work = () => {
           </div>
         </Card.Header>
         {SITE.experience.map((work, index) => (
+          <Fragment key={index}>
           <Grid
             key={index}
             style={{
+              marginTop: spacing(2),
               marginBottom: spacing(2),
               display: "flex",
-              alignItems: "center",
+              // alignItems: "center",
               gap: spacing(3),
               justifyContent: isDesktop ? "space-between" : "flex-start",
             }}
@@ -59,7 +62,7 @@ const Work = () => {
             {isDesktop && (
               <img src={work.logo} alt={work.title} height={70} width={70} />
             )}
-            <div style={{ display: "flex", flexDirection: "column" }}>
+            <div style={{ display: "flex", flexDirection: "column", width: isDesktop ? undefined : "80%" }}>
               <Body isBold text={work.title} />
               <Body text={work.company} size={"small"} />
               <Body text={work.type} size={"small"} />
@@ -74,15 +77,6 @@ const Work = () => {
                   />
                 </>
               )}
-              <Lists.Root
-                size="small"
-                type="bullet"
-                style={{ maxWidth: "600px" }}
-              >
-                {work.summary.map((item, index) => (
-                  <Lists.Item key={index} text={item} />
-                ))}
-              </Lists.Root>
               <Link
                 href="https://www.w3.org/WAI/standards-guidelines/wcag/"
                 icon={{
@@ -107,7 +101,23 @@ const Work = () => {
                 />
               </div>
             )}
+            {!isDesktop && (
+              <div style={{ display: "flex", justifyContent: "flex-end", width: "20%" }}>
+                <img src={work.logo} alt={work.title} height={70} width={70} />
+              </div>
+            )}
           </Grid>
+          <Grid style={{ marginBottom: spacing(2) }}>
+          <Lists.Root
+                size="small"
+                type="bullet"
+              >
+                {work.summary.map((item, index) => (
+                  <Lists.Item key={index} text={item} />
+                ))}
+              </Lists.Root>
+              </Grid>
+          </Fragment>
         ))}
       </Card.Container>
     </Card.Root>

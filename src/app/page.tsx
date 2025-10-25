@@ -5,7 +5,7 @@ import Skills from "@/components/Skills";
 import Work from "@/components/Work";
 import { Grid } from "@publicplan/kern-react-kit";
 
-export default function Home() {
+const Home = () => {
   return (
     <Grid.Root>
       <Grid.Row>
@@ -31,3 +31,5 @@ export default function Home() {
     </Grid.Root>
   );
 }
+
+export default Home;
