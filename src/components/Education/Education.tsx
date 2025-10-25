@@ -13,6 +13,8 @@ const Education = () => {
       style={{
         borderRadius: spacing(1),
         marginTop: spacing(4),
+        maxWidth: "800px",
+        margin: "0 auto",
       }}
     >
       <Card.Container>
@@ -27,12 +29,12 @@ const Education = () => {
             }}
           >
             <img
-              src="/school.png"
+              src="/school.webp"
               alt="Education Icon"
               width={50}
               height={50}
             />
-            <Heading title={"Education"} type={"large"} headerElement={"h2"} />
+            <Heading title={"Education"} type={"medium"} headerElement={"h2"} />
           </div>
         </Card.Header>
         {SITE.education.map((edu, index) => (
@@ -48,11 +50,11 @@ const Education = () => {
           >
             <img src={edu.logo} alt={edu.degree} height={70} width={60} />
             <div style={{ display: "flex", flexDirection: "column" }}>
-              <Heading title={edu.degree} type={"small"} headerElement={"p"} />
+              <Body isBold text={edu.degree} />
               <Body text={edu.course} size={"small"} />
               <Body text={edu.school} size={"small"} />
               <Body text={edu.location} size={"small"} />
-              {!isDesktop && <Body text={edu.duration} size={"small"} />}
+              {!isDesktop && <Body isBold text={edu.duration} size={"small"} />}
             </div>
             {isDesktop && (
               <div style={{ marginLeft: "auto" }}>

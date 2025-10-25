@@ -1,6 +1,8 @@
+/* eslint-disable @next/next/no-img-element */
 // import { useBreakpointFlags } from "@/hooks/useBreakpoints";
+import { SITE } from "@/lib/content";
 import { spacing } from "@/utils/utils";
-import { Card } from "@publicplan/kern-react-kit";
+import { Body, Card, Heading } from "@publicplan/kern-react-kit";
 
 const Skills = () => {
   // const { isMobile } = useBreakpointFlags();
@@ -8,25 +10,69 @@ const Skills = () => {
     <Card.Root
       size="small"
       style={{
-        // maxWidth: isMobile ? "300px" : "500px",
-        // margin:"0 auto",
         borderRadius: spacing(1),
         marginTop: spacing(4),
-        // height: "100%",
-        // maxHeight: '400px',
-        // maxHeight: '800px',
+        maxWidth: "800px",
+        margin: "0 auto",
       }}
     >
       <Card.Container>
         <Card.Header>
-          <Card.Title>Skills</Card.Title>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: spacing(2),
+              width: "100%",
+            }}
+          >
+            <img
+              src="/tech_stack.webp"
+              alt="Skills Icon"
+              width={50}
+              height={50}
+            />
+            <Heading title={"Skills"} type={"medium"} headerElement={"h2"} />
+          </div>
         </Card.Header>
-        <Card.Body>
-          React, TypeScript, JavaScript, HTML, CSS, Git, RESTful APIs,
-          Responsive Design, Agile Methodologies, Testing (Jest, React Testing
-          Library), UI/UX Principles, Web Performance Optimization,
-          Cross-Browser Compatibility, CI/CD, Docker, Node.js
-        </Card.Body>
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: spacing(3),
+            justifyContent: "center",
+            alignItems: "stretch",
+            width: "100%",
+          }}
+        >
+          {SITE.skills.map((skill, index) => (
+            <div
+              key={index}
+              style={{
+                minWidth: 220,
+                maxWidth: 320,
+                flex: "1 1 220px",
+                background: "#f8f8f8",
+                borderRadius: spacing(1),
+                padding: spacing(2),
+                boxSizing: "border-box",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-start",
+                textAlign: "left",
+              }}
+            >
+              <Heading title={`${skill.key}: `} type={"small"} headerElement={"h3"} style={{ textAlign: "left", width: "100%" }} />
+              <Body
+                style={{ color: "red", textAlign: "left", width: "100%" }}
+                isBold
+                text={skill.most_used_skills.join(", ")}
+              />
+              <Body text={skill.skills.join(", ")} style={{ textAlign: "left", width: "100%" }} />
+            </div>
+          ))}
+        </div>
       </Card.Container>
     </Card.Root>
   );
