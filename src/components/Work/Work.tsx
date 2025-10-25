@@ -2,7 +2,14 @@
 import { SITE } from "@/lib/content";
 import { getDurationString, spacing } from "@/utils/utils";
 import { useBreakpointFlags } from "@/hooks/useBreakpoints";
-import { Body, Card, Grid, Heading, Link, Lists } from "@publicplan/kern-react-kit";
+import {
+  Body,
+  Card,
+  Grid,
+  Heading,
+  Link,
+  Lists,
+} from "@publicplan/kern-react-kit";
 
 const Work = () => {
   const { isDesktop } = useBreakpointFlags();
@@ -14,6 +21,9 @@ const Work = () => {
         marginTop: spacing(4),
         maxWidth: "1000px",
         margin: "0 auto",
+        backgroundColor: `rgba(255, 255, 255, 0.8)`,
+        backdropFilter: `blur(${spacing(1.25)})`,
+        zIndex: 1,
       }}
     >
       <Card.Container>
@@ -54,6 +64,25 @@ const Work = () => {
               <Body text={work.company} size={"small"} />
               <Body text={work.type} size={"small"} />
               <Body text={work.location} size={"small"} />
+              {!isDesktop && (
+                <>
+                  <Body isBold text={work.duration} size={"small"} />
+                  <Body
+                    isBold
+                    text={getDurationString(work.exact_duration)}
+                    size={"small"}
+                  />
+                </>
+              )}
+              <Lists.Root
+                size="small"
+                type="bullet"
+                style={{ maxWidth: "600px" }}
+              >
+                {work.summary.map((item, index) => (
+                  <Lists.Item key={index} text={item} />
+                ))}
+              </Lists.Root>
               <Link
                 href="https://www.w3.org/WAI/standards-guidelines/wcag/"
                 icon={{
@@ -67,25 +96,6 @@ const Work = () => {
                 aria-label={`View Experience Certificate for ${work.title} at ${work.company}`}
                 variant="small"
               />
-              <Lists.Root
-                size="small"
-                type="bullet"
-                style={{ maxWidth: "600px" }}
-              >
-                {work.summary.map((item, index) => (
-                  <Lists.Item key={index} text={item} />
-                ))}
-              </Lists.Root>
-              {!isDesktop && (
-                <>
-                  <Body isBold text={work.duration} size={"small"} />
-                  <Body
-                    isBold
-                    text={getDurationString(work.exact_duration)}
-                    size={"small"}
-                  />
-                </>
-              )}
             </div>
             {isDesktop && (
               <div style={{ marginLeft: "auto" }}>

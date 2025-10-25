@@ -7,25 +7,27 @@ import { Grid } from "@publicplan/kern-react-kit";
 
 export default function Home() {
   return (
-    <>
-      <Intro />
-      <Grid.Root>
-        <Grid.Row>
-          <Grid.Column>
-            <Skills />
-          </Grid.Column>
-        </Grid.Row>
-        <Grid.Row>
-          <Grid.Column>
-            <Work />
-          </Grid.Column>
-        </Grid.Row>
-        <Grid.Row>
-          <Grid.Column>
-            <Education />
-          </Grid.Column>
-        </Grid.Row>
-      </Grid.Root>
-    </>
+    <Grid.Root>
+      <Grid.Row>
+        <Grid.Column>
+          <Intro />
+        </Grid.Column>
+      </Grid.Row>
+      <Grid.Row>
+        <Grid.Column>
+          <Skills />
+        </Grid.Column>
+      </Grid.Row>
+      <Grid.Row>
+        <Grid.Column>
+          <Work />
+        </Grid.Column>
+      </Grid.Row>
+      <Grid.Row>
+        <Grid.Column>
+          <Education />
+        </Grid.Column>
+      </Grid.Row>
+    </Grid.Root>
   );
 }
