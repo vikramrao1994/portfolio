@@ -1,12 +1,10 @@
 "use client";
 import { ThemeProvider } from "@publicplan/kern-react-kit";
-import { useKernTheme } from "@/styles/themes/kernTheme";
 
 export function BodyProvider({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider
       global={false}
-      theme={useKernTheme()}
       className="kern-body-custom"
       data-kern-theme="light"
     >

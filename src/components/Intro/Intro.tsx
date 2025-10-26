@@ -2,6 +2,7 @@
 import { spacing } from "@/utils/utils";
 import { Body, Card, Heading } from "@publicplan/kern-react-kit";
 import { SITE } from "@/lib/content";
+import { cardRootStyle } from "@/styles/styles";
 
 const Intro = () => {
   // const { isMobile } = useBreakpointFlags();
@@ -10,16 +11,7 @@ const Intro = () => {
       id="introduction"
       size="small"
       aria-label="Introduction"
-      style={{
-        borderRadius: spacing(1),
-        marginTop: spacing(4),
-        paddingBottom: spacing(4),
-        maxWidth: "800px",
-        margin: "0 auto",
-        backgroundColor: `rgba(255, 255, 255, 0.8)`,
-        backdropFilter: `blur(${spacing(1.25)})`,
-        zIndex: 1,
-      }}
+      style={cardRootStyle}
     >
       <Card.Container>
         <div
@@ -78,6 +70,7 @@ const Intro = () => {
             justifyContent: "center",
             alignItems: "center",
             gap: spacing(1),
+            marginBottom: spacing(2),
           }}
         >
           <img src="/address.png" alt="Address Icon" width={24} height={24} />

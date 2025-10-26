@@ -46,7 +46,12 @@ const Header = () => {
             style={{ display: "block", margin: "0 auto" }}
           />
         </Link>
-        <Link href={SITE.heading.linkedin} target="_blank" variant="small" aria-label="LinkedIn">
+        <Link
+          href={SITE.heading.linkedin}
+          target="_blank"
+          variant="small"
+          aria-label="LinkedIn"
+        >
           <img
             src={`linkedin.png`}
             alt="LinkedIn Logo"
@@ -54,7 +59,12 @@ const Header = () => {
             style={{ display: "block", margin: "0 auto" }}
           />
         </Link>
-        <Link href={SITE.heading.github} target="_blank" variant="small" aria-label="GitHub">
+        <Link
+          href={SITE.heading.github}
+          target="_blank"
+          variant="small"
+          aria-label="GitHub"
+        >
           <img
             src={`github.png`}
             alt="GitHub Logo"
@@ -64,14 +74,38 @@ const Header = () => {
         </Link>
       </div>
       {isDesktop && (
-          <nav style={{ display: "flex", justifyContent: "center", gap: spacing(3) }}>
-            <Link href="#introduction" variant="small" title="Intro" aria-label="Introduction Section" />
-            <Link href="#work" variant="small" title="Work" aria-label="Work Section" />
-            <Link href="#skills" variant="small" title="Skills" aria-label="Skills Section" />
-            <Link href="#education" variant="small" title="Education" aria-label="Education Section" />
-          </nav>
-        )}
-      <div style={{ display: "flex", alignItems: "center", marginLeft: spacing(5) }}>
+        <nav
+          style={{ display: "flex", justifyContent: "center", gap: spacing(3) }}
+        >
+          <Link
+            href="#introduction"
+            title="Intro"
+            aria-label="Introduction Section"
+          />
+          <Link
+            href="#work"
+            title="Work"
+            aria-label="Work Section"
+          />
+          <Link
+            href="#skills"
+            title="Skills"
+            aria-label="Skills Section"
+          />
+          <Link
+            href="#education"
+            title="Education"
+            aria-label="Education Section"
+          />
+        </nav>
+      )}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          marginLeft: spacing(5),
+        }}
+      >
         <Button
           aria-label="Download CV"
           icon={{ name: "download" }}

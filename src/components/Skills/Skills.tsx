@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 // import { useBreakpointFlags } from "@/hooks/useBreakpoints";
 import { SITE } from "@/lib/content";
+import { cardRootStyle } from "@/styles/styles";
 import { spacing } from "@/utils/utils";
 import { Body, Card, Heading } from "@publicplan/kern-react-kit";
 
@@ -11,15 +12,7 @@ const Skills = () => {
       id="skills"
       aria-label="Skills"
       size="small"
-      style={{
-        borderRadius: spacing(1),
-        marginTop: spacing(4),
-        maxWidth: "800px",
-        margin: "0 auto",
-        backgroundColor: `rgba(255, 255, 255, 0.8)`,
-        backdropFilter: `blur(${spacing(1.25)})`,
-        zIndex: 1,
-      }}
+      style={cardRootStyle}
     >
       <Card.Container>
         <Card.Header>

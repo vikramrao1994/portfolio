@@ -2,6 +2,7 @@
 "use client";
 import { useBreakpointFlags } from "@/hooks/useBreakpoints";
 import { SITE } from "@/lib/content";
+import { cardRootStyle } from "@/styles/styles";
 import { spacing } from "@/utils/utils";
 import { Body, Card, Grid, Heading, Link } from "@publicplan/kern-react-kit";
 
@@ -12,15 +13,7 @@ const Education = () => {
       id="education"
       size="small"
       aria-label="Education"
-      style={{
-        borderRadius: spacing(1),
-        marginTop: spacing(4),
-        maxWidth: "800px",
-        margin: "0 auto",
-        backgroundColor: `rgba(255, 255, 255, 0.8)`,
-        backdropFilter: `blur(${spacing(1.25)})`,
-        zIndex: 1,
-      }}
+      style={cardRootStyle}
     >
       <Card.Container>
         <Card.Header>

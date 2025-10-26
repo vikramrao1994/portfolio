@@ -12,6 +12,7 @@ import {
   Lists,
 } from "@publicplan/kern-react-kit";
 import { Fragment } from "react";
+import { cardRootStyle } from "@/styles/styles";
 
 const Work = () => {
   const { isDesktop } = useBreakpointFlags();
@@ -19,15 +20,7 @@ const Work = () => {
     <Card.Root
       id="work"
       size="small"
-      style={{
-        borderRadius: spacing(1),
-        marginTop: spacing(4),
-        maxWidth: "800px",
-        margin: "0 auto",
-        backgroundColor: `rgba(255, 255, 255, 0.8)`,
-        backdropFilter: `blur(${spacing(1.25)})`,
-        zIndex: 1,
-      }}
+      style={cardRootStyle}
       aria-label="Work Experience"
     >
       <Card.Container>
@@ -86,19 +79,21 @@ const Work = () => {
                     />
                   </>
                 )}
-                {work.certificate && (<Link
-                  href={work.certificate}
-                  icon={{
-                    "aria-hidden": true,
-                    name: "open-in-new",
-                    size: "default",
-                  }}
-                  target="_blank"
-                  iconLeft
-                  title="View Experience Certificate"
-                  aria-label={`View Experience Certificate for ${work.title} at ${work.company}`}
-                  variant="small"
-                />)}
+                {work.certificate && (
+                  <Link
+                    href={work.certificate}
+                    icon={{
+                      "aria-hidden": true,
+                      name: "open-in-new",
+                      size: "default",
+                    }}
+                    target="_blank"
+                    iconLeft
+                    title="View Experience Certificate"
+                    aria-label={`View Experience Certificate for ${work.title} at ${work.company}`}
+                    variant="small"
+                  />
+                )}
               </div>
               {isDesktop && (
                 <div style={{ marginLeft: "auto" }}>
