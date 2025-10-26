@@ -22,6 +22,7 @@ const Header = () => {
       <div style={{ display: "flex", alignItems: "center", gap: spacing(4) }}>
         <Link
           href={`tel:${SITE.heading.phone}`}
+          aria-label="Phone"
           target="_blank"
           variant="small"
         >
@@ -31,12 +32,12 @@ const Header = () => {
             height={24}
             style={{ display: "block", margin: "0 auto" }}
           />
-          {isDesktop && <span>{SITE.heading.phone}</span>}
         </Link>
         <Link
           href={`mailto:${SITE.heading.email}`}
           target="_blank"
           variant="small"
+          aria-label="Email"
         >
           <img
             src={`mail.png`}
@@ -44,29 +45,35 @@ const Header = () => {
             height={24}
             style={{ display: "block", margin: "0 auto" }}
           />
-          {isDesktop && <span>{SITE.heading.email}</span>}
         </Link>
-        <Link href={SITE.heading.linkedin} target="_blank" variant="small">
+        <Link href={SITE.heading.linkedin} target="_blank" variant="small" aria-label="LinkedIn">
           <img
             src={`linkedin.png`}
             alt="LinkedIn Logo"
             height={24}
             style={{ display: "block", margin: "0 auto" }}
           />
-          {isDesktop && <span>linkedin</span>}
         </Link>
-        <Link href={SITE.heading.github} target="_blank" variant="small">
+        <Link href={SITE.heading.github} target="_blank" variant="small" aria-label="GitHub">
           <img
             src={`github.png`}
             alt="GitHub Logo"
             height={24}
             style={{ display: "block", margin: "0 auto" }}
           />
-          {isDesktop && <span>vikramrao1994</span>}
         </Link>
       </div>
-      <div style={{ display: "flex", alignItems: "center", gap: spacing(4) }}>
+      {isDesktop && (
+          <nav style={{ display: "flex", justifyContent: "center", gap: spacing(3) }}>
+            <Link href="#introduction" variant="small" title="Intro" aria-label="Introduction Section" />
+            <Link href="#work" variant="small" title="Work" aria-label="Work Section" />
+            <Link href="#skills" variant="small" title="Skills" aria-label="Skills Section" />
+            <Link href="#education" variant="small" title="Education" aria-label="Education Section" />
+          </nav>
+        )}
+      <div style={{ display: "flex", alignItems: "center", marginLeft: spacing(5) }}>
         <Button
+          aria-label="Download CV"
           icon={{ name: "download" }}
           iconLeft
           text={isDesktop ? "View CV" : "CV"}

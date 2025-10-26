@@ -45,7 +45,7 @@ const Skills = () => {
           style={{
             display: "flex",
             flexWrap: "wrap",
-            gap: spacing(3),
+            gap: spacing(1),
             justifyContent: "center",
             alignItems: "stretch",
             width: "100%",
@@ -58,7 +58,7 @@ const Skills = () => {
                 minWidth: 220,
                 maxWidth: 320,
                 flex: "1 1 220px",
-                padding: spacing(2),
+                padding: spacing(1),
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "flex-start",
