@@ -3,6 +3,7 @@ import { SITE } from "@/lib/content";
 import { getDurationString, spacing } from "@/utils/utils";
 import { useBreakpointFlags } from "@/hooks/useBreakpoints";
 import {
+  Accordion,
   Body,
   Card,
   Grid,
@@ -125,11 +126,26 @@ const Work = () => {
               )}
             </Grid>
             <Grid style={{ marginBottom: spacing(2) }}>
-              <Lists.Root size="small" type="bullet">
-                {work.summary.map((item, index) => (
-                  <Lists.Item key={index} text={item} />
-                ))}
-              </Lists.Root>
+              <Accordion.Root
+                aria-label={`Key Responsibilities for ${work.title} at ${work.company}`}
+              >
+                <Accordion.Summary
+                  title={{
+                    textWrapper: "h3",
+                    title: "Key Responsibilities",
+                    variant: "small",
+                  }}
+                />
+                <Lists.Root
+                  size="small"
+                  type="bullet"
+                  style={{ marginBottom: spacing(2) }}
+                >
+                  {work.summary.map((item, index) => (
+                    <Lists.Item key={index} text={item} />
+                  ))}
+                </Lists.Root>
+              </Accordion.Root>
             </Grid>
           </Fragment>
         ))}

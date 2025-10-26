@@ -15,12 +15,12 @@ const Home = () => {
       </Grid.Row>
       <Grid.Row>
         <Grid.Column>
-          <Skills />
+          <Work />
         </Grid.Column>
       </Grid.Row>
       <Grid.Row>
         <Grid.Column>
-          <Work />
+          <Skills />
         </Grid.Column>
       </Grid.Row>
       <Grid.Row>
