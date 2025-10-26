@@ -10,6 +10,7 @@ const Education = () => {
   return (
     <Card.Root
       size="small"
+      aria-label="Education"
       style={{
         borderRadius: spacing(1),
         marginTop: spacing(4),

@@ -27,6 +27,7 @@ const Work = () => {
         backdropFilter: `blur(${spacing(1.25)})`,
         zIndex: 1,
       }}
+      aria-label="Work Experience"
     >
       <Card.Container>
         <Card.Header>

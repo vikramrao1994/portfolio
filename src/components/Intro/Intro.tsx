@@ -8,6 +8,7 @@ const Intro = () => {
   return (
     <Card.Root
       size="small"
+      aria-label="Introduction"
       style={{
         borderRadius: spacing(1),
         marginTop: spacing(4),
