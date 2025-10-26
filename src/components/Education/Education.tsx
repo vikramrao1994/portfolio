@@ -61,7 +61,7 @@ const Education = () => {
               <Body text={edu.location} size={"small"} />
               {!isDesktop && <Body isBold text={edu.duration} size={"small"} />}
               <Link
-                href="https://www.w3.org/WAI/standards-guidelines/wcag/"
+                href={edu.certificate}
                 icon={{
                   "aria-hidden": true,
                   name: "open-in-new",
@@ -69,8 +69,8 @@ const Education = () => {
                 }}
                 target="_blank"
                 iconLeft
-                title="View Certificate"
-                aria-label={`View ${edu.degree} Certificate`}
+                title="View Degree"
+                aria-label={`View ${edu.degree} Degree Certificate`}
                 variant="small"
               />
             </div>

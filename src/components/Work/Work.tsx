@@ -86,8 +86,8 @@ const Work = () => {
                     />
                   </>
                 )}
-                <Link
-                  href="https://www.w3.org/WAI/standards-guidelines/wcag/"
+                {work.certificate && (<Link
+                  href={work.certificate}
                   icon={{
                     "aria-hidden": true,
                     name: "open-in-new",
@@ -98,7 +98,7 @@ const Work = () => {
                   title="View Experience Certificate"
                   aria-label={`View Experience Certificate for ${work.title} at ${work.company}`}
                   variant="small"
-                />
+                />)}
               </div>
               {isDesktop && (
                 <div style={{ marginLeft: "auto" }}>
