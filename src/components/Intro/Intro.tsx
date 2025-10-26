@@ -73,7 +73,7 @@ const Intro = () => {
             marginBottom: spacing(2),
           }}
         >
-          <img src="/address.png" alt="Address Icon" width={24} height={24} />
+          <img src="/address.webp" alt="Address Icon" width={24} height={24} />
           <span style={{ marginLeft: spacing(1) }}>{SITE.heading.address}</span>
         </Card.Footer>
       </Card.Container>

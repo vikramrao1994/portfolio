@@ -27,7 +27,7 @@ const Header = () => {
           variant="small"
         >
           <img
-            src={`phone.png`}
+            src={`phone.webp`}
             alt="Phone Logo"
             height={24}
             style={{ display: "block", margin: "0 auto" }}
@@ -40,7 +40,7 @@ const Header = () => {
           aria-label="Email"
         >
           <img
-            src={`mail.png`}
+            src={`mail.webp`}
             alt="Email Logo"
             height={24}
             style={{ display: "block", margin: "0 auto" }}
@@ -53,7 +53,7 @@ const Header = () => {
           aria-label="LinkedIn"
         >
           <img
-            src={`linkedin.png`}
+            src={`linkedin.webp`}
             alt="LinkedIn Logo"
             height={24}
             style={{ display: "block", margin: "0 auto" }}
@@ -66,7 +66,7 @@ const Header = () => {
           aria-label="GitHub"
         >
           <img
-            src={`github.png`}
+            src={`github.webp`}
             alt="GitHub Logo"
             height={24}
             style={{ display: "block", margin: "0 auto" }}
