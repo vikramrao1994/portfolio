@@ -9,6 +9,7 @@ const Education = () => {
   const { isDesktop } = useBreakpointFlags();
   return (
     <Card.Root
+      id="education"
       size="small"
       aria-label="Education"
       style={{

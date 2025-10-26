@@ -8,6 +8,7 @@ const Skills = () => {
   // const { isMobile } = useBreakpointFlags();
   return (
     <Card.Root
+      id="skills"
       aria-label="Skills"
       size="small"
       style={{

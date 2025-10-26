@@ -17,6 +17,7 @@ const Work = () => {
   const { isDesktop } = useBreakpointFlags();
   return (
     <Card.Root
+      id="work"
       size="small"
       style={{
         borderRadius: spacing(1),

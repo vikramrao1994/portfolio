@@ -7,6 +7,7 @@ const Intro = () => {
   // const { isMobile } = useBreakpointFlags();
   return (
     <Card.Root
+      id="introduction"
       size="small"
       aria-label="Introduction"
       style={{
