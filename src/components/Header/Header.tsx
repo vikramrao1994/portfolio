@@ -20,67 +20,93 @@ const Header = () => {
         alignItems: "center",
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: spacing(4) }}>
-        {
-          !isDesktop && (
-            <>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: isDesktop ? spacing(4) : spacing(2),
+        }}
+      >
+        {!isDesktop && (
+          <>
+            <Button
+              style={{ marginTop: spacing(1) }}
+              icon={{
+                name: "more-vert",
+                size: "large",
+              }}
+              iconOnly
+              variant="tertiary"
+              onClick={() => setDrawerOpen(true)}
+            />
+            <div
+              style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                width: "70vw",
+                maxWidth: 320,
+                height: "100vh",
+                background: "#fff",
+                boxShadow: "2px 0 8px rgba(0,0,0,0.15)",
+                zIndex: 1000,
+                display: "flex",
+                flexDirection: "column",
+                padding: spacing(3),
+                transform: drawerOpen ? "translateX(0)" : "translateX(-100%)",
+                transition: "transform 0.3s cubic-bezier(0.4,0,0.2,1)",
+                pointerEvents: drawerOpen ? "auto" : "none",
+              }}
+            >
               <Button
-                style={{marginTop: spacing(1)}}
-                icon={{
-                  name: 'more-vert',
-                  size: 'large',
-                }}
+                icon={{ name: "close", size: "large" }}
                 iconOnly
                 variant="tertiary"
-                onClick={() => setDrawerOpen(true)}
+                style={{ alignSelf: "flex-end", marginBottom: spacing(2) }}
+                onClick={() => setDrawerOpen(false)}
               />
-              {drawerOpen && (
-                <div
-                  style={{
-                    position: "fixed",
-                    top: 0,
-                    left: 0,
-                    width: "70vw",
-                    maxWidth: 320,
-                    height: "100vh",
-                    background: "#fff",
-                    boxShadow: "2px 0 8px rgba(0,0,0,0.15)",
-                    zIndex: 1000,
-                    display: "flex",
-                    flexDirection: "column",
-                    padding: spacing(3),
-                  }}
-                >
-                  <Button
-                    icon={{ name: "close", size: "large" }}
-                    iconOnly
-                    variant="tertiary"
-                    style={{ alignSelf: "flex-end", marginBottom: spacing(2) }}
-                    onClick={() => setDrawerOpen(false)}
-                  />
-                  <nav style={{ display: "flex", flexDirection: "column", gap: spacing(2) }}>
-                    <Link href="#introduction" title="Intro" aria-label="Introduction Section" onClick={() => setDrawerOpen(false)} />
-                    <Link href="#work" title="Work" aria-label="Work Section" onClick={() => setDrawerOpen(false)} />
-                    <Link href="#skills" title="Skills" aria-label="Skills Section" onClick={() => setDrawerOpen(false)} />
-                    <Link href="#education" title="Education" aria-label="Education Section" onClick={() => setDrawerOpen(false)} />
-                  </nav>
-                </div>
-              )}
-            </>
-          )
-        }
+              <nav
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: spacing(2),
+                }}
+              >
+                <Link
+                  href="#introduction"
+                  title="Intro"
+                  aria-label="Introduction Section"
+                  onClick={() => setDrawerOpen(false)}
+                />
+                <Link
+                  href="#work"
+                  title="Work"
+                  aria-label="Work Section"
+                  onClick={() => setDrawerOpen(false)}
+                />
+                <Link
+                  href="#skills"
+                  title="Skills"
+                  aria-label="Skills Section"
+                  onClick={() => setDrawerOpen(false)}
+                />
+                <Link
+                  href="#education"
+                  title="Education"
+                  aria-label="Education Section"
+                  onClick={() => setDrawerOpen(false)}
+                />
+              </nav>
+            </div>
+          </>
+        )}
         <Link
           href={`tel:${SITE.heading.phone}`}
           aria-label="Phone"
           target="_blank"
           variant="small"
         >
-          <img
-            src={`phone.webp`}
-            alt="Phone Logo"
-            height={24}
-            style={{ display: "block", margin: "0 auto" }}
-          />
+          <img src={`phone.webp`} alt="Phone Logo" height={24} />
         </Link>
         <Link
           href={`mailto:${SITE.heading.email}`}
@@ -88,12 +114,7 @@ const Header = () => {
           variant="small"
           aria-label="Email"
         >
-          <img
-            src={`mail.webp`}
-            alt="Email Logo"
-            height={24}
-            style={{ display: "block", margin: "0 auto" }}
-          />
+          <img src={`mail.webp`} alt="Email Logo" height={24} />
         </Link>
         <Link
           href={SITE.heading.linkedin}
@@ -101,12 +122,7 @@ const Header = () => {
           variant="small"
           aria-label="LinkedIn"
         >
-          <img
-            src={`linkedin.webp`}
-            alt="LinkedIn Logo"
-            height={24}
-            style={{ display: "block", margin: "0 auto" }}
-          />
+          <img src={`linkedin.webp`} alt="LinkedIn Logo" height={24} />
         </Link>
         <Link
           href={SITE.heading.github}
@@ -114,12 +130,7 @@ const Header = () => {
           variant="small"
           aria-label="GitHub"
         >
-          <img
-            src={`github.webp`}
-            alt="GitHub Logo"
-            height={24}
-            style={{ display: "block", margin: "0 auto" }}
-          />
+          <img src={`github.webp`} alt="GitHub Logo" height={24} />
         </Link>
       </div>
       {isDesktop && (
