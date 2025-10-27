@@ -5,7 +5,6 @@ import { SITE } from "@/lib/content";
 import { cardRootStyle } from "@/styles/styles";
 
 const Intro = () => {
-  // const { isMobile } = useBreakpointFlags();
   return (
     <Card.Root
       id="introduction"
@@ -48,7 +47,7 @@ const Intro = () => {
             }}
           >
             <Heading
-              title={`Hello ! I am ${SITE.heading.name}`}
+              title={`Hello ! I'm ${SITE.heading.name}`}
               type={"large"}
               headerElement={"h1"}
             />
