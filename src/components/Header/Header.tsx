@@ -98,7 +98,12 @@ const Header = () => {
           marginLeft: spacing(5),
         }}
       >
-        <a href="/CV_Vikram.pdf" target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
+        <a
+          href="/CV_Vikram.pdf"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ textDecoration: "none" }}
+        >
           <Button
             aria-label="Download CV"
             icon={{ name: "download" }}

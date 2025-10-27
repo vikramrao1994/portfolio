@@ -169,7 +169,7 @@ class Resume_Creator:
             tech_stack = [
                 [   
                     HyperlinkedImage("public/tech_stack.webp",None, 15, 15),
-                    self.generate_alignment_style("<b>%s</b>" % experience["tech_stack"], TA_LEFT, GENERAL_FONT_SIZE)
+                    self.generate_alignment_style("<b><i>%s</i></b>" % ', '.join(experience["tech_stack"]), TA_LEFT, GENERAL_FONT_SIZE)
                 ]
             ]
             summary = [

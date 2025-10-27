@@ -4,6 +4,7 @@ import { getDurationString, spacing } from "@/utils/utils";
 import { useBreakpointFlags } from "@/hooks/useBreakpoints";
 import {
   Accordion,
+  Badge,
   Body,
   Card,
   Grid,
@@ -123,26 +124,51 @@ const Work = () => {
               )}
             </Grid>
             <Grid style={{ marginBottom: spacing(2) }}>
-              <Accordion.Root
-                aria-label={`Key Responsibilities for ${work.title} at ${work.company}`}
-              >
-                <Accordion.Summary
-                  title={{
-                    textWrapper: "h3",
-                    title: "Key Responsibilities",
-                    variant: "small",
-                  }}
-                />
-                <Lists.Root
-                  size="small"
-                  type="bullet"
-                  style={{ marginBottom: spacing(2) }}
+              <Accordion.Group>
+                <Accordion.Root
+                  aria-label={`Technologies Used in ${work.title} at ${work.company}`}
                 >
-                  {work.summary.map((item, index) => (
-                    <Lists.Item key={index} text={item} />
-                  ))}
-                </Lists.Root>
-              </Accordion.Root>
+                  <Accordion.Summary
+                    title={{
+                      textWrapper: "h3",
+                      title: "Technologies Used",
+                      variant: "small",
+                    }}
+                  />
+                  <div style={{ marginBottom: spacing(2) }}>
+                    {work.tech_stack.map((tech, index) => (
+                      <Badge
+                        key={index}
+                        title={tech}
+                        variant="info"
+                        style={{
+                          margin: spacing(0.5),
+                        }}
+                      />
+                    ))}
+                  </div>
+                </Accordion.Root>
+                <Accordion.Root
+                  aria-label={`Key Responsibilities for ${work.title} at ${work.company}`}
+                >
+                  <Accordion.Summary
+                    title={{
+                      textWrapper: "h3",
+                      title: "Key Responsibilities",
+                      variant: "small",
+                    }}
+                  />
+                  <Lists.Root
+                    size="small"
+                    type="bullet"
+                    style={{ marginBottom: spacing(2) }}
+                  >
+                    {work.summary.map((item, index) => (
+                      <Lists.Item key={index} text={item} />
+                    ))}
+                  </Lists.Root>
+                </Accordion.Root>
+              </Accordion.Group>
             </Grid>
           </Fragment>
         ))}
