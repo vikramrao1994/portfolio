@@ -16,7 +16,8 @@
     "next": "16.0.0",
     "react": "19.2.0",
     "react-dom": "19.2.0",
-    "sass": "^1.93.2"
+    "sass": "^1.93.2",
+    "unzipper": "^0.12.3"
   },
   "devDependencies": {
     "@types/node": "^20",
@@ -25,7 +26,7 @@
     "babel-plugin-react-compiler": "^1.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.0.0",
-    "typescript": "^5",
-    "prettier": "^3.5.3"
+    "prettier": "^3.5.3",
+    "typescript": "^5"
   }
 }

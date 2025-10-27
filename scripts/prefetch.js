@@ -4,15 +4,15 @@ import https from "https";
 
 
 const url = "https://alpha-dog-9ce25.firebaseio.com/.json";
-const backgroundPicUrl = "https://firebasestorage.googleapis.com/v0/b/alpha-dog-9ce25.appspot.com/o/images%2Fbackground.webp?alt=media&token=d9fe754b-51e6-4138-841d-53a528c63136";
-const profilePicUrl = "https://firebasestorage.googleapis.com/v0/b/alpha-dog-9ce25.appspot.com/o/images%2Fprofilepic.webp?alt=media&token=4864fbac-64c4-4ab9-b032-0e4dc9a108d0";
+const assetsUrl = "https://firebasestorage.googleapis.com/v0/b/alpha-dog-9ce25.appspot.com/o/assets.zip?alt=media";
 const dest = "./src/data/data.json";
+const assetsZipPath = "./public/assets.zip";
 
 // Ensure the directories exist
 fs.mkdirSync('./src/data', { recursive: true });
 fs.mkdirSync('./public', { recursive: true });
 
-function fetchImage(url, outPath) {
+function fetchZip(url, outPath) {
   return new Promise((resolve, reject) => {
     https.get(url, (res) => {
       if (res.statusCode !== 200) return reject(new Error(`HTTP ${res.statusCode}`));
@@ -27,10 +27,14 @@ function fetchImage(url, outPath) {
   });
 }
 
-// Fetch images and JSON data
+
+// Download assets.zip and extract to public/
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
+const unzipper = require("unzipper");
+
 Promise.all([
-  fetchImage(backgroundPicUrl, './public/background.webp'),
-  fetchImage(profilePicUrl, './public/portrait.webp'),
+  fetchZip(assetsUrl, assetsZipPath),
   new Promise((resolve, reject) => {
     https.get(url, (res) => {
       if (res.statusCode !== 200) return reject(new Error(`HTTP ${res.statusCode}`));
@@ -51,7 +55,31 @@ Promise.all([
     }).on('error', reject);
   })
 ]).then(() => {
-  console.log('✅ All assets fetched and saved');
+  // Extract assets.zip with directory handling
+  unzipper.Open.file(assetsZipPath)
+    .then(d => Promise.all(d.files.map(file => {
+      const outPath = `./public/${file.path}`;
+      const dir = outPath.substring(0, outPath.lastIndexOf("/"));
+      if (dir && !fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+      return new Promise((resolve, reject) => {
+        file.stream()
+          .pipe(fs.createWriteStream(outPath))
+          .on('finish', () => {
+            console.log(`✅ Extracted: ${file.path}`);
+            resolve();
+          })
+          .on('error', reject);
+      });
+    })))
+    .then(() => {
+      fs.unlinkSync(assetsZipPath);
+      console.log("✅ All assets extracted to public/");
+    })
+    .catch(err => {
+      console.error("❌ Error extracting assets.zip:", err);
+    });
 }).catch((err) => {
   console.error('❌ Error fetching assets:', err);
 });

@@ -41,7 +41,4 @@ yarn-error.log*
 next-env.d.ts
 
 src/data/
-/public/background.webp
-/public/portrait.webp
-
-*.pdf
+/public
