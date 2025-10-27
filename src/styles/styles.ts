@@ -8,6 +8,7 @@ const cardRootStyle: React.CSSProperties = {
   backgroundColor: `rgba(255, 255, 255, 0.8)`,
   backdropFilter: `blur(${spacing(1.25)})`,
   zIndex: 1,
+  scrollMarginTop: spacing(10),
 };
 
 export { cardRootStyle };

@@ -5,7 +5,7 @@ import https from "https";
 
 const url = "https://alpha-dog-9ce25.firebaseio.com/.json";
 const backgroundPicUrl = "https://firebasestorage.googleapis.com/v0/b/alpha-dog-9ce25.appspot.com/o/images%2Fbackground.webp?alt=media&token=d9fe754b-51e6-4138-841d-53a528c63136";
-const profilePicUrl = "https://firebasestorage.googleapis.com/v0/b/alpha-dog-9ce25.appspot.com/o/images%2Fportrait.webp?alt=media&token=e2ae24f2-7dab-43cf-b42c-05746eac2ae1";
+const profilePicUrl = "https://firebasestorage.googleapis.com/v0/b/alpha-dog-9ce25.appspot.com/o/images%2Fprofilepic.webp?alt=media&token=4864fbac-64c4-4ab9-b032-0e4dc9a108d0";
 const dest = "./src/data/data.json";
 
 // Ensure the directories exist

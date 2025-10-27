@@ -287,7 +287,7 @@ class Resume_Creator:
         phone_image = HyperlinkedImage('public/phone.webp', None, 20,20)
         address_image = HyperlinkedImage('public/address.webp', None, 20, 20)
         email_image = HyperlinkedImage('public/mail.webp', None, 20, 20)
-        profile_picture = HyperlinkedImage('public/profilepic.webp', None, 60, 60)
+        profile_picture = HyperlinkedImage('public/portrait.webp', None, 60, 60)
         # name_heading = [
         #     [
         #         self.generate_alignment_style("<b>%s</b>" % self.input["heading"]["name"], TA_LEFT, NAME_FONT_SIZE),
@@ -385,4 +385,4 @@ class Resume_Creator:
         with open(self.file_name + ".pdf", "wb") as f:
             f.write(self.pdf_buffer.getbuffer())
             self.pdf_buffer.close();
-        print("save resume")
+        print("✅ CV generated successfully at %s.pdf" % self.file_name)
