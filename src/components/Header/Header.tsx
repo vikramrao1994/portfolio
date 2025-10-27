@@ -3,11 +3,12 @@
 import { SITE } from "@/lib/content";
 import { spacing } from "@/utils/utils";
 import { Button, Grid, Link } from "@publicplan/kern-react-kit";
+import { useState } from "react";
 import { useBreakpointFlags } from "@/hooks/useBreakpoints";
 
 const Header = () => {
   const { isDesktop } = useBreakpointFlags();
-
+  const [drawerOpen, setDrawerOpen] = useState(false);
   return (
     <Grid
       style={{
@@ -20,6 +21,54 @@ const Header = () => {
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: spacing(4) }}>
+        {
+          !isDesktop && (
+            <>
+              <Button
+                style={{marginTop: spacing(1)}}
+                icon={{
+                  name: 'more-vert',
+                  size: 'large',
+                }}
+                iconOnly
+                variant="tertiary"
+                onClick={() => setDrawerOpen(true)}
+              />
+              {drawerOpen && (
+                <div
+                  style={{
+                    position: "fixed",
+                    top: 0,
+                    left: 0,
+                    width: "70vw",
+                    maxWidth: 320,
+                    height: "100vh",
+                    background: "#fff",
+                    boxShadow: "2px 0 8px rgba(0,0,0,0.15)",
+                    zIndex: 1000,
+                    display: "flex",
+                    flexDirection: "column",
+                    padding: spacing(3),
+                  }}
+                >
+                  <Button
+                    icon={{ name: "close", size: "large" }}
+                    iconOnly
+                    variant="tertiary"
+                    style={{ alignSelf: "flex-end", marginBottom: spacing(2) }}
+                    onClick={() => setDrawerOpen(false)}
+                  />
+                  <nav style={{ display: "flex", flexDirection: "column", gap: spacing(2) }}>
+                    <Link href="#introduction" title="Intro" aria-label="Introduction Section" onClick={() => setDrawerOpen(false)} />
+                    <Link href="#work" title="Work" aria-label="Work Section" onClick={() => setDrawerOpen(false)} />
+                    <Link href="#skills" title="Skills" aria-label="Skills Section" onClick={() => setDrawerOpen(false)} />
+                    <Link href="#education" title="Education" aria-label="Education Section" onClick={() => setDrawerOpen(false)} />
+                  </nav>
+                </div>
+              )}
+            </>
+          )
+        }
         <Link
           href={`tel:${SITE.heading.phone}`}
           aria-label="Phone"
