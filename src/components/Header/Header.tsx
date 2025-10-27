@@ -82,16 +82,8 @@ const Header = () => {
             title="Intro"
             aria-label="Introduction Section"
           />
-          <Link
-            href="#work"
-            title="Work"
-            aria-label="Work Section"
-          />
-          <Link
-            href="#skills"
-            title="Skills"
-            aria-label="Skills Section"
-          />
+          <Link href="#work" title="Work" aria-label="Work Section" />
+          <Link href="#skills" title="Skills" aria-label="Skills Section" />
           <Link
             href="#education"
             title="Education"
@@ -106,13 +98,15 @@ const Header = () => {
           marginLeft: spacing(5),
         }}
       >
-        <Button
-          aria-label="Download CV"
-          icon={{ name: "download" }}
-          iconLeft
-          text={isDesktop ? "View CV" : "CV"}
-          variant="primary"
-        />
+        <a href="/CV_Vikram.pdf" target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
+          <Button
+            aria-label="Download CV"
+            icon={{ name: "download" }}
+            iconLeft
+            text={isDesktop ? "View CV" : "CV"}
+            variant="primary"
+          />
+        </a>
       </div>
     </Grid>
   );

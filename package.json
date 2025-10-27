@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "prebuild": "node scripts/prefetch.js",
+    "prebuild": "node scripts/prefetch.js && python3 scripts/cv/main.py",
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "npx serve out",

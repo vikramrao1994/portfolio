@@ -31,6 +31,14 @@ jobs:
     environment:
       name: github-pages
     steps:
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Python dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          pip3 install pillow reportlab python-dateutil
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Set up Node.js
