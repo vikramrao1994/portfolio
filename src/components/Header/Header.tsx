@@ -70,6 +70,8 @@ const Header = () => {
                   display: "flex",
                   flexDirection: "column",
                   gap: spacing(2),
+                  alignItems: "center",
+                  textAlign: "center",
                 }}
               >
                 <Link
