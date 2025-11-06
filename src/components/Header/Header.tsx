@@ -75,25 +75,25 @@ const Header = () => {
                 }}
               >
                 <Link
-                  href="#introduction"
+                  href="/#introduction"
                   title="Intro"
                   aria-label="Introduction Section"
                   onClick={() => setDrawerOpen(false)}
                 />
                 <Link
-                  href="#work"
+                  href="/#work"
                   title="Work"
                   aria-label="Work Section"
                   onClick={() => setDrawerOpen(false)}
                 />
                 <Link
-                  href="#skills"
+                  href="/#skills"
                   title="Skills"
                   aria-label="Skills Section"
                   onClick={() => setDrawerOpen(false)}
                 />
                 <Link
-                  href="#education"
+                  href="/#education"
                   title="Education"
                   aria-label="Education Section"
                   onClick={() => setDrawerOpen(false)}
@@ -134,20 +134,27 @@ const Header = () => {
         >
           <img src={`github.webp`} alt="GitHub Logo" height={24} />
         </Link>
+        <Link
+          href={'/photography'}
+          variant="small"
+          aria-label="Photographer"
+        >
+          <img src={`photographer.webp`} alt="Photographer Logo" height={28} />
+        </Link>
       </div>
       {isDesktop && (
         <nav
           style={{ display: "flex", justifyContent: "center", gap: spacing(3) }}
         >
           <Link
-            href="#introduction"
+            href="/#introduction"
             title="Intro"
             aria-label="Introduction Section"
           />
-          <Link href="#work" title="Work" aria-label="Work Section" />
-          <Link href="#skills" title="Skills" aria-label="Skills Section" />
+          <Link href="/#work" title="Work" aria-label="Work Section" />
+          <Link href="/#skills" title="Skills" aria-label="Skills Section" />
           <Link
-            href="#education"
+            href="/#education"
             title="Education"
             aria-label="Education Section"
           />

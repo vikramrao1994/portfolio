@@ -103,7 +103,7 @@ const Work = () => {
                     isBold
                     text={getDurationString(work.exact_duration)}
                     size={"small"}
-                    style={{textAlign:"right"}}
+                    style={{ textAlign: "right" }}
                   />
                 </div>
               )}
