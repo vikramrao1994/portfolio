@@ -7,7 +7,7 @@ import { useState } from "react";
 import { useBreakpointFlags } from "@/hooks/useBreakpoints";
 
 const Header = () => {
-  const { isDesktop } = useBreakpointFlags();
+  const { isDesktop, isMobile } = useBreakpointFlags();
   const [drawerOpen, setDrawerOpen] = useState(false);
   return (
     <Grid
@@ -24,7 +24,7 @@ const Header = () => {
         style={{
           display: "flex",
           alignItems: "center",
-          gap: isDesktop ? spacing(4) : spacing(2),
+          gap: isDesktop ? spacing(4) : spacing(1),
         }}
       >
         {!isDesktop && (
@@ -164,7 +164,7 @@ const Header = () => {
         style={{
           display: "flex",
           alignItems: "center",
-          marginLeft: spacing(5),
+          marginLeft: isMobile ? spacing(1) : spacing(5),
         }}
       >
         <a
