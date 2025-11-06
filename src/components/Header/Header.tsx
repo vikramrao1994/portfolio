@@ -24,84 +24,80 @@ const Header = () => {
         style={{
           display: "flex",
           alignItems: "center",
-          gap: isDesktop ? spacing(4) : spacing(1),
+          gap: isDesktop ? spacing(2) : spacing(1),
         }}
       >
-        {!isDesktop && (
-          <>
-            <Button
-              style={{ marginTop: spacing(1) }}
-              icon={{
-                name: "more-vert",
-                size: "large",
-              }}
-              iconOnly
-              variant="tertiary"
-              onClick={() => setDrawerOpen(true)}
+        <Button
+          style={{ marginTop: spacing(1) }}
+          icon={{
+            name: "more-vert",
+            size: "large",
+          }}
+          iconOnly
+          variant="tertiary"
+          onClick={() => setDrawerOpen(true)}
+        />
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "70vw",
+            maxWidth: 320,
+            height: "100vh",
+            background: "#fff",
+            boxShadow: "2px 0 8px rgba(0,0,0,0.15)",
+            zIndex: 1000,
+            display: "flex",
+            flexDirection: "column",
+            padding: spacing(3),
+            transform: drawerOpen ? "translateX(0)" : "translateX(-100%)",
+            transition: "transform 0.3s cubic-bezier(0.4,0,0.2,1)",
+            pointerEvents: drawerOpen ? "auto" : "none",
+          }}
+        >
+          <Button
+            icon={{ name: "close", size: "large" }}
+            iconOnly
+            variant="tertiary"
+            style={{ alignSelf: "flex-end", marginBottom: spacing(2) }}
+            onClick={() => setDrawerOpen(false)}
+          />
+          <nav
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: spacing(2),
+              alignItems: "center",
+              textAlign: "center",
+            }}
+          >
+            <Link
+              href="/#introduction"
+              title="Intro"
+              aria-label="Introduction Section"
+              onClick={() => setDrawerOpen(false)}
             />
-            <div
-              style={{
-                position: "fixed",
-                top: 0,
-                left: 0,
-                width: "70vw",
-                maxWidth: 320,
-                height: "100vh",
-                background: "#fff",
-                boxShadow: "2px 0 8px rgba(0,0,0,0.15)",
-                zIndex: 1000,
-                display: "flex",
-                flexDirection: "column",
-                padding: spacing(3),
-                transform: drawerOpen ? "translateX(0)" : "translateX(-100%)",
-                transition: "transform 0.3s cubic-bezier(0.4,0,0.2,1)",
-                pointerEvents: drawerOpen ? "auto" : "none",
-              }}
-            >
-              <Button
-                icon={{ name: "close", size: "large" }}
-                iconOnly
-                variant="tertiary"
-                style={{ alignSelf: "flex-end", marginBottom: spacing(2) }}
-                onClick={() => setDrawerOpen(false)}
-              />
-              <nav
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: spacing(2),
-                  alignItems: "center",
-                  textAlign: "center",
-                }}
-              >
-                <Link
-                  href="/#introduction"
-                  title="Intro"
-                  aria-label="Introduction Section"
-                  onClick={() => setDrawerOpen(false)}
-                />
-                <Link
-                  href="/#work"
-                  title="Work"
-                  aria-label="Work Section"
-                  onClick={() => setDrawerOpen(false)}
-                />
-                <Link
-                  href="/#skills"
-                  title="Skills"
-                  aria-label="Skills Section"
-                  onClick={() => setDrawerOpen(false)}
-                />
-                <Link
-                  href="/#education"
-                  title="Education"
-                  aria-label="Education Section"
-                  onClick={() => setDrawerOpen(false)}
-                />
-              </nav>
-            </div>
-          </>
-        )}
+            <Link
+              href="/#work"
+              title="Work"
+              aria-label="Work Section"
+              onClick={() => setDrawerOpen(false)}
+            />
+            <Link
+              href="/#skills"
+              title="Skills"
+              aria-label="Skills Section"
+              onClick={() => setDrawerOpen(false)}
+            />
+            <Link
+              href="/#education"
+              title="Education"
+              aria-label="Education Section"
+              onClick={() => setDrawerOpen(false)}
+            />
+          </nav>
+        </div>
         <Link
           href={`tel:${SITE.heading.phone}`}
           aria-label="Phone"
@@ -134,32 +130,10 @@ const Header = () => {
         >
           <img src={`github.webp`} alt="GitHub Logo" height={24} />
         </Link>
-        <Link
-          href={'/photography'}
-          variant="small"
-          aria-label="Photographer"
-        >
+        <Link href={"/photography"} variant="small" aria-label="Photographer">
           <img src={`photographer.webp`} alt="Photographer Logo" height={28} />
         </Link>
       </div>
-      {isDesktop && (
-        <nav
-          style={{ display: "flex", justifyContent: "center", gap: spacing(3) }}
-        >
-          <Link
-            href="/#introduction"
-            title="Intro"
-            aria-label="Introduction Section"
-          />
-          <Link href="/#work" title="Work" aria-label="Work Section" />
-          <Link href="/#skills" title="Skills" aria-label="Skills Section" />
-          <Link
-            href="/#education"
-            title="Education"
-            aria-label="Education Section"
-          />
-        </nav>
-      )}
       <div
         style={{
           display: "flex",

@@ -3,8 +3,11 @@ import { spacing } from "@/utils/utils";
 import { Body, Card, Heading } from "@publicplan/kern-react-kit";
 import { SITE } from "@/lib/content";
 import { cardRootStyle } from "@/styles/styles";
+import Counter from "../Counter";
+import { useBreakpointFlags } from "@/hooks/useBreakpoints";
 
 const Intro = () => {
+  const { isMobile } = useBreakpointFlags();
   return (
     <Card.Root
       id="introduction"
@@ -66,14 +69,68 @@ const Intro = () => {
         <Card.Footer
           style={{
             display: "flex",
+            flexDirection: "column",
             justifyContent: "center",
             alignItems: "center",
             gap: spacing(1),
             marginBottom: spacing(2),
           }}
         >
-          <img src="/address.webp" alt="Address Icon" width={24} height={24} />
-          <span style={{ marginLeft: spacing(1) }}>{SITE.heading.address}</span>
+          <div
+            style={{
+              display: "flex",
+              gap: isMobile ? spacing(4) : spacing(8),
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                padding: spacing(1),
+              }}
+            >
+              <span
+                style={{
+                  display: "inline-block",
+                  width: "3em",
+                  textAlign: "right",
+                }}
+              >
+                <Counter target={30} duration={4000} />
+              </span>
+              <Body
+                text="Age"
+                size="small"
+                style={{ marginLeft: spacing(2) }}
+              />
+            </div>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                padding: spacing(1),
+              }}
+            >
+              <span
+                style={{
+                  display: "inline-block",
+                  width: "3em",
+                  textAlign: "right",
+                }}
+              >
+                <Counter target={6} duration={2000} />
+              </span>
+              <Body
+                text="Years of Experience"
+                size="small"
+                style={{ marginLeft: spacing(2) }}
+              />
+            </div>
+          </div>
+          {/* <img src="/address.webp" alt="Address Icon" width={24} height={24} />
+          <span style={{ marginLeft: spacing(1) }}>{SITE.heading.address}</span> */}
         </Card.Footer>
       </Card.Container>
     </Card.Root>
