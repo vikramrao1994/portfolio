@@ -37,7 +37,7 @@ const Counter = ({ target, duration = 2000 }: CounterProps) => {
   }, [target, duration]);
 
   return (
-    <Heading headerElement="span" title={count.toString()} type="x-large"/>
+    <Heading headerElement="span" title={count.toString()} type="x-large" />
   );
 };
 

@@ -3,12 +3,25 @@
 import { SITE } from "@/lib/content";
 import { spacing } from "@/utils/utils";
 import { Button, Grid, Link } from "@publicplan/kern-react-kit";
-import { useState } from "react";
+import { JSX, useState } from "react";
 import { useBreakpointFlags } from "@/hooks/useBreakpoints";
 
 const Header = () => {
-  const { isDesktop, isMobile } = useBreakpointFlags();
+  const { isMobile } = useBreakpointFlags();
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const drawerButton: JSX.Element = (
+    <Button
+      style={{ marginTop: spacing(1) }}
+      icon={{
+        name: "more-vert",
+        size: "large",
+      }}
+      iconOnly
+      variant="tertiary"
+      onClick={() => setDrawerOpen(true)}
+    />
+  );
   return (
     <Grid
       style={{
@@ -24,19 +37,10 @@ const Header = () => {
         style={{
           display: "flex",
           alignItems: "center",
-          gap: isDesktop ? spacing(2) : spacing(1),
+          gap: spacing(2),
         }}
       >
-        <Button
-          style={{ marginTop: spacing(1) }}
-          icon={{
-            name: "more-vert",
-            size: "large",
-          }}
-          iconOnly
-          variant="tertiary"
-          onClick={() => setDrawerOpen(true)}
-        />
+        {!isMobile && drawerButton}
         <div
           style={{
             position: "fixed",
@@ -134,28 +138,7 @@ const Header = () => {
           <img src={`photographer.webp`} alt="Photographer Logo" height={28} />
         </Link>
       </div>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          marginLeft: isMobile ? spacing(1) : spacing(5),
-        }}
-      >
-        <a
-          href="/CV_Vikram.pdf"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ textDecoration: "none" }}
-        >
-          <Button
-            aria-label="Download CV"
-            icon={{ name: "download" }}
-            iconLeft
-            text={isDesktop ? "View CV" : "CV"}
-            variant="primary"
-          />
-        </a>
-      </div>
+      {isMobile && drawerButton}
     </Grid>
   );
 };

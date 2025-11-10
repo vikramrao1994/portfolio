@@ -1,13 +1,13 @@
 /* eslint-disable @next/next/no-img-element */
 import { spacing } from "@/utils/utils";
-import { Body, Card, Heading } from "@publicplan/kern-react-kit";
+import { Badge, Body, Button, Card, Heading } from "@publicplan/kern-react-kit";
 import { SITE } from "@/lib/content";
 import { cardRootStyle } from "@/styles/styles";
-import Counter from "../Counter";
+import Counter from "@/components/Counter";
 import { useBreakpointFlags } from "@/hooks/useBreakpoints";
 
 const Intro = () => {
-  const { isMobile } = useBreakpointFlags();
+  const { isMobile, isDesktop } = useBreakpointFlags();
   return (
     <Card.Root
       id="introduction"
@@ -56,29 +56,25 @@ const Intro = () => {
             />
             <img src="/smile.webp" alt="Smile Icon" width={50} height={50} />
           </div>
-          <Body
-            isBold
-            text={SITE.heading.headline}
-            size="small"
+          <Heading
+            headerElement="h3"
+            title={SITE.heading.subheadline}
+            type="small"
             style={{ textAlign: "center", width: "100%" }}
           />
-        </Card.Header>
-        <Card.Body style={{ textAlign: "center" }}>
-          {SITE.executive_summary}
-        </Card.Body>
-        <Card.Footer
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
-            gap: spacing(1),
-            marginBottom: spacing(2),
-          }}
-        >
+          <div style={{ display: "flex", justifyContent: "center", width: "100%", marginTop: spacing(1) }}>
+            <Badge
+              variant="info"
+              title="Open to opportunities"
+              showIcon={true}
+              aria-hidden={true}
+            />
+          </div>
           <div
             style={{
               display: "flex",
+              justifyContent: "center",
+              width: "100%",
               gap: isMobile ? spacing(4) : spacing(8),
             }}
           >
@@ -129,6 +125,36 @@ const Intro = () => {
               />
             </div>
           </div>
+        </Card.Header>
+        <Card.Body style={{ textAlign: "center" }}>
+          {SITE.executive_summary}
+        </Card.Body>
+        <Card.Footer
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: spacing(1),
+            marginBottom: spacing(2),
+          }}
+        >
+          
+          <a
+            href="/CV_Vikram.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ textDecoration: "none" }}
+          >
+            <Button
+              aria-label="Download CV"
+              icon={{ name: "download" }}
+              iconLeft
+              text={isDesktop ? "View CV" : "CV"}
+              variant="secondary"
+            />
+          </a>
+
           {/* <img src="/address.webp" alt="Address Icon" width={24} height={24} />
           <span style={{ marginLeft: spacing(1) }}>{SITE.heading.address}</span> */}
         </Card.Footer>
