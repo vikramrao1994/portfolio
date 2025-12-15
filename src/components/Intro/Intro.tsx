@@ -7,13 +7,13 @@ import Counter from "@/components/Counter";
 import { useBreakpointFlags } from "@/hooks/useBreakpoints";
 
 const Intro = () => {
-  const { isMobile, isDesktop } = useBreakpointFlags();
+  const { isMobile } = useBreakpointFlags();
   return (
     <Card.Root
       id="introduction"
       size="small"
       aria-label="Introduction"
-      style={cardRootStyle}
+      style={{ ...cardRootStyle, maxWidth: 500 }}
     >
       <Card.Container>
         <div
@@ -62,13 +62,47 @@ const Intro = () => {
             type="small"
             style={{ textAlign: "center", width: "100%" }}
           />
-          <div style={{ display: "flex", justifyContent: "center", width: "100%", marginTop: spacing(1) }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              width: "100%",
+              marginTop: spacing(1),
+            }}
+          >
             <Badge
               variant="info"
               title="Open to opportunities"
               showIcon={true}
               aria-hidden={true}
             />
+          </div>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "center",
+              width: "100%",
+              marginTop: spacing(2),
+            }}
+          >
+            <img
+              src="/address.webp"
+              alt="Address Icon"
+              width={24}
+              height={24}
+            />
+            <Body
+              isBold
+              style={{
+                marginLeft: spacing(1),
+                padding: 0,
+                textAlign: "center",
+              }}
+            >
+              {SITE.heading.address}
+            </Body>
           </div>
           <div
             style={{
@@ -126,9 +160,9 @@ const Intro = () => {
             </div>
           </div>
         </Card.Header>
-        <Card.Body style={{ textAlign: "center" }}>
+        {/* <Card.Body style={{ textAlign: "center" }}>
           {SITE.executive_summary}
-        </Card.Body>
+        </Card.Body> */}
         <Card.Footer
           style={{
             display: "flex",
@@ -139,24 +173,24 @@ const Intro = () => {
             marginBottom: spacing(2),
           }}
         >
-          
           <a
             href="/CV_Vikram.pdf"
             target="_blank"
             rel="noopener noreferrer"
-            style={{ textDecoration: "none" }}
+            style={{
+              textDecoration: "none",
+              width: isMobile ? "100%" : "auto",
+            }}
           >
             <Button
               aria-label="Download CV"
               icon={{ name: "download" }}
+              isBlock={isMobile}
               iconLeft
-              text={isDesktop ? "View CV" : "CV"}
+              text={"View CV"}
               variant="secondary"
             />
           </a>
-
-          {/* <img src="/address.webp" alt="Address Icon" width={24} height={24} />
-          <span style={{ marginLeft: spacing(1) }}>{SITE.heading.address}</span> */}
         </Card.Footer>
       </Card.Container>
     </Card.Root>
