@@ -13,7 +13,7 @@ const Intro = () => {
       id="introduction"
       size="small"
       aria-label="Introduction"
-      style={{ ...cardRootStyle, height: 'inherit' }}
+      style={cardRootStyle}
     >
       <Card.Container>
         <div
