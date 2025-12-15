@@ -9,12 +9,10 @@ const Home = () => {
   return (
     <Grid.Root>
       <Grid.Row>
-        <Grid.Column>
+        <Grid.Column width={4} breakpoint="lg">
           <Intro />
         </Grid.Column>
-      </Grid.Row>
-      <Grid.Row>
-        <Grid.Column>
+        <Grid.Column width={8} breakpoint="lg">
           <Work />
         </Grid.Column>
       </Grid.Row>
