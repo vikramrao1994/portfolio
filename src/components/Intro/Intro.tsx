@@ -16,6 +16,15 @@ const Intro = () => {
       style={cardRootStyle}
     >
       <Card.Container>
+        <div style={{ position: "relative", width: "100%" }}>
+          <img
+            alt="clip"
+            src="/clip.webp"
+            width={30}
+            height={30}
+            style={{ position: "absolute", top: 0, right: 0, zIndex: 2 }}
+          />
+        </div>
         <div
           style={{
             display: "flex",

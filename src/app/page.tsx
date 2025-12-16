@@ -11,7 +11,7 @@ const Home = () => {
   const { isDesktop } = useBreakpointFlags();
   return (
     <Grid.Root>
-      <Grid.Row>
+      <Grid.Row {...(isDesktop && { style: { margin: "0 auto" } })}>
         <Grid.Column
           width={4}
           breakpoint="lg"
