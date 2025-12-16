@@ -2,9 +2,52 @@
 "use client";
 import { SITE } from "@/lib/content";
 import { spacing } from "@/utils/utils";
-import { Button, Grid, Link } from "@publicplan/kern-react-kit";
-import { useEffect, useState } from "react";
+import { Body, Button, Grid, Link } from "@publicplan/kern-react-kit";
+import { useEffect, useRef, useState } from "react";
 import { useBreakpointFlags } from "@/hooks/useBreakpoints";
+interface StickyBarProps {
+  show: boolean;
+}
+
+
+const StickyBar = ({ show }: StickyBarProps) => (
+  <div
+    style={{
+      display: show ? "flex" : "none",
+      alignItems: "center",
+      justifyContent: "space-between",
+      paddingTop: spacing(2),
+      paddingBottom: 0,
+      paddingLeft: spacing(2),
+      paddingRight: spacing(2),
+    }}
+  >
+    <div style={{ display: "flex", alignItems: "center", gap: spacing(1) }}>
+      <img
+        alt="Profile"
+        src="/portrait.webp"
+        width={40}
+        height={40}
+        style={{ borderRadius: "50%", border: "2px solid #e0e0e0", objectFit: "cover" }}
+      />
+      <Body isBold>{SITE.heading.name}</Body>
+    </div>
+    <a
+      href="/CV_Vikram.pdf"
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{ textDecoration: "none" }}
+    >
+      <Button
+        aria-label="Download CV"
+        icon={{ name: "download" }}
+        iconLeft
+        text={"CV"}
+        variant="secondary"
+      />
+    </a>
+  </div>
+);
 
 interface DrawerProps {
   open: boolean;
@@ -122,65 +165,83 @@ const DrawerButton = ({ onClick }: DrawerButtonProps) => (
 const Header = () => {
   const { isMobile } = useBreakpointFlags();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [showSticky, setShowSticky] = useState(false);
+  const introRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (!isMobile) return;
+    // Find the intro card by id
+    introRef.current = document.getElementById("introduction");
+    const handleScroll = () => {
+      if (!introRef.current) return;
+      const rect = introRef.current.getBoundingClientRect();
+      setShowSticky(rect.top + rect.height < 0);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [isMobile]);
 
   return (
-    <Grid
-      style={{
-        height: spacing(5),
-        padding: 0,
-        display: "flex",
-        width: "100%",
-        justifyContent: "space-between",
-        alignItems: "center",
-      }}
-    >
-      <div
+    <>
+      <Grid
         style={{
+          height: spacing(5),
+          padding: 0,
           display: "flex",
+          width: "100%",
+          justifyContent: "space-between",
           alignItems: "center",
-          gap: spacing(2),
         }}
       >
-        {!isMobile && <DrawerButton onClick={() => setDrawerOpen(true)} />}
-        <Drawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
-        <Link
-          href={`tel:${SITE.heading.phone}`}
-          aria-label="Phone"
-          target="_blank"
-          variant="small"
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: spacing(2),
+          }}
         >
-          <img src={`phone.webp`} alt="Phone Logo" height={24} />
-        </Link>
-        <Link
-          href={`mailto:${SITE.heading.email}`}
-          target="_blank"
-          variant="small"
-          aria-label="Email"
-        >
-          <img src={`mail.webp`} alt="Email Logo" height={24} />
-        </Link>
-        <Link
-          href={SITE.heading.linkedin}
-          target="_blank"
-          variant="small"
-          aria-label="LinkedIn"
-        >
-          <img src={`linkedin.webp`} alt="LinkedIn Logo" height={24} />
-        </Link>
-        <Link
-          href={SITE.heading.github}
-          target="_blank"
-          variant="small"
-          aria-label="GitHub"
-        >
-          <img src={`github.webp`} alt="GitHub Logo" height={24} />
-        </Link>
-        <Link href={"/photography"} variant="small" aria-label="Photographer">
-          <img src={`photographer.webp`} alt="Photographer Logo" height={28} />
-        </Link>
-      </div>
-      {isMobile && <DrawerButton onClick={() => setDrawerOpen(true)} />}
-    </Grid>
+          {!isMobile && <DrawerButton onClick={() => setDrawerOpen(true)} />}
+          <Drawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
+          <Link
+            href={`tel:${SITE.heading.phone}`}
+            aria-label="Phone"
+            target="_blank"
+            variant="small"
+          >
+            <img src={`phone.webp`} alt="Phone Logo" height={24} />
+          </Link>
+          <Link
+            href={`mailto:${SITE.heading.email}`}
+            target="_blank"
+            variant="small"
+            aria-label="Email"
+          >
+            <img src={`mail.webp`} alt="Email Logo" height={24} />
+          </Link>
+          <Link
+            href={SITE.heading.linkedin}
+            target="_blank"
+            variant="small"
+            aria-label="LinkedIn"
+          >
+            <img src={`linkedin.webp`} alt="LinkedIn Logo" height={24} />
+          </Link>
+          <Link
+            href={SITE.heading.github}
+            target="_blank"
+            variant="small"
+            aria-label="GitHub"
+          >
+            <img src={`github.webp`} alt="GitHub Logo" height={24} />
+          </Link>
+          <Link href={"/photography"} variant="small" aria-label="Photographer">
+            <img src={`photographer.webp`} alt="Photographer Logo" height={28} />
+          </Link>
+        </div>
+        {isMobile && <DrawerButton onClick={() => setDrawerOpen(true)} />}
+      </Grid>
+      {isMobile && <StickyBar show={showSticky} />}
+    </>
   );
 };
 
