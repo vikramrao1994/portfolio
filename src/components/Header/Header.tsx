@@ -7,19 +7,17 @@ import { useEffect, useRef, useState } from "react";
 import { useBreakpointFlags } from "@/hooks/useBreakpoints";
 interface StickyBarProps {
   show: boolean;
+  onClick: () => void;
 }
 
-
-const StickyBar = ({ show }: StickyBarProps) => (
+const StickyBar = ({ show, onClick }: StickyBarProps) => (
   <div
     style={{
       display: show ? "flex" : "none",
       alignItems: "center",
       justifyContent: "space-between",
-      paddingTop: spacing(2),
-      paddingBottom: 0,
+      paddingBottom: spacing(2),
       paddingLeft: spacing(2),
-      paddingRight: spacing(2),
     }}
   >
     <div style={{ display: "flex", alignItems: "center", gap: spacing(1) }}>
@@ -28,24 +26,15 @@ const StickyBar = ({ show }: StickyBarProps) => (
         src="/portrait.webp"
         width={40}
         height={40}
-        style={{ borderRadius: "50%", border: "2px solid #e0e0e0", objectFit: "cover" }}
+        style={{
+          borderRadius: "50%",
+          border: "2px solid #e0e0e0",
+          objectFit: "cover",
+        }}
       />
       <Body isBold>{SITE.heading.name}</Body>
     </div>
-    <a
-      href="/CV_Vikram.pdf"
-      target="_blank"
-      rel="noopener noreferrer"
-      style={{ textDecoration: "none" }}
-    >
-      <Button
-        aria-label="Download CV"
-        icon={{ name: "download" }}
-        iconLeft
-        text={"CV"}
-        variant="secondary"
-      />
-    </a>
+    <DrawerButton onClick={onClick} />
   </div>
 );
 
@@ -183,6 +172,9 @@ const Header = () => {
 
   return (
     <>
+      {isMobile && (
+        <StickyBar show={showSticky} onClick={() => setDrawerOpen(true)} />
+      )}
       <Grid
         style={{
           height: spacing(5),
@@ -195,6 +187,7 @@ const Header = () => {
       >
         <div
           style={{
+            paddingLeft: isMobile ? spacing(3) : undefined,
             display: "flex",
             alignItems: "center",
             gap: spacing(2),
@@ -235,12 +228,32 @@ const Header = () => {
             <img src={`github.webp`} alt="GitHub Logo" height={24} />
           </Link>
           <Link href={"/photography"} variant="small" aria-label="Photographer">
-            <img src={`photographer.webp`} alt="Photographer Logo" height={28} />
+            <img
+              src={`photographer.webp`}
+              alt="Photographer Logo"
+              height={28}
+            />
           </Link>
         </div>
-        {isMobile && <DrawerButton onClick={() => setDrawerOpen(true)} />}
+        {isMobile && !showSticky && (
+          <DrawerButton onClick={() => setDrawerOpen(true)} />
+        )}
+        {isMobile && showSticky && (
+          <a
+            href="/CV_Vikram.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ marginRight: spacing(2) }}
+          >
+            <Button
+              aria-label="Download CV"
+              icon={{ name: "download" }}
+              iconOnly
+              variant="secondary"
+            />
+          </a>
+        )}
       </Grid>
-      {isMobile && <StickyBar show={showSticky} />}
     </>
   );
 };
