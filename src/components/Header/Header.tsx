@@ -3,12 +3,24 @@
 import { SITE } from "@/lib/content";
 import { spacing } from "@/utils/utils";
 import { Body, Button, Grid, Link } from "@publicplan/kern-react-kit";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useBreakpointFlags } from "@/hooks/useBreakpoints";
+
 interface StickyBarProps {
   show: boolean;
   onClick: () => void;
 }
+
+const DrawerButton = ({ onClick }: { onClick: () => void }) => (
+  <Button
+    style={{ marginTop: spacing(1) }}
+    icon={{ name: "more-vert", size: "large" }}
+    iconOnly
+    variant="tertiary"
+    aria-label="Open menu"
+    onClick={onClick}
+  />
+);
 
 const StickyBar = ({ show, onClick }: StickyBarProps) => (
   <div
@@ -45,14 +57,21 @@ interface DrawerProps {
 
 const Drawer = ({ open, onClose }: DrawerProps) => {
   useEffect(() => {
-    if (open) {
-      if (typeof window != "undefined" && window.document) {
-        document.body.style.overflowY = "hidden";
-      }
-    } else {
-      document.body.style.overflowY = "auto";
-    }
+    const prev = document.body.style.overflowY;
+    document.body.style.overflowY = open ? "hidden" : prev || "auto";
+    return () => {
+      document.body.style.overflowY = prev || "auto";
+    };
   }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [open, onClose]);
 
   return (
     <>
@@ -70,9 +89,13 @@ const Drawer = ({ open, onClose }: DrawerProps) => {
           zIndex: 999,
         }}
         onClick={onClose}
+        aria-hidden={!open}
       />
-      {/* Drawer */}
+
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-hidden={!open}
         style={{
           position: "fixed",
           top: 0,
@@ -95,9 +118,11 @@ const Drawer = ({ open, onClose }: DrawerProps) => {
           icon={{ name: "close", size: "large" }}
           iconOnly
           variant="tertiary"
+          aria-label="Close menu"
           style={{ alignSelf: "flex-end", marginBottom: spacing(2) }}
           onClick={onClose}
         />
+
         <nav
           style={{
             display: "flex",
@@ -137,37 +162,24 @@ const Drawer = ({ open, onClose }: DrawerProps) => {
   );
 };
 
-interface DrawerButtonProps {
-  onClick: () => void;
-}
-
-const DrawerButton = ({ onClick }: DrawerButtonProps) => (
-  <Button
-    style={{ marginTop: spacing(1) }}
-    icon={{ name: "more-vert", size: "large" }}
-    iconOnly
-    variant="tertiary"
-    onClick={onClick}
-  />
-);
-
 const Header = () => {
   const { isMobile } = useBreakpointFlags();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [showSticky, setShowSticky] = useState(false);
-  const introRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     if (!isMobile) return;
-    // Find the intro card by id
-    introRef.current = document.getElementById("introduction");
-    const handleScroll = () => {
-      if (!introRef.current) return;
-      const rect = introRef.current.getBoundingClientRect();
-      setShowSticky(rect.top + rect.height < 0);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+
+    const el = document.getElementById("introduction");
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setShowSticky(!entry.isIntersecting),
+      { threshold: 0 },
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
   }, [isMobile]);
 
   return (
@@ -201,7 +213,7 @@ const Header = () => {
             target="_blank"
             variant="small"
           >
-            <img src={`phone.webp`} alt="Phone Logo" height={24} />
+            <img src="phone.webp" alt="Phone Logo" height={24} />
           </Link>
           <Link
             href={`mailto:${SITE.heading.email}`}
@@ -209,7 +221,7 @@ const Header = () => {
             variant="small"
             aria-label="Email"
           >
-            <img src={`mail.webp`} alt="Email Logo" height={24} />
+            <img src="mail.webp" alt="Email Logo" height={24} />
           </Link>
           <Link
             href={SITE.heading.linkedin}
@@ -217,7 +229,7 @@ const Header = () => {
             variant="small"
             aria-label="LinkedIn"
           >
-            <img src={`linkedin.webp`} alt="LinkedIn Logo" height={24} />
+            <img src="linkedin.webp" alt="LinkedIn Logo" height={24} />
           </Link>
           <Link
             href={SITE.heading.github}
@@ -225,34 +237,30 @@ const Header = () => {
             variant="small"
             aria-label="GitHub"
           >
-            <img src={`github.webp`} alt="GitHub Logo" height={24} />
+            <img src="github.webp" alt="GitHub Logo" height={24} />
           </Link>
-          <Link href={"/photography"} variant="small" aria-label="Photographer">
-            <img
-              src={`photographer.webp`}
-              alt="Photographer Logo"
-              height={28}
-            />
+          <Link href="/photography" variant="small" aria-label="Photographer">
+            <img src="photographer.webp" alt="Photographer Logo" height={28} />
           </Link>
         </div>
-        {isMobile && !showSticky && (
-          <DrawerButton onClick={() => setDrawerOpen(true)} />
-        )}
-        {isMobile && showSticky && (
-          <a
-            href="/CV_Vikram.pdf"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ marginRight: spacing(2) }}
-          >
-            <Button
-              aria-label="Download CV"
-              icon={{ name: "download" }}
-              iconOnly
-              variant="secondary"
-            />
-          </a>
-        )}
+        {isMobile &&
+          (showSticky ? (
+            <a
+              href="/CV_Vikram.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ marginRight: spacing(2) }}
+            >
+              <Button
+                aria-label="Download CV"
+                icon={{ name: "download" }}
+                iconOnly
+                variant="secondary"
+              />
+            </a>
+          ) : (
+            <DrawerButton onClick={() => setDrawerOpen(true)} />
+          ))}
       </Grid>
     </>
   );
