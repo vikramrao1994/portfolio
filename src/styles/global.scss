@@ -1,5 +1,24 @@
 @import '@publicplan/kern-react-kit/index.css';
 
+html, body {
+  min-height: 100vh;
+  height: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  flex: 1 0 auto;
+}
+
+footer {
+  flex-shrink: 0;
+}
+
 /* app/globals.css */
 .hero {
   background-image: url("/background.webp");
@@ -20,7 +39,6 @@
   background-color: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(10px);
   padding: 16px;
-  // box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   position: fixed;
   top: 0;
   z-index: 100;
@@ -36,29 +54,4 @@
 .kern-body-custom {
   margin-top: 80px; /* Adjust based on header height */
   background-color: transparent;
-}
-
-.body {
-  margin: 0 auto;
-}
-
-.typing {
-  display: inline-block;
-  overflow: hidden;
-  border-right: 3px solid #8ec5fc; /* the cursor */
-  white-space: nowrap;
-  animation:
-    typing 3.2s steps(40, end),
-    blink 0.75s step-end infinite;
-}
-
-/* typing the text */
-@keyframes typing {
-  from { width: 0; }
-  to   { width: 100%; }
-}
-
-/* blinking cursor */
-@keyframes blink {
-  50% { border-color: transparent; }
 }
