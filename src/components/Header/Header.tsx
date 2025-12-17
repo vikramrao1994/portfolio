@@ -5,6 +5,7 @@ import { spacing } from "@/utils/utils";
 import { Body, Button, Grid, Link } from "@publicplan/kern-react-kit";
 import { useEffect, useState } from "react";
 import { useBreakpointFlags } from "@/hooks/useBreakpoints";
+import { usePathname } from "next/navigation";
 
 interface StickyBarProps {
   show: boolean;
@@ -166,9 +167,12 @@ const Header = () => {
   const { isMobile } = useBreakpointFlags();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [showSticky, setShowSticky] = useState(false);
+  const pathname = usePathname();
+
+  const isPhotographyPage: boolean = pathname === "/photography";
 
   useEffect(() => {
-    if (!isMobile) return;
+    if (!isMobile || isPhotographyPage) return;
 
     const el = document.getElementById("introduction");
     if (!el) return;
@@ -180,7 +184,7 @@ const Header = () => {
 
     observer.observe(el);
     return () => observer.disconnect();
-  }, [isMobile]);
+  }, [isMobile, isPhotographyPage]);
 
   return (
     <>
@@ -223,25 +227,46 @@ const Header = () => {
           >
             <img src="mail.webp" alt="Email Logo" height={24} />
           </Link>
-          <Link
-            href={SITE.heading.linkedin}
-            target="_blank"
-            variant="small"
-            aria-label="LinkedIn"
-          >
-            <img src="linkedin.webp" alt="LinkedIn Logo" height={24} />
-          </Link>
-          <Link
-            href={SITE.heading.github}
-            target="_blank"
-            variant="small"
-            aria-label="GitHub"
-          >
-            <img src="github.webp" alt="GitHub Logo" height={24} />
-          </Link>
-          <Link href="/photography" variant="small" aria-label="Photographer">
-            <img src="photographer.webp" alt="Photographer Logo" height={28} />
-          </Link>
+          {isPhotographyPage ? (
+            <Link
+              href={SITE.heading.instagram}
+              target="_blank"
+              variant="small"
+              aria-label="Instagram"
+            >
+              <img src="instagram.webp" alt="Instagram Logo" height={30} />
+            </Link>
+          ) : (
+            <>
+              <Link
+                href={SITE.heading.linkedin}
+                target="_blank"
+                variant="small"
+                aria-label="LinkedIn"
+              >
+                <img src="linkedin.webp" alt="LinkedIn Logo" height={24} />
+              </Link>
+              <Link
+                href={SITE.heading.github}
+                target="_blank"
+                variant="small"
+                aria-label="GitHub"
+              >
+                <img src="github.webp" alt="GitHub Logo" height={24} />
+              </Link>
+              <Link
+                href="/photography"
+                variant="small"
+                aria-label="Photographer"
+              >
+                <img
+                  src="photographer.webp"
+                  alt="Photographer Logo"
+                  height={28}
+                />
+              </Link>
+            </>
+          )}
         </div>
         {isMobile &&
           (showSticky ? (
