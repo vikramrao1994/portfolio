@@ -244,7 +244,7 @@ const Header = () => {
                 variant="small"
                 aria-label="LinkedIn"
               >
-                <ExportedImage src="linkedin.webp" alt="LinkedIn Logo" height={24} width={24} />
+                <ExportedImage src="linkedin.webp" alt="LinkedIn Logo" height={24} width={28} />
               </Link>
               <Link
                 href={SITE.heading.github}
