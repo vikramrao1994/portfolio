@@ -1,9 +1,9 @@
-/* eslint-disable @next/next/no-img-element */
 // import { useBreakpointFlags } from "@/hooks/useBreakpoints";
 import { SITE } from "@/lib/content";
 import { cardRootStyle } from "@/styles/styles";
 import { spacing } from "@/utils/utils";
 import { Body, Card, Heading } from "@publicplan/kern-react-kit";
+import ExportedImage from "next-image-export-optimizer";
 
 const Skills = () => {
   // const { isMobile } = useBreakpointFlags();
@@ -25,7 +25,7 @@ const Skills = () => {
               width: "100%",
             }}
           >
-            <img
+            <ExportedImage
               src="/tech_stack.webp"
               alt="Skills Icon"
               width={50}

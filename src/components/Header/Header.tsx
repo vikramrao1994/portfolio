@@ -1,8 +1,8 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 import { SITE } from "@/lib/content";
 import { spacing } from "@/utils/utils";
 import { Body, Button, Grid, Link } from "@publicplan/kern-react-kit";
+import ExportedImage from "next-image-export-optimizer";
 import { useEffect, useState } from "react";
 import { useBreakpointFlags } from "@/hooks/useBreakpoints";
 import { usePathname } from "next/navigation";
@@ -34,7 +34,7 @@ const StickyBar = ({ show, onClick }: StickyBarProps) => (
     }}
   >
     <div style={{ display: "flex", alignItems: "center", gap: spacing(1) }}>
-      <img
+      <ExportedImage
         alt="Profile"
         src="/portrait.webp"
         width={40}
@@ -217,7 +217,7 @@ const Header = () => {
             target="_blank"
             variant="small"
           >
-            <img src="phone.webp" alt="Phone Logo" height={24} />
+            <ExportedImage src="phone.webp" alt="Phone Logo" height={24} width={24} />
           </Link>
           <Link
             href={`mailto:${SITE.heading.email}`}
@@ -225,7 +225,7 @@ const Header = () => {
             variant="small"
             aria-label="Email"
           >
-            <img src="mail.webp" alt="Email Logo" height={24} />
+            <ExportedImage src="mail.webp" alt="Email Logo" height={24} width={24} />
           </Link>
           {isPhotographyPage ? (
             <Link
@@ -234,7 +234,7 @@ const Header = () => {
               variant="small"
               aria-label="Instagram"
             >
-              <img src="instagram.webp" alt="Instagram Logo" height={30} />
+              <ExportedImage src="instagram.webp" alt="Instagram Logo" height={30} width={30} />
             </Link>
           ) : (
             <>
@@ -244,7 +244,7 @@ const Header = () => {
                 variant="small"
                 aria-label="LinkedIn"
               >
-                <img src="linkedin.webp" alt="LinkedIn Logo" height={24} />
+                <ExportedImage src="linkedin.webp" alt="LinkedIn Logo" height={24} width={24} />
               </Link>
               <Link
                 href={SITE.heading.github}
@@ -252,17 +252,18 @@ const Header = () => {
                 variant="small"
                 aria-label="GitHub"
               >
-                <img src="github.webp" alt="GitHub Logo" height={24} />
+                <ExportedImage src="github.webp" alt="GitHub Logo" height={24} width={24} />
               </Link>
               <Link
                 href="/photography"
                 variant="small"
                 aria-label="Photographer"
               >
-                <img
+                <ExportedImage
                   src="photographer.webp"
                   alt="Photographer Logo"
                   height={28}
+                  width={28}
                 />
               </Link>
             </>

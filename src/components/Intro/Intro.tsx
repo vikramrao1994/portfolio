@@ -1,6 +1,6 @@
-/* eslint-disable @next/next/no-img-element */
 import { spacing } from "@/utils/utils";
 import { Badge, Body, Button, Card, Heading } from "@publicplan/kern-react-kit";
+import ExportedImage from "next-image-export-optimizer";
 import { SITE } from "@/lib/content";
 import { cardRootStyle } from "@/styles/styles";
 import Counter from "@/components/Counter";
@@ -17,7 +17,7 @@ const Intro = () => {
     >
       <Card.Container>
         <div style={{ position: "relative", width: "100%" }}>
-          <img
+          <ExportedImage
             alt="clip"
             src="/clip.webp"
             width={30}
@@ -34,7 +34,7 @@ const Intro = () => {
             margin: `${spacing(2)}px 0`,
           }}
         >
-          <img
+          <ExportedImage
             alt="Profile"
             src="/portrait.webp"
             width={180}
@@ -44,7 +44,7 @@ const Intro = () => {
               border: "6px solid #e0e0e0",
               boxShadow: "0 0 0 8px #f5f5f5, 0 4px 24px rgba(0,0,0,0.08)",
               objectFit: "cover",
-              background: "linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)",
+              backgroundImage: "linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)",
             }}
           />
         </div>
@@ -63,7 +63,7 @@ const Intro = () => {
               type={"large"}
               headerElement={"h1"}
             />
-            <img src="/smile.webp" alt="Smile Icon" width={50} height={50} />
+            <ExportedImage src="/smile.webp" alt="Smile Icon" width={50} height={50} />
           </div>
           <Heading
             headerElement="h3"
@@ -96,7 +96,7 @@ const Intro = () => {
               marginTop: spacing(2),
             }}
           >
-            <img
+            <ExportedImage
               src="/address.webp"
               alt="Address Icon"
               width={24}

@@ -1,6 +1,6 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 import { useBreakpointFlags } from "@/hooks/useBreakpoints";
+import ExportedImage from "next-image-export-optimizer";
 import { SITE } from "@/lib/content";
 import { cardRootStyle } from "@/styles/styles";
 import { spacing } from "@/utils/utils";
@@ -26,7 +26,7 @@ const Education = () => {
               width: "100%",
             }}
           >
-            <img
+            <ExportedImage
               src="/school.webp"
               alt="Education Icon"
               width={50}
@@ -46,7 +46,7 @@ const Education = () => {
               justifyContent: isDesktop ? "space-between" : "flex-start",
             }}
           >
-            <img src={edu.logo} alt={edu.degree} height={70} width={60} />
+            <ExportedImage src={edu.logo} alt={edu.degree} height={70} width={60} />
             <div style={{ display: "flex", flexDirection: "column" }}>
               <Body isBold text={edu.degree} />
               <Body text={edu.course} size={"small"} />

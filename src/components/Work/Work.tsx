@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 import { SITE } from "@/lib/content";
 import { getDurationString, spacing } from "@/utils/utils";
 import { useBreakpointFlags } from "@/hooks/useBreakpoints";
@@ -14,6 +13,7 @@ import {
 } from "@publicplan/kern-react-kit";
 import { Fragment } from "react";
 import { cardRootStyle } from "@/styles/styles";
+import ExportedImage from "next-image-export-optimizer";
 
 const Work = () => {
   const { isDesktop } = useBreakpointFlags();
@@ -35,7 +35,7 @@ const Work = () => {
               width: "100%",
             }}
           >
-            <img src="/work.webp" alt="Work Icon" width={50} height={50} />
+            <ExportedImage src="/work.webp" alt="Work Icon" width={50} height={50} />
             <Heading
               title={"Work Experience"}
               type={"medium"}
@@ -57,7 +57,7 @@ const Work = () => {
               }}
             >
               {isDesktop && (
-                <img src={work.logo} alt={work.title} height={70} width={70} />
+                <ExportedImage src={work.logo} alt={work.title} height={70} width={70} />
               )}
               <div
                 style={{
@@ -115,7 +115,7 @@ const Work = () => {
                     width: "20%",
                   }}
                 >
-                  <img
+                  <ExportedImage
                     src={work.logo}
                     alt={work.title}
                     height={70}
