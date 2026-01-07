@@ -20,7 +20,7 @@ const Footer = () => {
         variant="small"
       />
       <Preline
-        text={`Built with Next.js v${pkg.dependencies.next} & TypeScript · Deployed on Github Pages`}
+        text={`Built with Next.js v${pkg.dependencies.next.replace("^", "")} & TypeScript · Deployed on Github Pages`}
         style={{ textAlign: "center" }}
         variant="small"
       />
