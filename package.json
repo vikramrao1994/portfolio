@@ -17,8 +17,7 @@
     "next-image-export-optimizer": "^1.20.1",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "sass": "^1.93.2",
-    "unzipper": "^0.12.3"
+    "sass": "^1.93.2"
   },
   "devDependencies": {
     "@types/node": "^20",
@@ -29,6 +28,7 @@
     "eslint": "^9",
     "eslint-config-next": "^16.1.1",
     "prettier": "^3.5.3",
-    "typescript": "^5"
+    "typescript": "^5",
+    "unzipper": "^0.12.3"
   }
 }

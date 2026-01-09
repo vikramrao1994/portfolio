@@ -35,10 +35,19 @@ You can jump to any section using anchor links:
 
 ## Getting Started
 
-Run the development server:
+
+## Installation
+
+Install dependencies with [Bun](https://bun.sh):
 
 ```bash
-npm run dev
+bun install
+```
+
+## Run the development server
+
+```bash
+bun run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
@@ -49,7 +58,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 Before building, the app fetches remote data and images, saves them to `src/data/data.json` and `public/`, and generates a PDF CV using a Python script:
 
 ```bash
-npm run prebuild
+bun run prebuild
 ```
 
 This step uses environment variables from `.env` for all remote URLs. Images are converted from webp to png in memory for PDF generation.
