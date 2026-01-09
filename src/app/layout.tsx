@@ -1,10 +1,6 @@
 import type { Metadata } from "next";
-
-import Footer from "@/components/Footer";
-import Header from "@/components/Header";
 import "@/styles/global.scss";
-
-import { BodyProvider, FooterProvider, HeaderProvider } from "./providers";
+import { PageProvider } from "./providers";
 
 export const metadata: Metadata = {
   title: "CV | Vikram Rao",
@@ -43,19 +39,7 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="hero">
-        <header>
-          <HeaderProvider>
-            <Header />
-          </HeaderProvider>
-        </header>
-        <main>
-          <BodyProvider>{children}</BodyProvider>
-        </main>
-        <footer>
-          <FooterProvider>
-            <Footer />
-          </FooterProvider>
-        </footer>
+        <PageProvider>{children}</PageProvider>
       </body>
     </html>
   );

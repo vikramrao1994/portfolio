@@ -2,7 +2,7 @@ import { spacing } from "@/utils/utils";
 import { Body, Label } from "@publicplan/kern-react-kit";
 import ExportedImage from "next-image-export-optimizer";
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useLanguage } from "@/context/LanguageContext";
 
 const LANGUAGES = [
   { code: "en", label: "EN", flag: "/usa.webp" },
@@ -51,18 +51,8 @@ const LanguageButton: React.FC<LanguageButton> = ({
   );
 };
 const LanguageSwitcher = () => {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const language = searchParams?.get("lang") || "en";
+  const { language, setLanguage } = useLanguage();
   const [open, setOpen] = useState(false);
-
-  const updateLangInUrl = (lang: "en" | "de") => {
-    const params = new URLSearchParams(
-      Array.from(searchParams?.entries() || []),
-    );
-    params.set("lang", lang);
-    router.replace(`?${params.toString()}`);
-  };
 
   const current = LANGUAGES.find((l) => l.code === language)!;
 
@@ -102,14 +92,14 @@ const LanguageSwitcher = () => {
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: 8,
+                gap: spacing(1),
                 padding: spacing(1),
                 cursor: "pointer",
                 background: l.code === language ? "#f0f4ff" : undefined,
                 fontWeight: l.code === language ? 600 : 400,
               }}
               onClick={() => {
-                updateLangInUrl(l.code as "en" | "de");
+                setLanguage(l.code as "en" | "de");
                 setOpen(false);
               }}
             >

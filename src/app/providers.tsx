@@ -1,7 +1,11 @@
 "use client";
 import { ThemeProvider } from "@publicplan/kern-react-kit";
+import { LanguageProvider } from "@/context/LanguageContext";
 
-export function BodyProvider({ children }: { children: React.ReactNode }) {
+import Footer from "@/components/Footer";
+import Header from "@/components/Header";
+
+function BodyProvider({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider
       global={false}
@@ -13,7 +17,7 @@ export function BodyProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function FooterProvider({ children }: { children: React.ReactNode }) {
+function FooterProvider({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider
       global={false}
@@ -25,7 +29,7 @@ export function FooterProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function HeaderProvider({ children }: { children: React.ReactNode }) {
+function HeaderProvider({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider
       global={false}
@@ -34,5 +38,25 @@ export function HeaderProvider({ children }: { children: React.ReactNode }) {
     >
       {children}
     </ThemeProvider>
+  );
+}
+
+export function PageProvider({ children }: { children: React.ReactNode }) {
+  return (
+    <LanguageProvider>
+      <header>
+        <HeaderProvider>
+          <Header />
+        </HeaderProvider>
+      </header>
+      <main>
+        <BodyProvider>{children}</BodyProvider>
+      </main>
+      <footer>
+        <FooterProvider>
+          <Footer />
+        </FooterProvider>
+      </footer>
+    </LanguageProvider>
   );
 }
