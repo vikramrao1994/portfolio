@@ -35,7 +35,12 @@ const Work = () => {
               width: "100%",
             }}
           >
-            <ExportedImage src="/work.webp" alt="Work Icon" width={50} height={50} />
+            <ExportedImage
+              src="/work.webp"
+              alt="Work Icon"
+              width={50}
+              height={50}
+            />
             <Heading
               title={"Work Experience"}
               type={"medium"}
@@ -57,7 +62,12 @@ const Work = () => {
               }}
             >
               {isDesktop && (
-                <ExportedImage src={work.logo} alt={work.title} height={70} width={70} />
+                <ExportedImage
+                  src={work.logo}
+                  alt={work.title}
+                  height={70}
+                  width={70}
+                />
               )}
               <div
                 style={{

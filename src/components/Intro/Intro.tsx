@@ -44,7 +44,8 @@ const Intro = () => {
               border: "6px solid #e0e0e0",
               boxShadow: "0 0 0 8px #f5f5f5, 0 4px 24px rgba(0,0,0,0.08)",
               objectFit: "cover",
-              backgroundImage: "linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)",
+              backgroundImage:
+                "linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)",
             }}
           />
         </div>
@@ -63,7 +64,12 @@ const Intro = () => {
               type={"large"}
               headerElement={"h1"}
             />
-            <ExportedImage src="/smile.webp" alt="Smile Icon" width={50} height={50} />
+            <ExportedImage
+              src="/smile.webp"
+              alt="Smile Icon"
+              width={50}
+              height={50}
+            />
           </div>
           <Heading
             headerElement="h3"

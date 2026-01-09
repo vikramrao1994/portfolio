@@ -6,6 +6,7 @@ import ExportedImage from "next-image-export-optimizer";
 import { useEffect, useState } from "react";
 import { useBreakpointFlags } from "@/hooks/useBreakpoints";
 import { usePathname } from "next/navigation";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 interface StickyBarProps {
   show: boolean;
@@ -115,15 +116,26 @@ const Drawer = ({ open, onClose }: DrawerProps) => {
           pointerEvents: open ? "auto" : "none",
         }}
       >
-        <Button
-          icon={{ name: "close", size: "large" }}
-          iconOnly
-          variant="tertiary"
-          aria-label="Close menu"
-          style={{ alignSelf: "flex-end", marginBottom: spacing(2) }}
-          onClick={onClose}
-        />
-
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: spacing(2),
+            width: "100%",
+            gap: spacing(2),
+          }}
+        >
+          <LanguageSwitcher />
+          <Button
+            icon={{ name: "close", size: "large" }}
+            iconOnly
+            variant="tertiary"
+            aria-label="Close menu"
+            onClick={onClose}
+          />
+        </div>
         <nav
           style={{
             display: "flex",
@@ -217,7 +229,12 @@ const Header = () => {
             target="_blank"
             variant="small"
           >
-            <ExportedImage src="phone.webp" alt="Phone Logo" height={24} width={24} />
+            <ExportedImage
+              src="phone.webp"
+              alt="Phone Logo"
+              height={24}
+              width={24}
+            />
           </Link>
           <Link
             href={`mailto:${SITE.heading.email}`}
@@ -225,7 +242,12 @@ const Header = () => {
             variant="small"
             aria-label="Email"
           >
-            <ExportedImage src="mail.webp" alt="Email Logo" height={24} width={24} />
+            <ExportedImage
+              src="mail.webp"
+              alt="Email Logo"
+              height={24}
+              width={24}
+            />
           </Link>
           {isPhotographyPage ? (
             <Link
@@ -234,7 +256,12 @@ const Header = () => {
               variant="small"
               aria-label="Instagram"
             >
-              <ExportedImage src="instagram.webp" alt="Instagram Logo" height={30} width={30} />
+              <ExportedImage
+                src="instagram.webp"
+                alt="Instagram Logo"
+                height={30}
+                width={30}
+              />
             </Link>
           ) : (
             <>
@@ -244,7 +271,12 @@ const Header = () => {
                 variant="small"
                 aria-label="LinkedIn"
               >
-                <ExportedImage src="linkedin.webp" alt="LinkedIn Logo" height={24} width={28} />
+                <ExportedImage
+                  src="linkedin.webp"
+                  alt="LinkedIn Logo"
+                  height={24}
+                  width={28}
+                />
               </Link>
               <Link
                 href={SITE.heading.github}
@@ -252,7 +284,12 @@ const Header = () => {
                 variant="small"
                 aria-label="GitHub"
               >
-                <ExportedImage src="github.webp" alt="GitHub Logo" height={24} width={24} />
+                <ExportedImage
+                  src="github.webp"
+                  alt="GitHub Logo"
+                  height={24}
+                  width={24}
+                />
               </Link>
               <Link
                 href="/photography"
@@ -269,6 +306,7 @@ const Header = () => {
             </>
           )}
         </div>
+        {!isMobile && <LanguageSwitcher />}
         {isMobile &&
           (showSticky ? (
             <a
