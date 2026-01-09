@@ -58,6 +58,7 @@ interface DrawerProps {
 }
 
 const Drawer = ({ open, onClose }: DrawerProps) => {
+  const { isMobile } = useBreakpointFlags();
   useEffect(() => {
     const prev = document.body.style.overflowY;
     document.body.style.overflowY = open ? "hidden" : prev || "auto";
@@ -121,13 +122,13 @@ const Drawer = ({ open, onClose }: DrawerProps) => {
             display: "flex",
             flexDirection: "row",
             alignItems: "center",
-            justifyContent: "space-between",
+            justifyContent: isMobile ? "space-between" : "flex-end",
             marginBottom: spacing(2),
             width: "100%",
             gap: spacing(2),
           }}
         >
-          <LanguageSwitcher />
+          {isMobile && <LanguageSwitcher />}
           <Button
             icon={{ name: "close", size: "large" }}
             iconOnly
