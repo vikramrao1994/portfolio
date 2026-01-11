@@ -19,18 +19,27 @@ NAME_FONT_SIZE = GENERAL_FONT_SIZE * 2
 SPACER_VALUE = 5
 FOOTER_FONT_SIZE = GENERAL_FONT_SIZE
 
-def convert_differnce_to_string(difference):
+def convert_differnce_to_string(difference, lang="en"):
     years = difference.years
     months = difference.months
-    # print (difference)
-    string = "";
-    if years != 0:
-        string += '%s Years' % years if years > 1 else '%s Year' % years;
-    if months != 0:
-        string += ' %s Months' % months if months > 1 else ' %s Month' % months;
+    string = ""
+    if lang == "de":
+        if years != 0:
+            string += f'{years} Jahr{"e" if years > 1 else ""}'
+        if months != 0:
+            string += f' {months} Monat{"e" if months > 1 else ""}'
+        if not string:
+            string = "Weniger als ein Monat"
+    else:
+        if years != 0:
+            string += '%s Years' % years if years > 1 else '%s Year' % years
+        if months != 0:
+            string += ' %s Months' % months if months > 1 else ' %s Month' % months
+        if not string:
+            string = "Less than a month"
     return string.strip();
 
-def get_difference_between_dates(date_range, get_raw = False):
+def get_difference_between_dates(date_range, get_raw = False, lang="en"):
     date_array = [];
     for date_string in date_range.split("-"):
         if date_string.strip() != "Present":
@@ -42,7 +51,7 @@ def get_difference_between_dates(date_range, get_raw = False):
         return difference
 
     add_strix = "*" if "Present" in date_range else ""
-    return convert_differnce_to_string(difference) + add_strix
+    return convert_differnce_to_string(difference, lang=lang) + add_strix
 
 def myFirstPage(canvas, doc):
     canvas.saveState()
@@ -173,12 +182,12 @@ class Resume_Creator:
         self.data.append(Spacer(1, SPACER_VALUE))
         total = relativedelta()
         for experience in self.input["experience"]:
-            total += get_difference_between_dates(experience["exact_duration"], True)
+            total += get_difference_between_dates(experience["exact_duration"], True, lang=self.lang)
 
         # executive_summary is an array with one localized string containing a '%' placeholder
         raw_summary = self.tr(self.input["executive_summary"][0])
         summary_parts = raw_summary.split("%")
-        exp = " <b>%s of development experience*</b> " % convert_differnce_to_string(total)
+        exp = " <b>%s of development experience*</b> " % convert_differnce_to_string(total, lang=self.lang)
 
         if len(summary_parts) >= 2:
             summary_text = summary_parts[0].strip() + exp + summary_parts[1].strip()
@@ -234,7 +243,7 @@ class Resume_Creator:
                 [
                 # Paragraph("<b>%s</b>" % experience["company"] + ' , %s' % experience["location"], word_style),
                 tech_stack_table,
-                self.generate_alignment_style('<b>(%s)</b>' % get_difference_between_dates(experience["exact_duration"]), TA_RIGHT, GENERAL_FONT_SIZE)
+                self.generate_alignment_style('<b>(%s)</b>' % get_difference_between_dates(experience["exact_duration"], lang=self.lang), TA_RIGHT, GENERAL_FONT_SIZE)
                 ]
             ]
             sub_heading_table = Table(sub_heading, [300,215])
