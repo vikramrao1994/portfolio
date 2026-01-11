@@ -1,11 +1,23 @@
 import json
+import os
 from resume_creator import Resume_Creator
 
-def generate_timestamped_filename(prefix="file"):
+
+def output_path(prefix: str) -> str:
+    # Keep behavior consistent with your existing pipeline (writes into ./public)
     return f"public/{prefix}"
 
-filename = generate_timestamped_filename("CV_Vikram")
-with open('src/data/data.json') as json_file:
+
+DATA_PATH = os.getenv("CV_DATA_PATH", "src/data/data.json")
+OUTPUT_PREFIX = os.getenv("CV_OUTPUT_PREFIX", "CV_Vikram")
+LANG = os.getenv("CV_LANG")  # optional: "en" or "de"
+
+with open(DATA_PATH, "r", encoding="utf-8") as json_file:
     data = json.load(json_file)
-resume = Resume_Creator(filename, data)
-resume.save_resume()
+
+langs = [LANG] if LANG in ("en", "de") else ["en", "de"]
+
+for lang in langs:
+    filename = output_path(f"{OUTPUT_PREFIX}_{lang.upper()}")
+    resume = Resume_Creator(filename, data, lang=lang)
+    resume.save_resume()

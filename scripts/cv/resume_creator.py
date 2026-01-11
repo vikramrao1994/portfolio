@@ -52,7 +52,8 @@ def myFirstPage(canvas, doc):
 
 class Resume_Creator:
 
-    def __init__(self, file_name, input):
+    def __init__(self, file_name, input, lang="en"):
+        self.lang = lang
         self.pdf_buffer = BytesIO();
         self.doc = SimpleDocTemplate(
                     self.pdf_buffer,
@@ -71,6 +72,22 @@ class Resume_Creator:
         };
         self.page_size = letter
 
+
+    def tr(self, value):
+        """Translate a value that can be either a plain string or a {en,de} dict."""
+        if isinstance(value, dict):
+            # Prefer requested language, then fall back gracefully
+            if self.lang in value and value[self.lang]:
+                return value[self.lang]
+            if "en" in value and value["en"]:
+                return value["en"]
+            if "de" in value and value["de"]:
+                return value["de"]
+        return value
+
+    def tr_list(self, items):
+        """Translate a list where each item can be a string or a {en,de} dict."""
+        return [self.tr(i) for i in (items or [])]
     def get_body_style(self,type,parameters):
         sample_style_sheet = getSampleStyleSheet();
         body_style = sample_style_sheet[type];
@@ -84,18 +101,44 @@ class Resume_Creator:
             body_style.leftIndent = self.bullet_properties["indent"];
         return body_style;
 
-    def generate_bullet_points(self, font_size, array, table = None):
-        body_style = self.get_body_style("Bullet",{
-        "fontSize": font_size
-        });
-        if table == True:
-            result = []
-            for point in array:
-                result.append(Paragraph(point, body_style, bulletText = self.bullet_properties["symbol"]))
-            return result
 
-        for point in array:
-            self.data.append(Paragraph(point, body_style, bulletText = self.bullet_properties["symbol"]));
+    def section_title(self, key: str) -> str:
+        titles = {
+            "en": {
+                "work_experience": "WORK EXPERIENCE",
+                "education": "EDUCATION",
+                "skills": "SKILLS",
+                "executive_summary": "EXECUTIVE SUMMARY",
+                "projects": "PERSONAL PROJECTS",
+                "hobbies": "HOBBIES",
+            },
+            "de": {
+                "work_experience": "BERUFSERFAHRUNG",
+                "education": "AUSBILDUNG",
+                "skills": "KENNTNISSE",
+                "executive_summary": "PROFIL",
+                "projects": "PRIVATE PROJEKTE",
+                "hobbies": "HOBBIES",
+            },
+        }
+        return titles.get(self.lang, titles["en"]).get(key, titles["en"].get(key, key))
+    def generate_bullet_points(self, font_size, array, table = None):
+        body_style = self.get_body_style("Bullet", {
+            "fontSize": font_size
+        })
+
+        points = self.tr_list(array)
+
+        if table is True:
+            return [
+                Paragraph(p, body_style, bulletText=self.bullet_properties["symbol"])
+                for p in points
+            ]
+
+        for p in points:
+            self.data.append(
+                Paragraph(p, body_style, bulletText=self.bullet_properties["symbol"])
+            )
 
     def generate_alignment_style(self, input, alignment, size):
         style = ParagraphStyle('Normal',
@@ -126,24 +169,30 @@ class Resume_Creator:
         self.data.append(line)
 
     def add_summary(self):
-        self.generate_heading("<b>EXECUTIVE SUMMARY</b>","summary.webp")
+        self.generate_heading("<b>%s</b>" % self.section_title("executive_summary"), "summary.webp")
         self.data.append(Spacer(1, SPACER_VALUE))
         total = relativedelta()
         for experience in self.input["experience"]:
             total += get_difference_between_dates(experience["exact_duration"], True)
-        summary_point = self.input["executive_summary"][0].split("%");
+
+        # executive_summary is an array with one localized string containing a '%' placeholder
+        raw_summary = self.tr(self.input["executive_summary"][0])
+        summary_parts = raw_summary.split("%")
         exp = " <b>%s of development experience*</b> " % convert_differnce_to_string(total)
-        self.input["executive_summary"][0] = summary_point[0].strip() + exp + summary_point[1].strip()
-        # self.generate_bullet_points(GENERAL_FONT_SIZE, self.input["executive_summary"])
-        body_style = self.get_body_style("Normal",{
-        "fontSize": GENERAL_FONT_SIZE,
-        # "textColor": HEADING_COLOR
-        });
-        self.data.append(Paragraph(self.input["executive_summary"][0], body_style))
+
+        if len(summary_parts) >= 2:
+            summary_text = summary_parts[0].strip() + exp + summary_parts[1].strip()
+        else:
+            summary_text = raw_summary
+
+        body_style = self.get_body_style("Normal", {
+            "fontSize": GENERAL_FONT_SIZE,
+        })
+        self.data.append(Paragraph(summary_text, body_style))
         self.data.append(Spacer(1, SPACER_VALUE))
 
     def add_experience(self):
-        self.generate_heading("<b>WORK EXPERIENCE</b>", "work.webp")
+        self.generate_heading("<b>%s</b>" % self.section_title("work_experience"), "work.webp")
         word_style = self.get_body_style("Normal", {
         "fontSize":GENERAL_FONT_SIZE,
         })
@@ -158,10 +207,10 @@ class Resume_Creator:
             ]
             sub_title = ''
             if "sub_title" in experience and experience["sub_title"]:
-                sub_title = ' | %s' % experience["sub_title"]
+                sub_title = ' | %s' % self.tr(experience["sub_title"])
             heading = [
                 [
-                Paragraph("<b>%s</b>" % experience["title"] + " | <b>%s</b>" % experience["type"] + " | <b>%s</b>" % experience["company"] + ' , %s' % experience["location"] ,word_style),
+                Paragraph("<b>%s</b>" % self.tr(experience["title"]) + " | <b>%s</b>" % self.tr(experience["type"]) + " | <b>%s</b>" % experience["company"] + ' , %s' % self.tr(experience["location"]) ,word_style),
                 self.generate_alignment_style("<b>%s</b>" % experience["duration"], TA_RIGHT, GENERAL_FONT_SIZE)
                 ]
             ]
@@ -174,7 +223,7 @@ class Resume_Creator:
             ]
             summary = [
                 [
-                    self.generate_bullet_points(GENERAL_FONT_SIZE, experience["summary"],True)
+                    self.generate_bullet_points(GENERAL_FONT_SIZE, self.tr(experience["summary"]),True)
                 ]
             ]
             heading_table = Table(heading,[370,145])
@@ -214,11 +263,11 @@ class Resume_Creator:
         self.data.append(Spacer(1, SPACER_VALUE))
 
     def add_skills(self):
-        self.generate_heading("<b>SKILLS</b>","code.webp")
+        self.generate_heading("<b>%s</b>" % self.section_title("skills"),"code.webp")
         self.data.append(Spacer(1, SPACER_VALUE))
         points = []
         for sub_skill in self.input["skills"]:
-            list = "<b>%s :</b> " % sub_skill["key"]
+            list = "<b>%s :</b> " % self.tr(sub_skill["key"])
             for skill in sub_skill.get("most_used_skills", []):
                 list += '<font color = "red"><b><i>%s</i></b></font>, ' % skill
             if "skills" in sub_skill and sub_skill["skills"]:
@@ -230,7 +279,7 @@ class Resume_Creator:
         self.data.append(Spacer(1, SPACER_VALUE))
 
     def add_education(self):
-        self.generate_heading("<b>EDUCATION</b>","school.webp")
+        self.generate_heading("<b>%s</b>" % self.section_title("education"),"school.webp")
         for education in self.input["education"]:
             word_style = self.get_body_style("Normal", {
             "fontSize":GENERAL_FONT_SIZE,
@@ -242,11 +291,11 @@ class Resume_Creator:
             ]
             degree = [[
                 Paragraph("<b>%s</b>"% education["degree"],word_style),
-                Paragraph("<i>%s</i>"% education["course"],word_style)
+                Paragraph("<i>%s</i>" % self.tr(education["course"]), word_style)
             ]]
             school = [[
-                Paragraph(education["school"],word_style),
-                Paragraph(education["location"],word_style)
+                Paragraph(self.tr(education["school"]), word_style),
+                Paragraph(self.tr(education["location"]),word_style)
             ]]
 
             educate = [
@@ -291,14 +340,14 @@ class Resume_Creator:
         # name_heading = [
         #     [
         #         self.generate_alignment_style("<b>%s</b>" % self.input["heading"]["name"], TA_LEFT, NAME_FONT_SIZE),
-        #         self.generate_alignment_style("<b>%s</b>" % self.input["heading"]["headline"], TA_LEFT, GENERAL_FONT_SIZE)
+        #         self.generate_alignment_style("<b>%s</b>" % self.tr(self.input["heading"]["headline"]), TA_LEFT, GENERAL_FONT_SIZE)
         #     ]
         # ]
         # name_heading_table = Table(name_heading)
         heading = [
             [self.generate_alignment_style('<font color="blue"><b>%s</b></font>' % self.input["heading"]["name"], TA_LEFT, NAME_FONT_SIZE)],
             [Spacer(1,1)],
-            [self.generate_alignment_style("<b>%s</b>" % self.input["heading"]["headline"], TA_LEFT, GENERAL_FONT_SIZE)]
+            [self.generate_alignment_style("<b>%s</b>" % self.tr(self.input["heading"]["headline"]), TA_LEFT, GENERAL_FONT_SIZE)]
         ]
         heading_table = Table(heading)
         heading_table_style = [
@@ -310,7 +359,7 @@ class Resume_Creator:
         sub_data.append(heading_table)
         # sub_data.append(Spacer(1, 10))
         phone = Paragraph(self.input["heading"]["phone"], sub_heading_style)
-        address = Paragraph(self.input["heading"]["address"],sub_heading_style)
+        address = Paragraph(self.tr(self.input["heading"]["address"]),sub_heading_style)
         email = Paragraph('<a href="mailto:%s"><font color="blue">%s</font></a>' % (self.input["heading"]["email"], self.input["heading"]["email"]), sub_heading_style)
         sub_heading = [
         [phone_image ,phone ,address_image ,address ,email_image, email,linkedin, github]
@@ -336,7 +385,7 @@ class Resume_Creator:
         self.data.append(Spacer(1, SPACER_VALUE))
 
     def add_projects(self):
-        self.generate_heading("<b>PERSONAL PORJECTS</b>","project.webp")
+        self.generate_heading("<b>%s</b>" % self.section_title("projects"),"project.webp")
         word_style = self.get_body_style("Normal", {
         "fontSize":GENERAL_FONT_SIZE,
         })
@@ -351,7 +400,7 @@ class Resume_Creator:
                     self.generate_bullet_points(GENERAL_FONT_SIZE, project["summary"],True)
                 ]
             ]
-            description = [[Paragraph("<b>%s</b>" % project["project"], word_style)],[Table(summary)]]
+            description = [[Paragraph("<b>%s</b>" % self.tr(project["project"]), word_style)],[Table(summary)]]
             main = [
                 [
                     Table(logo),
@@ -376,9 +425,14 @@ class Resume_Creator:
         self.add_header();
         # self.add_summary();
         self.add_experience();
-        self.add_education();
-        self.data.append(PageBreak())
-        self.add_skills();
+        if (self.lang == "en"):
+             self.add_education();
+             self.data.append(PageBreak())
+             self.add_skills();
+        if (self.lang == "de"):
+             self.data.append(PageBreak())
+             self.add_education();
+             self.add_skills();
         # elf.add_hobbies();
         # self.add_projects()
         self.doc.build(self.data, onFirstPage = myFirstPage);

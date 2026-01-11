@@ -1,12 +1,20 @@
 // import { useBreakpointFlags } from "@/hooks/useBreakpoints";
+import { useLanguage } from "@/context/LanguageContext";
 import { SITE } from "@/lib/content";
 import { cardRootStyle } from "@/styles/styles";
 import { spacing } from "@/utils/utils";
 import { Body, Card, Heading } from "@publicplan/kern-react-kit";
 import ExportedImage from "next-image-export-optimizer";
 
+const translations = {
+  skills: {
+    en: "Skills",
+    de: "Fähigkeiten",
+  },
+};
 const Skills = () => {
   // const { isMobile } = useBreakpointFlags();
+  const { language } = useLanguage();
   return (
     <Card.Root
       id="skills"
@@ -31,7 +39,11 @@ const Skills = () => {
               width={50}
               height={50}
             />
-            <Heading title={"Skills"} type={"medium"} headerElement={"h2"} />
+            <Heading
+              title={translations.skills[language]}
+              type={"medium"}
+              headerElement={"h2"}
+            />
           </div>
         </Card.Header>
         <div
@@ -59,7 +71,7 @@ const Skills = () => {
               }}
             >
               <Heading
-                title={`${skill.key}: `}
+                title={`${skill.key[language]}: `}
                 type={"small"}
                 headerElement={"h3"}
                 style={{ textAlign: "left", width: "100%" }}

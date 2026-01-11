@@ -14,9 +14,31 @@ import {
 import { Fragment } from "react";
 import { cardRootStyle } from "@/styles/styles";
 import ExportedImage from "next-image-export-optimizer";
+import { useLanguage } from "@/context/LanguageContext";
+
+const translations = {
+  workExperience: {
+    en: "Work Experience",
+    de: "Berufserfahrung",
+  },
+  technologiesUsed: {
+    en: "Technologies Used",
+    de: "Verwendete Technologien",
+  },
+  keyResponsibilities: {
+    en: "Key Responsibilities",
+    de: "Hauptverantwortlichkeiten",
+  },
+  certificate: {
+    en: "View Experience Certificate",
+    de: "Erfahrungszertifikat anzeigen",
+  },
+};
 
 const Work = () => {
   const { isDesktop } = useBreakpointFlags();
+  const { language } = useLanguage();
+
   return (
     <Card.Root
       id="work"
@@ -42,7 +64,7 @@ const Work = () => {
               height={50}
             />
             <Heading
-              title={"Work Experience"}
+              title={translations.workExperience[language]}
               type={"medium"}
               headerElement={"h2"}
             />
@@ -64,7 +86,7 @@ const Work = () => {
               {isDesktop && (
                 <ExportedImage
                   src={work.logo}
-                  alt={work.title}
+                  alt={work.title[language]}
                   height={70}
                   width={70}
                 />
@@ -76,10 +98,10 @@ const Work = () => {
                   width: isDesktop ? undefined : "80%",
                 }}
               >
-                <Body isBold text={work.title} />
+                <Body isBold text={work.title[language]} />
                 <Body text={work.company} size={"small"} />
-                <Body text={work.type} size={"small"} />
-                <Body text={work.location} size={"small"} />
+                <Body text={work.type[language]} size={"small"} />
+                <Body text={work.location[language]} size={"small"} />
                 {!isDesktop && (
                   <>
                     <Body isBold text={work.duration} size={"small"} />
@@ -100,7 +122,7 @@ const Work = () => {
                     }}
                     target="_blank"
                     iconLeft
-                    title="View Experience Certificate"
+                    title={translations.certificate[language]}
                     aria-label={`View Experience Certificate for ${work.title} at ${work.company}`}
                     variant="small"
                   />
@@ -127,7 +149,7 @@ const Work = () => {
                 >
                   <ExportedImage
                     src={work.logo}
-                    alt={work.title}
+                    alt={work.title[language]}
                     height={70}
                     width={70}
                   />
@@ -142,7 +164,7 @@ const Work = () => {
                   <Accordion.Summary
                     title={{
                       textWrapper: "h3",
-                      title: "Technologies Used",
+                      title: translations.technologiesUsed[language],
                       variant: "small",
                     }}
                   />
@@ -165,7 +187,7 @@ const Work = () => {
                   <Accordion.Summary
                     title={{
                       textWrapper: "h3",
-                      title: "Key Responsibilities",
+                      title: translations.keyResponsibilities[language],
                       variant: "small",
                     }}
                   />
@@ -175,7 +197,7 @@ const Work = () => {
                     style={{ marginBottom: spacing(2) }}
                   >
                     {work.summary.map((item, index) => (
-                      <Lists.Item key={index} text={item} />
+                      <Lists.Item key={index} text={item[language]} />
                     ))}
                   </Lists.Root>
                 </Accordion.Root>

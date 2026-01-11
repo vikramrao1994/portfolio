@@ -5,9 +5,38 @@ import { SITE } from "@/lib/content";
 import { cardRootStyle } from "@/styles/styles";
 import Counter from "@/components/Counter";
 import { useBreakpointFlags } from "@/hooks/useBreakpoints";
+import { useLanguage } from "@/context/LanguageContext";
+
+const translations = {
+  introduction: {
+    en: "Introduction",
+    de: "Einführung",
+  },
+  viewCv: {
+    en: "View CV",
+    de: "Lebenslauf ansehen",
+  },
+  titleGreeting: {
+    en: "Hello ! I'm",
+    de: "Hallo ! Ich bin",
+  },
+  oppertunitiesBadge: {
+    en: "Open to opportunities",
+    de: "Offen für Möglichkeiten",
+  },
+  age: {
+    en: "Age",
+    de: "Alter",
+  },
+  yearsOfExperience: {
+    en: "Years of Experience",
+    de: "Jahre Erfahrung",
+  },
+};
 
 const Intro = () => {
   const { isMobile } = useBreakpointFlags();
+  const { language } = useLanguage();
   return (
     <Card.Root
       id="introduction"
@@ -60,7 +89,7 @@ const Intro = () => {
             }}
           >
             <Heading
-              title={`Hello ! I'm ${SITE.heading.name}`}
+              title={`${translations.titleGreeting[language]} ${SITE.heading.name}`}
               type={"large"}
               headerElement={"h1"}
             />
@@ -73,7 +102,7 @@ const Intro = () => {
           </div>
           <Heading
             headerElement="h3"
-            title={SITE.heading.subheadline}
+            title={SITE.heading.subheadline[language]}
             type="small"
             style={{ textAlign: "center", width: "100%" }}
           />
@@ -87,7 +116,7 @@ const Intro = () => {
           >
             <Badge
               variant="info"
-              title="Open to opportunities"
+              title={translations.oppertunitiesBadge[language]}
               showIcon={true}
               aria-hidden={true}
             />
@@ -116,7 +145,7 @@ const Intro = () => {
                 textAlign: "center",
               }}
             >
-              {SITE.heading.address}
+              {SITE.heading.address[language]}
             </Body>
           </div>
           <div
@@ -145,7 +174,7 @@ const Intro = () => {
                 <Counter target={30} duration={4000} />
               </span>
               <Body
-                text="Age"
+                text={translations.age[language]}
                 size="small"
                 style={{ marginLeft: spacing(2) }}
               />
@@ -168,7 +197,7 @@ const Intro = () => {
                 <Counter target={6} duration={2000} />
               </span>
               <Body
-                text="Years of Experience"
+                text={translations.yearsOfExperience[language]}
                 size="small"
                 style={{ marginLeft: spacing(2) }}
               />
@@ -189,7 +218,7 @@ const Intro = () => {
           }}
         >
           <a
-            href="/CV_Vikram.pdf"
+            href={`/CV_Vikram_${language.toUpperCase()}.pdf`}
             target="_blank"
             rel="noopener noreferrer"
             style={{
@@ -202,7 +231,7 @@ const Intro = () => {
               icon={{ name: "download" }}
               isBlock={isMobile}
               iconLeft
-              text={"View CV"}
+              text={translations.viewCv[language]}
               variant="secondary"
             />
           </a>

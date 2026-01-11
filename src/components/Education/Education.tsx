@@ -5,9 +5,18 @@ import { SITE } from "@/lib/content";
 import { cardRootStyle } from "@/styles/styles";
 import { spacing } from "@/utils/utils";
 import { Body, Card, Grid, Heading, Link } from "@publicplan/kern-react-kit";
+import { useLanguage } from "@/context/LanguageContext";
+
+const translations = {
+  education: {
+    en: "Education",
+    de: "Bildung",
+  },
+};
 
 const Education = () => {
   const { isDesktop } = useBreakpointFlags();
+  const { language } = useLanguage();
   return (
     <Card.Root
       id="education"
@@ -32,7 +41,11 @@ const Education = () => {
               width={50}
               height={50}
             />
-            <Heading title={"Education"} type={"medium"} headerElement={"h2"} />
+            <Heading
+              title={translations.education[language]}
+              type={"medium"}
+              headerElement={"h2"}
+            />
           </div>
         </Card.Header>
         {SITE.education.map((edu, index) => (
@@ -54,9 +67,9 @@ const Education = () => {
             />
             <div style={{ display: "flex", flexDirection: "column" }}>
               <Body isBold text={edu.degree} />
-              <Body text={edu.course} size={"small"} />
+              <Body text={edu.course[language]} size={"small"} />
               <Body text={edu.school} size={"small"} />
-              <Body text={edu.location} size={"small"} />
+              <Body text={edu.location[language]} size={"small"} />
               {!isDesktop && <Body isBold text={edu.duration} size={"small"} />}
               <Link
                 href={edu.certificate}
