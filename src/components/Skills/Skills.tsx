@@ -5,13 +5,7 @@ import { cardRootStyle } from "@/styles/styles";
 import { spacing } from "@/utils/utils";
 import { Body, Card, Heading } from "@publicplan/kern-react-kit";
 import ExportedImage from "next-image-export-optimizer";
-
-const translations = {
-  skills: {
-    en: "Skills",
-    de: "Fähigkeiten",
-  },
-};
+import { translations } from "@/lib/translations";
 const Skills = () => {
   // const { isMobile } = useBreakpointFlags();
   const { language } = useLanguage();

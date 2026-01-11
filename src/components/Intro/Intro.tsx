@@ -6,33 +6,7 @@ import { cardRootStyle } from "@/styles/styles";
 import Counter from "@/components/Counter";
 import { useBreakpointFlags } from "@/hooks/useBreakpoints";
 import { useLanguage } from "@/context/LanguageContext";
-
-const translations = {
-  introduction: {
-    en: "Introduction",
-    de: "Einführung",
-  },
-  viewCv: {
-    en: "View CV",
-    de: "Lebenslauf ansehen",
-  },
-  titleGreeting: {
-    en: "Hello ! I'm",
-    de: "Hallo ! Ich bin",
-  },
-  oppertunitiesBadge: {
-    en: "Open to opportunities",
-    de: "Offen für Möglichkeiten",
-  },
-  age: {
-    en: "Age",
-    de: "Alter",
-  },
-  yearsOfExperience: {
-    en: "Years of Experience",
-    de: "Jahre Erfahrung",
-  },
-};
+import { translations } from "@/lib/translations";
 
 const Intro = () => {
   const { isMobile } = useBreakpointFlags();

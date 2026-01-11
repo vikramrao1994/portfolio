@@ -15,25 +15,7 @@ import { Fragment } from "react";
 import { cardRootStyle } from "@/styles/styles";
 import ExportedImage from "next-image-export-optimizer";
 import { useLanguage } from "@/context/LanguageContext";
-
-const translations = {
-  workExperience: {
-    en: "Work Experience",
-    de: "Berufserfahrung",
-  },
-  technologiesUsed: {
-    en: "Technologies Used",
-    de: "Verwendete Technologien",
-  },
-  keyResponsibilities: {
-    en: "Key Responsibilities",
-    de: "Hauptverantwortlichkeiten",
-  },
-  certificate: {
-    en: "View Experience Certificate",
-    de: "Erfahrungszertifikat anzeigen",
-  },
-};
+import { translations } from "@/lib/translations";
 
 const Work = () => {
   const { isDesktop } = useBreakpointFlags();
@@ -107,7 +89,7 @@ const Work = () => {
                     <Body isBold text={work.duration} size={"small"} />
                     <Body
                       isBold
-                      text={getDurationString(work.exact_duration)}
+                      text={getDurationString(work.exact_duration, language)}
                       size={"small"}
                     />
                   </>
@@ -133,7 +115,7 @@ const Work = () => {
                   <Body isBold text={work.duration} size={"small"} />
                   <Body
                     isBold
-                    text={getDurationString(work.exact_duration)}
+                    text={getDurationString(work.exact_duration, language)}
                     size={"small"}
                     style={{ textAlign: "right" }}
                   />

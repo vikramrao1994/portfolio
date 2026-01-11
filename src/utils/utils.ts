@@ -5,7 +5,10 @@ export const spacing = (multiplier: number, unit: Unit = "px"): string => {
   return `${multiplier * BASE_SPACING}${unit}`;
 };
 
-export const getDurationString = (exactDuration: string): string => {
+export const getDurationString = (
+  exactDuration: string,
+  language: "en" | "de" = "en"
+): string => {
   const [startStr, endStr] = exactDuration.split(" - ");
   const startDate = new Date(startStr);
   const endDate = endStr === "Present" ? new Date() : new Date(endStr);
@@ -19,8 +22,22 @@ export const getDurationString = (exactDuration: string): string => {
   }
 
   const result: string[] = [];
-  if (years > 0) result.push(`${years} year${years > 1 ? "s" : ""}`);
-  if (months > 0) result.push(`${months} month${months > 1 ? "s" : ""}`);
-  if (result.length === 0) return "Less than a month";
+  if (years > 0) {
+    if (language === "de") {
+      result.push(`${years} Jahr${years > 1 ? "e" : ""}`);
+    } else {
+      result.push(`${years} year${years > 1 ? "s" : ""}`);
+    }
+  }
+  if (months > 0) {
+    if (language === "de") {
+      result.push(`${months} Monat${months > 1 ? "e" : ""}`);
+    } else {
+      result.push(`${months} month${months > 1 ? "s" : ""}`);
+    }
+  }
+  if (result.length === 0) {
+    return language === "de" ? "Weniger als ein Monat" : "Less than a month";
+  }
   return result.join(" ");
 };

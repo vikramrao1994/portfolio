@@ -6,13 +6,7 @@ import { cardRootStyle } from "@/styles/styles";
 import { spacing } from "@/utils/utils";
 import { Body, Card, Grid, Heading, Link } from "@publicplan/kern-react-kit";
 import { useLanguage } from "@/context/LanguageContext";
-
-const translations = {
-  education: {
-    en: "Education",
-    de: "Bildung",
-  },
-};
+import { translations } from "@/lib/translations";
 
 const Education = () => {
   const { isDesktop } = useBreakpointFlags();
