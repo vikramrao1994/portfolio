@@ -48,4 +48,8 @@ export const translations = {
     en: "Skills",
     de: "Fähigkeiten",
   },
+  degree: {
+    en: "View Degree",
+    de: "Abschluss anzeigen",
+  },
 };

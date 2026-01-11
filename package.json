@@ -16,7 +16,8 @@
     "next": "^16.1.1",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "sass": "^1.93.2"
+    "sass": "^1.93.2",
+    "tech-stack-icons": "^3.3.2"
   },
   "devDependencies": {
     "@types/node": "^20",

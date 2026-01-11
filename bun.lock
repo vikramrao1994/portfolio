@@ -10,6 +10,7 @@
         "react": "^19.2.3",
         "react-dom": "^19.2.3",
         "sass": "^1.93.2",
+        "tech-stack-icons": "^3.3.2",
       },
       "devDependencies": {
         "@types/node": "^20",
@@ -794,6 +795,8 @@
     "supports-color": ["supports-color@7.2.0", "", { "dependencies": { "has-flag": "^4.0.0" } }, "sha512-qpCAvRl9stuOHveKsn7HncJRvv501qIacKzQlO/+Lwxc9+0q2wLyv4Dfvt80/DPn2pqOBsJdDiogXGR9+OvwRw=="],
 
     "supports-preserve-symlinks-flag": ["supports-preserve-symlinks-flag@1.0.0", "", {}, "sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w=="],
+
+    "tech-stack-icons": ["tech-stack-icons@3.3.2", "", { "peerDependencies": { "react": "^18.2.0", "react-dom": "^18.2.0" } }, "sha512-5QegRg78uTzcgHOg61yU5G9w5UO88/R+yzKagKZFyAocGZrGPy1kF0hV2BWT8IT8j+AQ0/gDX4Je4n/DQDfcuw=="],
 
     "tinyglobby": ["tinyglobby@0.2.15", "", { "dependencies": { "fdir": "^6.5.0", "picomatch": "^4.0.3" } }, "sha512-j2Zq4NyQYG5XMST4cbs02Ak8iJUdxRM0XI5QyxXuZOzKOINmWurp3smXu3y5wDcJrptwpSjgXHzIQxR0omXljQ=="],
 

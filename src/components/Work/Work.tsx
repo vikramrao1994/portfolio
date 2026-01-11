@@ -3,7 +3,6 @@ import { getDurationString, spacing } from "@/utils/utils";
 import { useBreakpointFlags } from "@/hooks/useBreakpoints";
 import {
   Accordion,
-  Badge,
   Body,
   Card,
   Grid,
@@ -16,6 +15,7 @@ import { cardRootStyle } from "@/styles/styles";
 import Image from "@/components/Image";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
+import TechBadge from "@/components/TechBadge";
 
 const Work = () => {
   const { isDesktop } = useBreakpointFlags();
@@ -151,10 +151,10 @@ const Work = () => {
                     }}
                   />
                   <div style={{ marginBottom: spacing(2) }}>
-                    {work.tech_stack.map((tech, index) => (
-                      <Badge
+                    {work.tech_stack_icons.map((tech, index) => (
+                      <TechBadge
                         key={index}
-                        title={tech}
+                        tech={tech}
                         variant="info"
                         style={{
                           margin: spacing(0.5),

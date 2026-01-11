@@ -74,7 +74,7 @@ const Education = () => {
                 }}
                 target="_blank"
                 iconLeft
-                title="View Degree"
+                title={translations.degree[language]}
                 aria-label={`View ${edu.degree} Degree Certificate`}
                 variant="small"
               />
