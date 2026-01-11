@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { useBreakpointFlags } from "@/hooks/useBreakpoints";
 import { usePathname } from "next/navigation";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface StickyBarProps {
   show: boolean;
@@ -177,6 +178,7 @@ const Drawer = ({ open, onClose }: DrawerProps) => {
 };
 
 const Header = () => {
+  const { language } = useLanguage();
   const { isMobile } = useBreakpointFlags();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [showSticky, setShowSticky] = useState(false);
@@ -311,7 +313,7 @@ const Header = () => {
         {isMobile &&
           (showSticky ? (
             <a
-              href="/CV_Vikram.pdf"
+              href={`/CV_Vikram_${language.toUpperCase()}.pdf`}
               target="_blank"
               rel="noopener noreferrer"
               style={{ marginRight: spacing(2) }}
