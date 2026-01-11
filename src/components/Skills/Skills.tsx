@@ -4,7 +4,7 @@ import { SITE } from "@/lib/content";
 import { cardRootStyle } from "@/styles/styles";
 import { spacing } from "@/utils/utils";
 import { Body, Card, Heading } from "@publicplan/kern-react-kit";
-import ExportedImage from "next-image-export-optimizer";
+import Image from "@/components/Image";
 import { translations } from "@/lib/translations";
 const Skills = () => {
   // const { isMobile } = useBreakpointFlags();
@@ -27,7 +27,7 @@ const Skills = () => {
               width: "100%",
             }}
           >
-            <ExportedImage
+            <Image
               src="/tech_stack.webp"
               alt="Skills Icon"
               width={50}

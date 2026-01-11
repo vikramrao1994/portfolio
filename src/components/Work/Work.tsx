@@ -13,7 +13,7 @@ import {
 } from "@publicplan/kern-react-kit";
 import { Fragment } from "react";
 import { cardRootStyle } from "@/styles/styles";
-import ExportedImage from "next-image-export-optimizer";
+import Image from "@/components/Image";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
 
@@ -39,7 +39,7 @@ const Work = () => {
               width: "100%",
             }}
           >
-            <ExportedImage
+            <Image
               src="/work.webp"
               alt="Work Icon"
               width={50}
@@ -66,7 +66,7 @@ const Work = () => {
               }}
             >
               {isDesktop && (
-                <ExportedImage
+                <Image
                   src={work.logo}
                   alt={work.title[language]}
                   height={70}
@@ -129,7 +129,7 @@ const Work = () => {
                     width: "20%",
                   }}
                 >
-                  <ExportedImage
+                  <Image
                     src={work.logo}
                     alt={work.title[language]}
                     height={70}

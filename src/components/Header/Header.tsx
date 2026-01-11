@@ -2,12 +2,13 @@
 import { SITE } from "@/lib/content";
 import { spacing } from "@/utils/utils";
 import { Body, Button, Grid, Link } from "@publicplan/kern-react-kit";
-import ExportedImage from "next-image-export-optimizer";
+import Image from "@/components/Image";
 import { useEffect, useState } from "react";
 import { useBreakpointFlags } from "@/hooks/useBreakpoints";
 import { usePathname } from "next/navigation";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useLanguage } from "@/context/LanguageContext";
+import { translations } from "@/lib/translations";
 
 interface StickyBarProps {
   show: boolean;
@@ -36,7 +37,7 @@ const StickyBar = ({ show, onClick }: StickyBarProps) => (
     }}
   >
     <div style={{ display: "flex", alignItems: "center", gap: spacing(1) }}>
-      <ExportedImage
+      <Image
         alt="Profile"
         src="/portrait.webp"
         width={40}
@@ -60,6 +61,7 @@ interface DrawerProps {
 
 const Drawer = ({ open, onClose }: DrawerProps) => {
   const { isMobile } = useBreakpointFlags();
+  const { language } = useLanguage();
   useEffect(() => {
     const prev = document.body.style.overflowY;
     document.body.style.overflowY = open ? "hidden" : prev || "auto";
@@ -143,31 +145,30 @@ const Drawer = ({ open, onClose }: DrawerProps) => {
             display: "flex",
             flexDirection: "column",
             gap: spacing(2),
-            alignItems: "center",
-            textAlign: "center",
+            alignItems: "flex-start",
           }}
         >
           <Link
             href="/#introduction"
-            title="Intro"
+            title={translations.introduction[language]}
             aria-label="Introduction Section"
             onClick={onClose}
           />
           <Link
             href="/#work"
-            title="Work"
+            title={translations.workExperience[language]}
             aria-label="Work Section"
             onClick={onClose}
           />
           <Link
             href="/#skills"
-            title="Skills"
+            title={translations.skills[language]}
             aria-label="Skills Section"
             onClick={onClose}
           />
           <Link
             href="/#education"
-            title="Education"
+            title={translations.education[language]}
             aria-label="Education Section"
             onClick={onClose}
           />
@@ -232,7 +233,7 @@ const Header = () => {
             target="_blank"
             variant="small"
           >
-            <ExportedImage
+            <Image
               src="phone.webp"
               alt="Phone Logo"
               height={24}
@@ -245,7 +246,7 @@ const Header = () => {
             variant="small"
             aria-label="Email"
           >
-            <ExportedImage
+            <Image
               src="mail.webp"
               alt="Email Logo"
               height={24}
@@ -259,7 +260,7 @@ const Header = () => {
               variant="small"
               aria-label="Instagram"
             >
-              <ExportedImage
+              <Image
                 src="instagram.webp"
                 alt="Instagram Logo"
                 height={30}
@@ -274,7 +275,7 @@ const Header = () => {
                 variant="small"
                 aria-label="LinkedIn"
               >
-                <ExportedImage
+                <Image
                   src="linkedin.webp"
                   alt="LinkedIn Logo"
                   height={24}
@@ -287,7 +288,7 @@ const Header = () => {
                 variant="small"
                 aria-label="GitHub"
               >
-                <ExportedImage
+                <Image
                   src="github.webp"
                   alt="GitHub Logo"
                   height={24}
@@ -299,7 +300,7 @@ const Header = () => {
                 variant="small"
                 aria-label="Photographer"
               >
-                <ExportedImage
+                <Image
                   src="photographer.webp"
                   alt="Photographer Logo"
                   height={28}

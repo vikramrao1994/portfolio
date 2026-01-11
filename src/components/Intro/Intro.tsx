@@ -1,6 +1,6 @@
 import { spacing } from "@/utils/utils";
 import { Badge, Body, Button, Card, Heading } from "@publicplan/kern-react-kit";
-import ExportedImage from "next-image-export-optimizer";
+import Image from "@/components/Image";
 import { SITE } from "@/lib/content";
 import { cardRootStyle } from "@/styles/styles";
 import Counter from "@/components/Counter";
@@ -20,7 +20,7 @@ const Intro = () => {
     >
       <Card.Container>
         <div style={{ position: "relative", width: "100%" }}>
-          <ExportedImage
+          <Image
             alt="clip"
             src="/clip.webp"
             width={30}
@@ -37,7 +37,7 @@ const Intro = () => {
             margin: `${spacing(2)}px 0`,
           }}
         >
-          <ExportedImage
+          <Image
             alt="Profile"
             src="/portrait.webp"
             width={180}
@@ -67,7 +67,7 @@ const Intro = () => {
               type={"large"}
               headerElement={"h1"}
             />
-            <ExportedImage
+            <Image
               src="/smile.webp"
               alt="Smile Icon"
               width={50}
@@ -75,7 +75,7 @@ const Intro = () => {
             />
           </div>
           <Heading
-            headerElement="h3"
+            headerElement="h2"
             title={SITE.heading.subheadline[language]}
             type="small"
             style={{ textAlign: "center", width: "100%" }}
@@ -105,7 +105,7 @@ const Intro = () => {
               marginTop: spacing(2),
             }}
           >
-            <ExportedImage
+            <Image
               src="/address.webp"
               alt="Address Icon"
               width={24}

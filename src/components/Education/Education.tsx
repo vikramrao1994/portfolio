@@ -1,6 +1,6 @@
 "use client";
 import { useBreakpointFlags } from "@/hooks/useBreakpoints";
-import ExportedImage from "next-image-export-optimizer";
+import Image from "@/components/Image";
 import { SITE } from "@/lib/content";
 import { cardRootStyle } from "@/styles/styles";
 import { spacing } from "@/utils/utils";
@@ -29,7 +29,7 @@ const Education = () => {
               width: "100%",
             }}
           >
-            <ExportedImage
+            <Image
               src="/school.webp"
               alt="Education Icon"
               width={50}
@@ -53,7 +53,7 @@ const Education = () => {
               justifyContent: isDesktop ? "space-between" : "flex-start",
             }}
           >
-            <ExportedImage
+            <Image
               src={edu.logo}
               alt={edu.degree}
               height={70}
