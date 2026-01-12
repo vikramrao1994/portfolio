@@ -25,7 +25,7 @@ const Work = () => {
     <Card.Root
       id="work"
       size="small"
-      style={{ ...cardRootStyle, ...(isDesktop && { maxWidth: "100%" }) }}
+      style={cardRootStyle}
       aria-label="Work Experience"
     >
       <Card.Container>

@@ -52,4 +52,8 @@ export const translations = {
     en: "View Degree",
     de: "Abschluss anzeigen",
   },
+  aboutMe: {
+    en: "About Me",
+    de: "Über mich",
+  },
 };

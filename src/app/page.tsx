@@ -1,4 +1,5 @@
 "use client";
+import AboutMe from "@/components/About";
 import Education from "@/components/Education";
 import Intro from "@/components/Intro";
 import Skills from "@/components/Skills";
@@ -27,6 +28,11 @@ const Home = () => {
           <Intro />
         </Grid.Column>
         <Grid.Column width={8} breakpoint="lg">
+          <AboutMe />
+        </Grid.Column>
+      </Grid.Row>
+      <Grid.Row>
+        <Grid.Column>
           <Work />
         </Grid.Column>
       </Grid.Row>
