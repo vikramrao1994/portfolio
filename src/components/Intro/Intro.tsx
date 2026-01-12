@@ -80,7 +80,7 @@ const Intro = () => {
             type="small"
             style={{ textAlign: "center", width: "100%" }}
           />
-          <div
+          {SITE.heading.open_to_oppertunities && <div
             style={{
               display: "flex",
               justifyContent: "center",
@@ -94,7 +94,7 @@ const Intro = () => {
               showIcon={true}
               aria-hidden={true}
             />
-          </div>
+          </div>}
           <div
             style={{
               display: "flex",
@@ -145,7 +145,7 @@ const Intro = () => {
                   textAlign: "right",
                 }}
               >
-                <Counter target={30} duration={4000} />
+                <Counter target={Number(SITE.heading.age)} duration={4000} />
               </span>
               <Body
                 text={translations.age[language]}
@@ -168,7 +168,7 @@ const Intro = () => {
                   textAlign: "right",
                 }}
               >
-                <Counter target={6} duration={2000} />
+                <Counter target={Number(SITE.heading.years_of_experience)} duration={2000} />
               </span>
               <Body
                 text={translations.yearsOfExperience[language]}
