@@ -120,6 +120,7 @@ class Resume_Creator:
                 "executive_summary": "EXECUTIVE SUMMARY",
                 "projects": "PERSONAL PROJECTS",
                 "hobbies": "HOBBIES",
+                "online_cv": "Website",
             },
             "de": {
                 "work_experience": "BERUFSERFAHRUNG",
@@ -128,6 +129,7 @@ class Resume_Creator:
                 "executive_summary": "PROFIL",
                 "projects": "PRIVATE PROJEKTE",
                 "hobbies": "HOBBIES",
+                "online_cv": "Webseite",
             },
         }
         return titles.get(self.lang, titles["en"]).get(key, titles["en"].get(key, key))
@@ -353,10 +355,11 @@ class Resume_Creator:
         #     ]
         # ]
         # name_heading_table = Table(name_heading)
+        online_cv = '<a href="%s"><font color="blue"><u>%s</u></font></a>' % (self.input["heading"]["website"], self.section_title("online_cv"))
         heading = [
             [self.generate_alignment_style('<font color="blue"><b>%s</b></font>' % self.input["heading"]["name"], TA_LEFT, NAME_FONT_SIZE)],
             [Spacer(1,1)],
-            [self.generate_alignment_style("<b>%s</b>" % self.tr(self.input["heading"]["headline"]), TA_LEFT, GENERAL_FONT_SIZE)]
+            [self.generate_alignment_style('<b>%s</b> | %s' % (self.tr(self.input["heading"]["headline"]), online_cv), TA_LEFT, GENERAL_FONT_SIZE)]
         ]
         heading_table = Table(heading)
         heading_table_style = [
