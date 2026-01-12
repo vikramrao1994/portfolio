@@ -233,12 +233,7 @@ const Header = () => {
             target="_blank"
             variant="small"
           >
-            <Image
-              src="phone.webp"
-              alt="Phone Logo"
-              height={24}
-              width={24}
-            />
+            <Image src="phone.webp" alt="Phone Logo" height={24} width={24} />
           </Link>
           <Link
             href={`mailto:${SITE.heading.email}`}
@@ -246,12 +241,7 @@ const Header = () => {
             variant="small"
             aria-label="Email"
           >
-            <Image
-              src="mail.webp"
-              alt="Email Logo"
-              height={24}
-              width={24}
-            />
+            <Image src="mail.webp" alt="Email Logo" height={24} width={24} />
           </Link>
           {isPhotographyPage ? (
             <Link

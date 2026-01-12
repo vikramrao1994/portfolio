@@ -39,12 +39,7 @@ const Work = () => {
               width: "100%",
             }}
           >
-            <Image
-              src="/work.webp"
-              alt="Work Icon"
-              width={50}
-              height={50}
-            />
+            <Image src="/work.webp" alt="Work Icon" width={50} height={50} />
             <Heading
               title={translations.workExperience[language]}
               type={"medium"}

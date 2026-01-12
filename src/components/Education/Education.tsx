@@ -53,12 +53,7 @@ const Education = () => {
               justifyContent: isDesktop ? "space-between" : "flex-start",
             }}
           >
-            <Image
-              src={edu.logo}
-              alt={edu.degree}
-              height={70}
-              width={60}
-            />
+            <Image src={edu.logo} alt={edu.degree} height={70} width={60} />
             <div style={{ display: "flex", flexDirection: "column" }}>
               <Body isBold text={edu.degree} />
               <Body text={edu.course[language]} size={"small"} />

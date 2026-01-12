@@ -7,7 +7,7 @@ export const spacing = (multiplier: number, unit: Unit = "px"): string => {
 
 export const getDurationString = (
   exactDuration: string,
-  language: "en" | "de" = "en"
+  language: "en" | "de" = "en",
 ): string => {
   const [startStr, endStr] = exactDuration.split(" - ");
   const startDate = new Date(startStr);

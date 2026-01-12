@@ -1,6 +1,6 @@
 import { spacing } from "@/utils/utils";
 import { Body, Label } from "@publicplan/kern-react-kit";
-import ExportedImage from "next-image-export-optimizer";
+import Image from "@/components/Image";
 import { useState } from "react";
 import { useLanguage } from "@/context/LanguageContext";
 
@@ -39,12 +39,7 @@ const LanguageButton: React.FC<LanguageButton> = ({
           background: "transparent",
         }}
       >
-        <ExportedImage
-          src={flag}
-          alt={label + " Flag"}
-          width={20}
-          height={20}
-        />
+        <Image src={flag} alt={label + " Flag"} width={20} height={20} />
       </span>
       <Label className={"kern-label"}>{label}</Label>
     </button>
@@ -103,7 +98,7 @@ const LanguageSwitcher = () => {
                 setOpen(false);
               }}
             >
-              <ExportedImage
+              <Image
                 src={l.flag}
                 alt={l.label + " Flag"}
                 width={20}

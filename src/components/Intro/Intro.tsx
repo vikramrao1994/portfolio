@@ -67,12 +67,7 @@ const Intro = () => {
               type={"large"}
               headerElement={"h1"}
             />
-            <Image
-              src="/smile.webp"
-              alt="Smile Icon"
-              width={50}
-              height={50}
-            />
+            <Image src="/smile.webp" alt="Smile Icon" width={50} height={50} />
           </div>
           <Heading
             headerElement="h2"
@@ -80,21 +75,23 @@ const Intro = () => {
             type="small"
             style={{ textAlign: "center", width: "100%" }}
           />
-          {SITE.heading.open_to_oppertunities && <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              width: "100%",
-              marginTop: spacing(1),
-            }}
-          >
-            <Badge
-              variant="info"
-              title={translations.oppertunitiesBadge[language]}
-              showIcon={true}
-              aria-hidden={true}
-            />
-          </div>}
+          {SITE.heading.open_to_oppertunities && (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                width: "100%",
+                marginTop: spacing(1),
+              }}
+            >
+              <Badge
+                variant="info"
+                title={translations.oppertunitiesBadge[language]}
+                showIcon={true}
+                aria-hidden={true}
+              />
+            </div>
+          )}
           <div
             style={{
               display: "flex",
@@ -168,7 +165,10 @@ const Intro = () => {
                   textAlign: "right",
                 }}
               >
-                <Counter target={Number(SITE.heading.years_of_experience)} duration={2000} />
+                <Counter
+                  target={Number(SITE.heading.years_of_experience)}
+                  duration={2000}
+                />
               </span>
               <Body
                 text={translations.yearsOfExperience[language]}

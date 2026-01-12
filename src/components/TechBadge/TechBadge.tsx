@@ -1,8 +1,8 @@
 import StackIcon from "tech-stack-icons";
 
-export interface TechBadgeProps extends React.ComponentPropsWithoutRef<'span'> {
-  variant: 'info' | 'success' | 'warning' | 'danger';
-  tech: { id: string, title: string };
+export interface TechBadgeProps extends React.ComponentPropsWithoutRef<"span"> {
+  variant: "info" | "success" | "warning" | "danger";
+  tech: { id: string; title: string };
 }
 
 const TechBadge: React.FC<TechBadgeProps> = ({
