@@ -29,8 +29,8 @@ export const translations = {
     de: "Berufserfahrung",
   },
   technologiesUsed: {
-    en: "Technologies Used",
-    de: "Verwendete Technologien",
+    en: "Tech Stack",
+    de: "Technologie-Stack",
   },
   keyResponsibilities: {
     en: "Key Responsibilities",
