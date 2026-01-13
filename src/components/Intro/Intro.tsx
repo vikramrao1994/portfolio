@@ -155,9 +155,6 @@ const Intro = () => {
             </div>
           </div>
         </Card.Header>
-        {/* <Card.Body style={{ textAlign: "center" }}>
-          {SITE.executive_summary}
-        </Card.Body> */}
         <Card.Footer
           style={{
             display: "flex",

@@ -55,10 +55,16 @@ const Work = () => {
         </Card.Header>
         <Grid style={{ display: "flex", justifyContent: "flex-end" }}>
           <Button
-            text={allOpen === true ? translations.collapseAll[language] : translations.expandAll[language]}
+            text={
+              allOpen === true
+                ? translations.collapseAll[language]
+                : translations.expandAll[language]
+            }
             variant={"secondary"}
             onClick={toggleAll}
-            style={{ width: isMobile ? "100%" : language === "de" ? "25%" : "20%" }}
+            style={{
+              width: isMobile ? "100%" : language === "de" ? "25%" : "20%",
+            }}
           />
         </Grid>
         {SITE.experience.map((work, index) => (

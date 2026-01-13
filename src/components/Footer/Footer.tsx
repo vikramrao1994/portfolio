@@ -1,7 +1,8 @@
 "use client";
 import { Grid, Preline, Subline } from "@publicplan/kern-react-kit";
 import { SITE } from "@/lib/content";
-import pkg from "../../../package.json";
+import { spacing } from "@/utils/utils";
+import StackIcon from "tech-stack-icons";
 
 const Footer = () => {
   return (
@@ -15,15 +16,38 @@ const Footer = () => {
       }}
     >
       <Subline
-        text={`© ${new Date().getFullYear()} ${SITE.heading.name} — Frontend Engineer`}
+        text={`© ${new Date().getFullYear()} ${SITE.heading.name} — Frontend Engineer - All rights reserved.`}
         style={{ textAlign: "center" }}
         variant="small"
       />
-      <Preline
-        text={`Built with Next.js v${pkg.dependencies.next.replace("^", "")} & TypeScript · Deployed on Github Pages`}
-        style={{ textAlign: "center" }}
-        variant="small"
-      />
+      <Grid
+        style={{
+          display: "flex",
+          gap: spacing(1),
+          flexWrap: "wrap",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Preline
+          text={`Built with`}
+          style={{ textAlign: "center" }}
+          variant="small"
+        />
+        <span style={{ width: 20, height: 20 }}>
+          <StackIcon name={"typescript"} />
+        </span>
+        <span style={{ width: 20, height: 20 }}>
+          <StackIcon name={"react"} />
+        </span>
+        <span style={{ width: 20, height: 20 }}>
+          <StackIcon name={"nextjs"} />
+        </span>
+        <Preline text={`&`} style={{ textAlign: "center" }} variant="small" />
+        <span style={{ width: 20, height: 20 }}>
+          <StackIcon name={"bunjs"} />
+        </span>
+      </Grid>
     </Grid>
   );
 };

@@ -60,7 +60,7 @@ export const translations = {
     en: "Expand all",
     de: "Alle erweitern",
   },
-    collapseAll: {
+  collapseAll: {
     en: "Collapse all",
     de: "Alle reduzieren",
   },
