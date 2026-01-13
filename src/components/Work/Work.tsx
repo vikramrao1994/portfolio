@@ -39,7 +39,6 @@ const Work = () => {
           <div
             style={{
               display: "flex",
-              alignItems: "center",
               justifyContent: "center",
               gap: spacing(2),
               width: "100%",
