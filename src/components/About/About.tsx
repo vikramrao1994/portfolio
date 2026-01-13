@@ -5,9 +5,11 @@ import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
 import { spacing } from "@/utils/utils";
 import { SITE } from "@/lib/content";
+import { useBreakpointFlags } from "@/hooks/useBreakpoints";
 
 const AboutMe = () => {
   const { language } = useLanguage();
+  const { isMobile } = useBreakpointFlags();
   return (
     <Card.Root
       id="about"
@@ -38,7 +40,7 @@ const AboutMe = () => {
             />
           </div>
         </Card.Header>
-        <Grid style={{ marginBottom: spacing(2), marginTop: spacing(2) }}>
+        <Grid style={{ marginBottom: isMobile ? spacing(2) : spacing(6), marginTop: spacing(2) }}>
           {SITE.about_me.map((paragraph, index) => (
             <Body key={index} text={paragraph[language]} size="small" />
           ))}

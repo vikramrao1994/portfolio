@@ -16,7 +16,7 @@ const Footer = () => {
       }}
     >
       <Subline
-        text={`© ${new Date().getFullYear()} ${SITE.heading.name} — Frontend Engineer - All rights reserved.`}
+        text={`© ${new Date().getFullYear()} ${SITE.heading.name} - All rights reserved.`}
         style={{ textAlign: "center" }}
         variant="small"
       />

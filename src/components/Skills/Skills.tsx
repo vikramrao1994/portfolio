@@ -82,7 +82,7 @@ const Skills = () => {
           ];
 
           return (
-            <Grid key={index}>
+            <Grid key={index} style={{ marginBottom: index < SITE.skills.length - 1 ? spacing(1) : spacing(2) }}>
               <Grid
                 style={{
                   display: "flex",
@@ -117,11 +117,6 @@ const Skills = () => {
                   title={title}
                   type="small"
                   headerElement="h3"
-                  style={{
-                    textAlign: "left",
-                    width: "100%",
-                    margin: 0,
-                  }}
                 />
               </Grid>
               {items.map((item, i) => (
@@ -136,7 +131,7 @@ const Skills = () => {
                   aria-hidden="true"
                 />
               ))}
-              <Divider style={{ marginTop: spacing(2) }} />
+              {index < SITE.skills.length - 1 && <Divider style={{ marginTop: spacing(2) }} />}
             </Grid>
           );
         })}
