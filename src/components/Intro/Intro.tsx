@@ -142,29 +142,6 @@ const Intro = () => {
                   textAlign: "right",
                 }}
               >
-                <Counter target={Number(SITE.heading.age)} duration={4000} />
-              </span>
-              <Body
-                text={translations.age[language]}
-                size="small"
-                style={{ marginLeft: spacing(2) }}
-              />
-            </div>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-                padding: spacing(1),
-              }}
-            >
-              <span
-                style={{
-                  display: "inline-block",
-                  width: "3em",
-                  textAlign: "right",
-                }}
-              >
                 <Counter
                   target={Number(SITE.heading.years_of_experience)}
                   duration={2000}
