@@ -133,7 +133,7 @@ const Drawer = ({ open, onClose }: DrawerProps) => {
         >
           {isMobile && <LanguageSwitcher />}
           <Button
-            icon={{ name: "close", size: "large" }}
+            icon={{ name: "close", size: "large", "aria-hidden": "true" }}
             iconOnly
             variant="tertiary"
             aria-label="Close menu"
@@ -311,7 +311,7 @@ const Header = () => {
             >
               <Button
                 aria-label="Download CV"
-                icon={{ name: "download" }}
+                icon={{ name: "download", "aria-hidden": "true" }}
                 iconOnly
                 variant="secondary"
               />
