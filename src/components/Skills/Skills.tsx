@@ -3,7 +3,13 @@ import { useLanguage } from "@/context/LanguageContext";
 import { SITE } from "@/lib/content";
 import { cardRootStyle } from "@/styles/styles";
 import { spacing } from "@/utils/utils";
-import { Badge, Card, Divider, Grid, Heading } from "@publicplan/kern-react-kit";
+import {
+  Badge,
+  Card,
+  Divider,
+  Grid,
+  Heading,
+} from "@publicplan/kern-react-kit";
 import Image from "@/components/Image";
 import { translations } from "@/lib/translations";
 import {
@@ -28,7 +34,6 @@ const SKILL_META: Record<
 };
 
 const Skills = () => {
-  // const { isMobile } = useBreakpointFlags();
   const { language } = useLanguage();
   return (
     <Card.Root
@@ -60,88 +65,81 @@ const Skills = () => {
             />
           </div>
         </Card.Header>
-        <Grid>
-          {SITE.skills.map((skill, index) => {
-            const title = skill.key[language];
-            const meta = SKILL_META[title];
-            const Icon = meta?.Icon;
-            const accent = meta?.accent ?? "#5B93FF";
-            const items = [
-              ...(skill.most_used_skills ?? []).map((t) => ({
-                text: t,
-                variant: "success" as const,
-              })),
-              ...(skill.skills ?? []).map((t) => ({
-                text: t,
-                variant: "info" as const,
-              })),
-            ];
+        {SITE.skills.map((skill, index) => {
+          const title = skill.key[language];
+          const meta = SKILL_META[title];
+          const Icon = meta?.Icon;
+          const accent = meta?.accent ?? "#5B93FF";
+          const items = [
+            ...(skill.most_used_skills ?? []).map((t) => ({
+              text: t,
+              variant: "success" as const,
+            })),
+            ...(skill.skills ?? []).map((t) => ({
+              text: t,
+              variant: "info" as const,
+            })),
+          ];
 
-            return (
+          return (
+            <Grid key={index}>
               <Grid
-                key={index}
                 style={{
-                  padding: spacing(1.5),
+                  display: "flex",
+                  alignItems: "center",
+                  gap: spacing(1),
+                  padding: 0,
+                  marginBottom: spacing(2),
                 }}
               >
-                <Grid
+                <div
                   style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: spacing(1),
-                    padding: 0,
-                    marginBottom: spacing(1.2),
+                    width: 44,
+                    height: 44,
+                    borderRadius: 12,
+                    display: "grid",
+                    placeItems: "center",
+                    background: accent,
+                    boxShadow: `0 10px 30px ${accent}33`,
+                    flex: "0 0 auto",
                   }}
                 >
-                  <div
-                    style={{
-                      width: 44,
-                      height: 44,
-                      borderRadius: 12,
-                      display: "grid",
-                      placeItems: "center",
-                      background: accent,
-                      boxShadow: `0 10px 30px ${accent}33`,
-                      flex: "0 0 auto",
-                    }}
-                  >
-                    {Icon ? (
-                      <Icon
-                        width={22}
-                        height={22}
-                        style={{ color: "white" }}
-                        aria-hidden="true"
-                      />
-                    ) : null}
-                  </div>
-                  <Heading
-                    title={title}
-                    type="small"
-                    headerElement="h3"
-                    style={{
-                      textAlign: "left",
-                      width: "100%",
-                      margin: 0,
-                    }}
-                  />
-                </Grid>
-                {items.map((item, i) => (
-                  <Badge
-                    key={`mu-${i}`}
-                    variant={item.variant}
-                    title={item.text}
-                    style={{
-                      marginRight: spacing(1),
-                      marginBottom: spacing(1),
-                    }}
-                    aria-hidden="true"
-                  />
-                ))}
-                <Divider style={{ marginTop: spacing(1) }} />
+                  {Icon ? (
+                    <Icon
+                      width={22}
+                      height={22}
+                      style={{ color: "white" }}
+                      aria-hidden="true"
+                    />
+                  ) : null}
+                </div>
+                <Heading
+                  title={title}
+                  type="small"
+                  headerElement="h3"
+                  style={{
+                    textAlign: "left",
+                    width: "100%",
+                    margin: 0,
+                  }}
+                />
               </Grid>
-            );
-          })}
-        </Grid>
+              {items.map((item, i) => (
+                <Badge
+                  key={`mu-${i}`}
+                  variant={item.variant}
+                  title={item.text}
+                  style={{
+                    marginRight: spacing(1),
+                    marginBottom: spacing(1),
+                  }}
+                  aria-hidden="true"
+                />
+              ))}
+              <Divider style={{ marginTop: spacing(2) }} />
+            </Grid>
+          );
+        })}
       </Card.Container>
     </Card.Root>
   );
