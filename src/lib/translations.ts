@@ -56,4 +56,12 @@ export const translations = {
     en: "About Me",
     de: "Über mich",
   },
+  expandAll: {
+    en: "Expand all",
+    de: "Alle erweitern",
+  },
+    collapseAll: {
+    en: "Collapse all",
+    de: "Alle reduzieren",
+  },
 };

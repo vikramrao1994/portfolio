@@ -4,6 +4,7 @@ import { useBreakpointFlags } from "@/hooks/useBreakpoints";
 import {
   Accordion,
   Body,
+  Button,
   Card,
   Grid,
   Heading,
@@ -17,9 +18,14 @@ import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
 import TechBadge from "@/components/TechBadge";
 
+import { useState } from "react";
+
 const Work = () => {
-  const { isDesktop } = useBreakpointFlags();
+  const { isDesktop, isMobile } = useBreakpointFlags();
   const { language } = useLanguage();
+
+  const [allOpen, setAllOpen] = useState<null | boolean>(null);
+  const toggleAll = () => setAllOpen((prev) => (prev === true ? false : true));
 
   return (
     <Card.Root
@@ -47,6 +53,14 @@ const Work = () => {
             />
           </div>
         </Card.Header>
+        <Grid style={{ display: "flex", justifyContent: "flex-end" }}>
+          <Button
+            text={allOpen === true ? translations.collapseAll[language] : translations.expandAll[language]}
+            variant={"secondary"}
+            onClick={toggleAll}
+            style={{ width: isMobile ? "100%" : language === "de" ? "25%" : "20%" }}
+          />
+        </Grid>
         {SITE.experience.map((work, index) => (
           <Fragment key={index}>
             <Grid
@@ -55,7 +69,6 @@ const Work = () => {
                 marginTop: spacing(2),
                 marginBottom: spacing(2),
                 display: "flex",
-                // alignItems: "center",
                 gap: spacing(3),
                 justifyContent: isDesktop ? "space-between" : "flex-start",
               }}
@@ -137,6 +150,7 @@ const Work = () => {
               <Accordion.Group>
                 <Accordion.Root
                   aria-label={`Technologies Used in ${work.title} at ${work.company}`}
+                  isOpened={allOpen}
                 >
                   <Accordion.Summary
                     title={{
@@ -160,6 +174,7 @@ const Work = () => {
                 </Accordion.Root>
                 <Accordion.Root
                   aria-label={`Key Responsibilities for ${work.title} at ${work.company}`}
+                  isOpened={allOpen}
                 >
                   <Accordion.Summary
                     title={{
