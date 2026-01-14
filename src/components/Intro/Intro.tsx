@@ -84,7 +84,6 @@ const Intro = () => {
                 variant="info"
                 title={translations.oppertunitiesBadge[language]}
                 showIcon={true}
-                aria-hidden={true}
               />
             </div>
           )}

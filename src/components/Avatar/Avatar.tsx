@@ -1,4 +1,4 @@
-import AvatarCanvas from "./AvatarCanvas";
+import AvatarCanvas from "@/components/Avatar/AvatarCanvas";
 import { useEffect, useRef, useState } from "react";
 import Image from "@/components/Image";
 import { Button } from "@publicplan/kern-react-kit";
@@ -65,8 +65,6 @@ const Avatar = ({ size = 180, borderStyle }: AvatarProps) => {
           "aria-hidden": true,
         }}
       />
-
-      {/* Frame (matches your current styling) */}
       <div
         style={{
           width: size,
@@ -93,8 +91,6 @@ const Avatar = ({ size = 180, borderStyle }: AvatarProps) => {
           />
         )}
       </div>
-
-      {/* Reduced motion hint (optional) */}
       {reducedMotion && enabled ? (
         <span
           style={{
