@@ -56,30 +56,46 @@ Promise.all([
   })
 ]).then(() => {
   // Extract assets.zip with directory handling
-  unzipper.Open.file(assetsZipPath)
-    .then(d => Promise.all(d.files.map(file => {
-      const outPath = `./public/${file.path}`;
-      const dir = outPath.substring(0, outPath.lastIndexOf("/"));
-      if (dir && !fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
-      }
-      return new Promise((resolve, reject) => {
-        file.stream()
-          .pipe(fs.createWriteStream(outPath))
-          .on('finish', () => {
-            console.log(`✅ Extracted: ${file.path}`);
-            resolve();
-          })
-          .on('error', reject);
-      });
-    })))
-    .then(() => {
-      fs.unlinkSync(assetsZipPath);
-      console.log("✅ All assets extracted to public/");
-    })
-    .catch(err => {
-      console.error("❌ Error extracting assets.zip:", err);
-    });
+  unzipper.Open.file(assetsZipPath).then(d =>
+    Promise.all(
+      d.files.map(file => {
+        const outPath = `./public/${file.path}`;
+
+        // ✅ Handle directories properly
+        if (file.type === "Directory") {
+          if (!fs.existsSync(outPath)) {
+            fs.mkdirSync(outPath, { recursive: true });
+            console.log(`📁 Created directory: ${file.path}`);
+          }
+          return Promise.resolve();
+        }
+
+        // ✅ Ensure parent directory exists
+        const dir = outPath.substring(0, outPath.lastIndexOf("/"));
+        if (dir && !fs.existsSync(dir)) {
+          fs.mkdirSync(dir, { recursive: true });
+        }
+
+        // ✅ Write file
+        return new Promise((resolve, reject) => {
+          file.stream()
+            .pipe(fs.createWriteStream(outPath))
+            .on("finish", () => {
+              console.log(`✅ Extracted: ${file.path}`);
+              resolve();
+            })
+            .on("error", reject);
+        });
+      })
+    )
+  )
+  .then(() => {
+    fs.unlinkSync(assetsZipPath);
+    console.log("✅ All assets extracted to public/");
+  })
+  .catch(err => {
+    console.error("❌ Error extracting assets.zip:", err);
+  });
 }).catch((err) => {
   console.error('❌ Error fetching assets:', err);
 });

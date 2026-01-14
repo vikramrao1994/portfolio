@@ -40,7 +40,12 @@ const AboutMe = () => {
             />
           </div>
         </Card.Header>
-        <Grid style={{ marginBottom: isMobile ? spacing(2) : spacing(6), marginTop: spacing(2) }}>
+        <Grid
+          style={{
+            marginBottom: isMobile ? spacing(2) : spacing(6),
+            marginTop: spacing(2),
+          }}
+        >
           {SITE.about_me.map((paragraph, index) => (
             <Body key={index} text={paragraph[language]} size="small" />
           ))}

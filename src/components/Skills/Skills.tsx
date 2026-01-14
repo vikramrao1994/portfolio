@@ -82,7 +82,13 @@ const Skills = () => {
           ];
 
           return (
-            <Grid key={index} style={{ marginBottom: index < SITE.skills.length - 1 ? spacing(1) : spacing(2) }}>
+            <Grid
+              key={index}
+              style={{
+                marginBottom:
+                  index < SITE.skills.length - 1 ? spacing(1) : spacing(2),
+              }}
+            >
               <Grid
                 style={{
                   display: "flex",
@@ -96,12 +102,11 @@ const Skills = () => {
                   style={{
                     width: 44,
                     height: 44,
-                    borderRadius: 12,
+                    borderRadius: spacing(1.5),
                     display: "grid",
                     placeItems: "center",
                     background: accent,
                     boxShadow: `0 10px 30px ${accent}33`,
-                    flex: "0 0 auto",
                   }}
                 >
                   {Icon ? (
@@ -113,11 +118,7 @@ const Skills = () => {
                     />
                   ) : null}
                 </div>
-                <Heading
-                  title={title}
-                  type="small"
-                  headerElement="h3"
-                />
+                <Heading title={title} type="small" headerElement="h3" />
               </Grid>
               {items.map((item, i) => (
                 <Badge
@@ -131,7 +132,9 @@ const Skills = () => {
                   aria-hidden="true"
                 />
               ))}
-              {index < SITE.skills.length - 1 && <Divider style={{ marginTop: spacing(2) }} />}
+              {index < SITE.skills.length - 1 && (
+                <Divider style={{ marginTop: spacing(2) }} />
+              )}
             </Grid>
           );
         })}

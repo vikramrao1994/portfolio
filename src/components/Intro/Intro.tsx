@@ -1,5 +1,6 @@
 import { spacing } from "@/utils/utils";
 import { Badge, Body, Button, Card, Heading } from "@publicplan/kern-react-kit";
+import Avatar from "@/components/Avatar";
 import Image from "@/components/Image";
 import { SITE } from "@/lib/content";
 import { cardRootStyle } from "@/styles/styles";
@@ -37,16 +38,11 @@ const Intro = () => {
             margin: `${spacing(2)}px 0`,
           }}
         >
-          <Image
-            alt="Profile"
-            src="/portrait.webp"
-            width={180}
-            height={180}
-            style={{
-              borderRadius: "50%",
+          <Avatar
+            size={180}
+            borderStyle={{
               border: "6px solid #e0e0e0",
               boxShadow: "0 0 0 8px #f5f5f5, 0 4px 24px rgba(0,0,0,0.08)",
-              objectFit: "cover",
               backgroundImage:
                 "linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)",
             }}
