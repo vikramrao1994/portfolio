@@ -161,7 +161,7 @@ const Intro = () => {
           }}
         >
           <a
-            href={`/CV_Vikram_${language.toUpperCase()}.pdf`}
+            href={`/documents/CV_Vikram_${language.toUpperCase()}.pdf`}
             target="_blank"
             rel="noopener noreferrer"
             style={{

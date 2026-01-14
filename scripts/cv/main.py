@@ -5,8 +5,11 @@ from resume_creator import Resume_Creator
 
 def output_path(prefix: str) -> str:
     # Keep behavior consistent with your existing pipeline (writes into ./public)
-    return f"public/{prefix}"
+    return f"public/documents/{prefix}"
 
+
+# Ensure the documents directory exists
+os.makedirs("public/documents", exist_ok=True)
 
 DATA_PATH = os.getenv("CV_DATA_PATH", "src/data/data.json")
 OUTPUT_PREFIX = os.getenv("CV_OUTPUT_PREFIX", "CV_Vikram")
