@@ -46,8 +46,6 @@ export function FrontendIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
-import * as React from "react";
-
 export function BackendIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg

@@ -11,14 +11,12 @@ import {
   Link,
   Lists,
 } from "@publicplan/kern-react-kit";
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 import { cardRootStyle } from "@/styles/styles";
 import Image from "@/components/Image";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/translations";
 import TechBadge from "@/components/TechBadge";
-
-import { useState } from "react";
 
 const Work = () => {
   const { isDesktop, isMobile } = useBreakpointFlags();

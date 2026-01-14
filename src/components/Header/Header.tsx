@@ -1,4 +1,3 @@
-"use client";
 import { SITE } from "@/lib/content";
 import { spacing } from "@/utils/utils";
 import { Body, Button, Grid, Link } from "@publicplan/kern-react-kit";

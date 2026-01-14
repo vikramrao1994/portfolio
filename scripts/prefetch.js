@@ -1,6 +1,9 @@
-// scripts/prefetch.js
 import fs from "fs";
 import https from "https";
+import { createRequire } from "module";
+
+const require = createRequire(import.meta.url);
+const unzipper = require("unzipper");
 
 
 const url = "https://alpha-dog-9ce25.firebaseio.com/.json";
@@ -8,7 +11,6 @@ const assetsUrl = "https://firebasestorage.googleapis.com/v0/b/alpha-dog-9ce25.a
 const dest = "./src/data/data.json";
 const assetsZipPath = "./public/assets.zip";
 
-// Ensure the directories exist
 fs.mkdirSync('./src/data', { recursive: true });
 fs.mkdirSync('./public', { recursive: true });
 
@@ -26,12 +28,6 @@ function fetchZip(url, outPath) {
     }).on('error', reject);
   });
 }
-
-
-// Download assets.zip and extract to public/
-import { createRequire } from "module";
-const require = createRequire(import.meta.url);
-const unzipper = require("unzipper");
 
 Promise.all([
   fetchZip(assetsUrl, assetsZipPath),
@@ -55,13 +51,11 @@ Promise.all([
     }).on('error', reject);
   })
 ]).then(() => {
-  // Extract assets.zip with directory handling
   unzipper.Open.file(assetsZipPath).then(d =>
     Promise.all(
       d.files.map(file => {
         const outPath = `./public/${file.path}`;
 
-        // ✅ Handle directories properly
         if (file.type === "Directory") {
           if (!fs.existsSync(outPath)) {
             fs.mkdirSync(outPath, { recursive: true });
@@ -70,13 +64,11 @@ Promise.all([
           return Promise.resolve();
         }
 
-        // ✅ Ensure parent directory exists
         const dir = outPath.substring(0, outPath.lastIndexOf("/"));
         if (dir && !fs.existsSync(dir)) {
           fs.mkdirSync(dir, { recursive: true });
         }
 
-        // ✅ Write file
         return new Promise((resolve, reject) => {
           file.stream()
             .pipe(fs.createWriteStream(outPath))

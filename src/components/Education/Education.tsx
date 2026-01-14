@@ -1,4 +1,3 @@
-"use client";
 import { useBreakpointFlags } from "@/hooks/useBreakpoints";
 import Image from "@/components/Image";
 import { SITE } from "@/lib/content";

@@ -1,4 +1,3 @@
-"use client";
 import { Grid, Preline, Subline } from "@publicplan/kern-react-kit";
 import { SITE } from "@/lib/content";
 import { spacing } from "@/utils/utils";
