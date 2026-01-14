@@ -164,7 +164,7 @@ class Resume_Creator:
         });
         heading = [
             [
-                HyperlinkedImage("public/%s"%image,None, 20,20),
+                HyperlinkedImage("public/images/%s"%image,None, 20,20),
                 Paragraph('<font color="blue">%s</font>'%title, body_style)
             ]
         ]
@@ -210,10 +210,10 @@ class Resume_Creator:
         for experience in self.input["experience"]:
             logo = [
                 [
-                HyperlinkedImage("public/" + experience["logo"],None, 20, 20)
+                HyperlinkedImage("public/images/" + experience["logo"],None, 20, 20)
                 ]
                 # [
-                #     HyperlinkedImage("public/" + experience["location_picture"],None, 15, 15)
+                #     HyperlinkedImage("public/images/" + experience["location_picture"],None, 15, 15)
                 # ]
             ]
             sub_title = ''
@@ -228,7 +228,7 @@ class Resume_Creator:
 
             tech_stack = [
                 [   
-                    HyperlinkedImage("public/tech_stack.webp",None, 15, 15),
+                    HyperlinkedImage("public/images/tech_stack.webp",None, 15, 15),
                     self.generate_alignment_style("<b><i>%s</i></b>" % ', '.join(experience["tech_stack"]), TA_LEFT, GENERAL_FONT_SIZE)
                 ]
             ]
@@ -297,7 +297,7 @@ class Resume_Creator:
             })
             logo = [
                 [
-                HyperlinkedImage("public/" + education["logo"],None, 20, 25)
+                HyperlinkedImage("public/images/" + education["logo"],None, 20, 25)
                 ]
             ]
             degree = [[
@@ -341,13 +341,13 @@ class Resume_Creator:
         sub_heading_style = self.get_body_style("Normal", {
         "fontSize": GENERAL_FONT_SIZE
         })
-        linkedin = HyperlinkedImage('public/linkedin.webp', self.input["heading"]["linkedin"],25,20)
-        github = HyperlinkedImage('public/github.webp', self.input["heading"]["github"],20,20)
-        # personal_website = HyperlinkedImage('public/me.webp', self.input["heading"]["website"],20,20)
-        phone_image = HyperlinkedImage('public/phone.webp', None, 20,20)
-        address_image = HyperlinkedImage('public/address.webp', None, 20, 20)
-        email_image = HyperlinkedImage('public/mail.webp', None, 20, 20)
-        profile_picture = HyperlinkedImage('public/portrait.webp', None, 60, 60)
+        linkedin = HyperlinkedImage('public/images/linkedin.webp', self.input["heading"]["linkedin"],25,20)
+        github = HyperlinkedImage('public/images/github.webp', self.input["heading"]["github"],20,20)
+        # personal_website = HyperlinkedImage('public/images/me.webp', self.input["heading"]["website"],20,20)
+        phone_image = HyperlinkedImage('public/images/phone.webp', None, 20,20)
+        address_image = HyperlinkedImage('public/images/address.webp', None, 20, 20)
+        email_image = HyperlinkedImage('public/images/mail.webp', None, 20, 20)
+        profile_picture = HyperlinkedImage('public/images/portrait.webp', None, 60, 60)
         # name_heading = [
         #     [
         #         self.generate_alignment_style("<b>%s</b>" % self.input["heading"]["name"], TA_LEFT, NAME_FONT_SIZE),
@@ -404,7 +404,7 @@ class Resume_Creator:
         for project in self.input["personal_projects"]:
             logo = [
                 [
-                HyperlinkedImage("public/" + project["logo"],project["link"], 20, 20)
+                HyperlinkedImage("public/images/" + project["logo"],project["link"], 20, 20)
                 ]
             ]
             summary = [

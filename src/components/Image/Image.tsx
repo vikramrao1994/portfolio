@@ -1,7 +1,7 @@
 import ExportedImage, { ExportedImageProps } from "next-image-export-optimizer";
 
-const Image = (props: ExportedImageProps) => {
-  return <ExportedImage loading="lazy" {...props} />;
+const Image = ({ src, ...props }: ExportedImageProps) => {
+  return <ExportedImage loading="lazy" src={"images/" + src} {...props} />;
 };
 
 export default Image;
