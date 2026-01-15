@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import "@/styles/global.scss";
 import { PageProvider } from "./providers";
+import Script from "next/script";
 
 export const metadata: Metadata = {
-  title: "CV | Vikram Rao",
+  title: "Vikram Rao",
   description:
     "Senior Frontend Software Developer | React.js, Next.js, TypeScript, JavaScript | English (C2), German (A1)",
   metadataBase: new URL("https://www.vikramrao.me"),
@@ -38,6 +39,23 @@ export default async function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <Script
+          src="https://plausible.io/js/pa-WW0ukeyodtUMxtdlm5v4m.js"
+          strategy="afterInteractive"
+        />
+        <Script id="plausible-init" strategy="afterInteractive">
+          {`
+            window.plausible = window.plausible || function () {
+              (plausible.q = plausible.q || []).push(arguments);
+            };
+            plausible.init = plausible.init || function (i) {
+              plausible.o = i || {};
+            };
+            plausible.init();
+          `}
+        </Script>
+      </head>
       <body className="hero">
         <PageProvider>{children}</PageProvider>
       </body>
