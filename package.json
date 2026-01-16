@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "prebuild": "bun scripts/prefetch.js && python3 scripts/cv/main.py",
-    "dev": "next dev --turbopack",
-    "build": "next build --turbopack && next-image-export-optimizer",
+    "dev": "bun --bun next dev --turbopack",
+    "build": "bun --bun next build --turbopack && next-image-export-optimizer",
     "start": "bunx serve out",
     "lint": "eslint",
     "format": "prettier --ignore-path .gitignore \"**/src/**/*.+(ts|js|tsx)\" --write"

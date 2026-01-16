@@ -47,6 +47,7 @@ const Skills = () => {
             style={{
               display: "flex",
               justifyContent: "center",
+              alignItems: "center",
               gap: spacing(2),
               width: "100%",
             }}
