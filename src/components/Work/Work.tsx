@@ -1,6 +1,3 @@
-import { SITE } from "@/lib/content";
-import { getDurationString, spacing } from "@/utils/utils";
-import { useBreakpointFlags } from "@/hooks/useBreakpoints";
 import {
   Accordion,
   Body,
@@ -12,26 +9,24 @@ import {
   Lists,
 } from "@publicplan/kern-react-kit";
 import { Fragment, useState } from "react";
-import { cardRootStyle } from "@/styles/styles";
 import Image from "@/components/Image";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
 import TechBadge from "@/components/TechBadge";
+import { useLanguage } from "@/context/LanguageContext";
+import { useBreakpointFlags } from "@/hooks/useBreakpoints";
+import { SITE } from "@/lib/content";
+import { translations } from "@/lib/translations";
+import { cardRootStyle } from "@/styles/styles";
+import { getDurationString, spacing } from "@/utils/utils";
 
 const Work = () => {
   const { isDesktop, isMobile } = useBreakpointFlags();
   const { language } = useLanguage();
 
   const [allOpen, setAllOpen] = useState<null | boolean>(null);
-  const toggleAll = () => setAllOpen((prev) => (prev === true ? false : true));
+  const toggleAll = () => setAllOpen((prev) => prev !== true);
 
   return (
-    <Card.Root
-      id="work"
-      size="small"
-      style={cardRootStyle}
-      aria-label="Work Experience"
-    >
+    <Card.Root id="work" size="small" style={cardRootStyle} aria-label="Work Experience">
       <Card.Container>
         <Card.Header>
           <div
@@ -66,9 +61,9 @@ const Work = () => {
           />
         </Grid>
         {SITE.experience.map((work, index) => (
-          <Fragment key={index}>
+          <Fragment key={`key-${index}-${language}`}>
             <Grid
-              key={index}
+              key={`key-${index}-${language}`}
               style={{
                 marginTop: spacing(2),
                 marginBottom: spacing(2),
@@ -78,12 +73,7 @@ const Work = () => {
               }}
             >
               {isDesktop && (
-                <Image
-                  src={work.logo}
-                  alt={work.title[language]}
-                  height={70}
-                  width={70}
-                />
+                <Image src={work.logo} alt={work.title[language]} height={70} width={70} />
               )}
               <div
                 style={{
@@ -117,7 +107,7 @@ const Work = () => {
                     target="_blank"
                     iconLeft
                     title={translations.certificate[language]}
-                    aria-label={`View Experience Certificate for ${work.title} at ${work.company}`}
+                    aria-label={`View Experience Certificate for ${work.title[language]} at ${work.company}`}
                     variant="small"
                   />
                 )}
@@ -141,12 +131,7 @@ const Work = () => {
                     width: "20%",
                   }}
                 >
-                  <Image
-                    src={work.logo}
-                    alt={work.title[language]}
-                    height={70}
-                    width={70}
-                  />
+                  <Image src={work.logo} alt={work.title[language]} height={70} width={70} />
                 </div>
               )}
             </Grid>
@@ -166,7 +151,7 @@ const Work = () => {
                   <div style={{ marginBottom: spacing(2) }}>
                     {work.tech_stack_icons.map((tech, index) => (
                       <TechBadge
-                        key={index}
+                        key={`key-${index}-${tech.id}`}
                         tech={tech}
                         variant="info"
                         style={{
@@ -187,13 +172,9 @@ const Work = () => {
                       variant: "small",
                     }}
                   />
-                  <Lists.Root
-                    size="small"
-                    type="bullet"
-                    style={{ marginBottom: spacing(2) }}
-                  >
+                  <Lists.Root size="small" type="bullet" style={{ marginBottom: spacing(2) }}>
                     {work.summary.map((item, index) => (
-                      <Lists.Item key={index} text={item[language]} />
+                      <Lists.Item key={`key-${index}-${language}`} text={item[language]} />
                     ))}
                   </Lists.Root>
                 </Accordion.Root>

@@ -1,4 +1,5 @@
 "use client";
+import { Grid } from "@publicplan/kern-react-kit";
 import AboutMe from "@/components/About";
 import Education from "@/components/Education";
 import Intro from "@/components/Intro";
@@ -6,7 +7,6 @@ import Skills from "@/components/Skills";
 import Work from "@/components/Work";
 import { useBreakpointFlags } from "@/hooks/useBreakpoints";
 import { spacing } from "@/utils/utils";
-import { Grid } from "@publicplan/kern-react-kit";
 
 const Home = () => {
   const { isDesktop } = useBreakpointFlags();

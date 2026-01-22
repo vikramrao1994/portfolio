@@ -1,5 +1,5 @@
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Environment, useAnimations, useGLTF } from "@react-three/drei";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 
@@ -42,11 +42,7 @@ const AvatarModel = () => {
 
   useEffect(() => {
     const first = animations?.[0]?.name;
-    const idleName = actions["Idle"]
-      ? "Idle"
-      : actions["idle"]
-        ? "idle"
-        : first;
+    const idleName = actions.Idle ? "Idle" : actions.idle ? "idle" : first;
 
     if (!idleName || !actions[idleName]) return;
 

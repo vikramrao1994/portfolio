@@ -6,7 +6,7 @@ interface CounterProps {
   duration?: number; // total duration in ms (optional, default: 2000)
 }
 
-const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
+const easeOut = (t: number) => 1 - (1 - t) ** 3;
 
 const Counter = ({ target, duration = 2000 }: CounterProps) => {
   const [count, setCount] = useState(0);
@@ -36,9 +36,7 @@ const Counter = ({ target, duration = 2000 }: CounterProps) => {
     };
   }, [target, duration]);
 
-  return (
-    <Heading headerElement="span" title={count.toString()} type="x-large" />
-  );
+  return <Heading headerElement="span" title={count.toString()} type="x-large" />;
 };
 
 export default Counter;

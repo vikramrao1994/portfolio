@@ -1,13 +1,13 @@
-import { SITE } from "@/lib/content";
-import { spacing } from "@/utils/utils";
 import { Body, Button, Grid, Link } from "@publicplan/kern-react-kit";
-import Image from "@/components/Image";
-import { useEffect, useState } from "react";
-import { useBreakpointFlags } from "@/hooks/useBreakpoints";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import Image from "@/components/Image";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useLanguage } from "@/context/LanguageContext";
+import { useBreakpointFlags } from "@/hooks/useBreakpoints";
+import { SITE } from "@/lib/content";
 import { translations } from "@/lib/translations";
+import { spacing } from "@/utils/utils";
 
 interface StickyBarProps {
   show: boolean;
@@ -192,10 +192,9 @@ const Header = () => {
     const el = document.getElementById("introduction");
     if (!el) return;
 
-    const observer = new IntersectionObserver(
-      ([entry]) => setShowSticky(!entry.isIntersecting),
-      { threshold: 0 },
-    );
+    const observer = new IntersectionObserver(([entry]) => setShowSticky(!entry.isIntersecting), {
+      threshold: 0,
+    });
 
     observer.observe(el);
     return () => observer.disconnect();
@@ -203,9 +202,7 @@ const Header = () => {
 
   return (
     <>
-      {isMobile && (
-        <StickyBar show={showSticky} onClick={() => setDrawerOpen(true)} />
-      )}
+      {isMobile && <StickyBar show={showSticky} onClick={() => setDrawerOpen(true)} />}
       <Grid
         style={{
           height: spacing(5),
@@ -249,12 +246,7 @@ const Header = () => {
               variant="small"
               aria-label="Instagram"
             >
-              <Image
-                src="instagram.webp"
-                alt="Instagram Logo"
-                height={30}
-                width={30}
-              />
+              <Image src="instagram.webp" alt="Instagram Logo" height={30} width={30} />
             </Link>
           ) : (
             <>
@@ -264,37 +256,13 @@ const Header = () => {
                 variant="small"
                 aria-label="LinkedIn"
               >
-                <Image
-                  src="linkedin.webp"
-                  alt="LinkedIn Logo"
-                  height={24}
-                  width={28}
-                />
+                <Image src="linkedin.webp" alt="LinkedIn Logo" height={24} width={28} />
               </Link>
-              <Link
-                href={SITE.heading.github}
-                target="_blank"
-                variant="small"
-                aria-label="GitHub"
-              >
-                <Image
-                  src="github.webp"
-                  alt="GitHub Logo"
-                  height={24}
-                  width={24}
-                />
+              <Link href={SITE.heading.github} target="_blank" variant="small" aria-label="GitHub">
+                <Image src="github.webp" alt="GitHub Logo" height={24} width={24} />
               </Link>
-              <Link
-                href="/photography"
-                variant="small"
-                aria-label="Photographer"
-              >
-                <Image
-                  src="photographer.webp"
-                  alt="Photographer Logo"
-                  height={28}
-                  width={28}
-                />
+              <Link href="/photography" variant="small" aria-label="Photographer">
+                <Image src="photographer.webp" alt="Photographer Logo" height={28} width={28} />
               </Link>
             </>
           )}

@@ -1,6 +1,6 @@
 "use client";
-import Photography from "@/components/Photography";
 import { Grid } from "@publicplan/kern-react-kit";
+import Photography from "@/components/Photography";
 
 const PhotographyPage = () => {
   return (

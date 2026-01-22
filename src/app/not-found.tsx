@@ -1,6 +1,6 @@
 "use client";
-import { spacing } from "@/utils/utils";
 import { Card, Heading } from "@publicplan/kern-react-kit";
+import { spacing } from "@/utils/utils";
 
 const NotFound = () => {
   return (

@@ -1,7 +1,7 @@
 "use client";
+import { Card, Heading } from "@publicplan/kern-react-kit";
 import { cardRootStyle } from "@/styles/styles";
 import { spacing } from "@/utils/utils";
-import { Card, Heading } from "@publicplan/kern-react-kit";
 
 const Photography = () => {
   return (
@@ -22,11 +22,7 @@ const Photography = () => {
               width: "100%",
             }}
           >
-            <Heading
-              title={"Photography"}
-              type={"medium"}
-              headerElement={"h2"}
-            />
+            <Heading title={"Photography"} type={"medium"} headerElement={"h2"} />
           </div>
         </Card.Header>
         <Card.Body>coming soon...</Card.Body>

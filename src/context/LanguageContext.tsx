@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, type ReactNode, useContext, useState } from "react";
 
 export type Language = "en" | "de";
 
@@ -7,9 +7,7 @@ interface LanguageContextProps {
   setLanguage: (lang: Language) => void;
 }
 
-const LanguageContext = createContext<LanguageContextProps | undefined>(
-  undefined,
-);
+const LanguageContext = createContext<LanguageContextProps | undefined>(undefined);
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   const [language, setLanguageState] = useState<Language>("en");
@@ -38,7 +36,6 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
 
 export const useLanguage = () => {
   const ctx = useContext(LanguageContext);
-  if (!ctx)
-    throw new Error("useLanguage must be used within a LanguageProvider");
+  if (!ctx) throw new Error("useLanguage must be used within a LanguageProvider");
   return ctx;
 };

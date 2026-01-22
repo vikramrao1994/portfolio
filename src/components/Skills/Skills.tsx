@@ -1,22 +1,11 @@
+import { Badge, Card, Divider, Grid, Heading } from "@publicplan/kern-react-kit";
+import { ArchitectureIcon, BackendIcon, FrontendIcon, ToolsDevOpsIcon } from "@/components/Icons";
+import Image from "@/components/Image";
 import { useLanguage } from "@/context/LanguageContext";
 import { SITE } from "@/lib/content";
+import { translations } from "@/lib/translations";
 import { cardRootStyle } from "@/styles/styles";
 import { spacing } from "@/utils/utils";
-import {
-  Badge,
-  Card,
-  Divider,
-  Grid,
-  Heading,
-} from "@publicplan/kern-react-kit";
-import Image from "@/components/Image";
-import { translations } from "@/lib/translations";
-import {
-  FrontendIcon,
-  BackendIcon,
-  ArchitectureIcon,
-  ToolsDevOpsIcon,
-} from "@/components/Icons";
 
 const SKILL_META: Record<
   string,
@@ -35,12 +24,7 @@ const SKILL_META: Record<
 const Skills = () => {
   const { language } = useLanguage();
   return (
-    <Card.Root
-      id="skills"
-      aria-label="Skills"
-      size="small"
-      style={cardRootStyle}
-    >
+    <Card.Root id="skills" aria-label="Skills" size="small" style={cardRootStyle}>
       <Card.Container>
         <Card.Header>
           <div
@@ -52,17 +36,8 @@ const Skills = () => {
               width: "100%",
             }}
           >
-            <Image
-              src="/tech_stack.webp"
-              alt="Skills Icon"
-              width={50}
-              height={50}
-            />
-            <Heading
-              title={translations.skills[language]}
-              type={"medium"}
-              headerElement={"h2"}
-            />
+            <Image src="/tech_stack.webp" alt="Skills Icon" width={50} height={50} />
+            <Heading title={translations.skills[language]} type={"medium"} headerElement={"h2"} />
           </div>
         </Card.Header>
         {SITE.skills.map((skill, index) => {
@@ -83,10 +58,9 @@ const Skills = () => {
 
           return (
             <Grid
-              key={index}
+              key={`skill-${index}-${language}`}
               style={{
-                marginBottom:
-                  index < SITE.skills.length - 1 ? spacing(1) : spacing(2),
+                marginBottom: index < SITE.skills.length - 1 ? spacing(1) : spacing(2),
               }}
             >
               <Grid
@@ -110,19 +84,14 @@ const Skills = () => {
                   }}
                 >
                   {Icon ? (
-                    <Icon
-                      width={22}
-                      height={22}
-                      style={{ color: "white" }}
-                      aria-hidden="true"
-                    />
+                    <Icon width={22} height={22} style={{ color: "white" }} aria-hidden="true" />
                   ) : null}
                 </div>
                 <Heading title={title} type="small" headerElement="h3" />
               </Grid>
               {items.map((item, i) => (
                 <Badge
-                  key={`mu-${i}`}
+                  key={`mu-${i}-${language}`}
                   variant={item.variant}
                   title={item.text}
                   style={{
@@ -132,9 +101,7 @@ const Skills = () => {
                   aria-hidden="true"
                 />
               ))}
-              {index < SITE.skills.length - 1 && (
-                <Divider style={{ marginTop: spacing(2) }} />
-              )}
+              {index < SITE.skills.length - 1 && <Divider style={{ marginTop: spacing(2) }} />}
             </Grid>
           );
         })}

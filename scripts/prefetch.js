@@ -1,93 +1,101 @@
-import fs from "fs";
-import https from "https";
-import { createRequire } from "module";
+import fs from "node:fs";
+import https from "node:https";
+import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
 const unzipper = require("unzipper");
 
-
 const url = "https://alpha-dog-9ce25.firebaseio.com/.json";
-const assetsUrl = "https://firebasestorage.googleapis.com/v0/b/alpha-dog-9ce25.appspot.com/o/assets.zip?alt=media";
+const assetsUrl =
+  "https://firebasestorage.googleapis.com/v0/b/alpha-dog-9ce25.appspot.com/o/assets.zip?alt=media";
 const dest = "./src/data/data.json";
 const assetsZipPath = "./public/assets.zip";
 
-fs.mkdirSync('./src/data', { recursive: true });
-fs.mkdirSync('./public', { recursive: true });
+fs.mkdirSync("./src/data", { recursive: true });
+fs.mkdirSync("./public", { recursive: true });
 
 function fetchZip(url, outPath) {
   return new Promise((resolve, reject) => {
-    https.get(url, (res) => {
-      if (res.statusCode !== 200) return reject(new Error(`HTTP ${res.statusCode}`));
-      const file = fs.createWriteStream(outPath);
-      res.pipe(file);
-      file.on('finish', () => {
-        file.close();
-        resolve();
-      });
-      file.on('error', reject);
-    }).on('error', reject);
+    https
+      .get(url, (res) => {
+        if (res.statusCode !== 200) return reject(new Error(`HTTP ${res.statusCode}`));
+        const file = fs.createWriteStream(outPath);
+        res.pipe(file);
+        file.on("finish", () => {
+          file.close();
+          resolve();
+        });
+        file.on("error", reject);
+      })
+      .on("error", reject);
   });
 }
 
 Promise.all([
   fetchZip(assetsUrl, assetsZipPath),
   new Promise((resolve, reject) => {
-    https.get(url, (res) => {
-      if (res.statusCode !== 200) return reject(new Error(`HTTP ${res.statusCode}`));
-      let data = "";
-      res.on("data", chunk => {
-        data += chunk;
-      });
-      res.on("end", () => {
-        try {
-          const json = JSON.parse(data);
-          fs.writeFileSync(dest, JSON.stringify(json, null, 2));
-          console.log("✅ site.json pretty-printed and saved locally for build");
-          resolve();
-        } catch (err) {
-          reject(err);
-        }
-      });
-    }).on('error', reject);
-  })
-]).then(() => {
-  unzipper.Open.file(assetsZipPath).then(d =>
-    Promise.all(
-      d.files.map(file => {
-        const outPath = `./public/${file.path}`;
-
-        if (file.type === "Directory") {
-          if (!fs.existsSync(outPath)) {
-            fs.mkdirSync(outPath, { recursive: true });
-            console.log(`📁 Created directory: ${file.path}`);
+    https
+      .get(url, (res) => {
+        if (res.statusCode !== 200) return reject(new Error(`HTTP ${res.statusCode}`));
+        let data = "";
+        res.on("data", (chunk) => {
+          data += chunk;
+        });
+        res.on("end", () => {
+          try {
+            const json = JSON.parse(data);
+            fs.writeFileSync(dest, JSON.stringify(json, null, 2));
+            console.log("✅ site.json pretty-printed and saved locally for build");
+            resolve();
+          } catch (err) {
+            reject(err);
           }
-          return Promise.resolve();
-        }
-
-        const dir = outPath.substring(0, outPath.lastIndexOf("/"));
-        if (dir && !fs.existsSync(dir)) {
-          fs.mkdirSync(dir, { recursive: true });
-        }
-
-        return new Promise((resolve, reject) => {
-          file.stream()
-            .pipe(fs.createWriteStream(outPath))
-            .on("finish", () => {
-              console.log(`✅ Extracted: ${file.path}`);
-              resolve();
-            })
-            .on("error", reject);
         });
       })
-    )
-  )
+      .on("error", reject);
+  }),
+])
   .then(() => {
-    fs.unlinkSync(assetsZipPath);
-    console.log("✅ All assets extracted to public/");
+    unzipper.Open.file(assetsZipPath)
+      .then((d) =>
+        Promise.all(
+          d.files.map((file) => {
+            const outPath = `./public/${file.path}`;
+
+            if (file.type === "Directory") {
+              if (!fs.existsSync(outPath)) {
+                fs.mkdirSync(outPath, { recursive: true });
+                console.log(`📁 Created directory: ${file.path}`);
+              }
+              return Promise.resolve();
+            }
+
+            const dir = outPath.substring(0, outPath.lastIndexOf("/"));
+            if (dir && !fs.existsSync(dir)) {
+              fs.mkdirSync(dir, { recursive: true });
+            }
+
+            return new Promise((resolve, reject) => {
+              file
+                .stream()
+                .pipe(fs.createWriteStream(outPath))
+                .on("finish", () => {
+                  console.log(`✅ Extracted: ${file.path}`);
+                  resolve();
+                })
+                .on("error", reject);
+            });
+          }),
+        ),
+      )
+      .then(() => {
+        fs.unlinkSync(assetsZipPath);
+        console.log("✅ All assets extracted to public/");
+      })
+      .catch((err) => {
+        console.error("❌ Error extracting assets.zip:", err);
+      });
   })
-  .catch(err => {
-    console.error("❌ Error extracting assets.zip:", err);
+  .catch((err) => {
+    console.error("❌ Error fetching assets:", err);
   });
-}).catch((err) => {
-  console.error('❌ Error fetching assets:', err);
-});

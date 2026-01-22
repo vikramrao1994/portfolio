@@ -1,7 +1,7 @@
 import { Grid, Preline, Subline } from "@publicplan/kern-react-kit";
+import StackIcon from "tech-stack-icons";
 import { SITE } from "@/lib/content";
 import { spacing } from "@/utils/utils";
-import StackIcon from "tech-stack-icons";
 
 const Footer = () => {
   return (
@@ -28,11 +28,7 @@ const Footer = () => {
           alignItems: "center",
         }}
       >
-        <Preline
-          text={`Built with`}
-          style={{ textAlign: "center" }}
-          variant="small"
-        />
+        <Preline text={`Built with`} style={{ textAlign: "center" }} variant="small" />
         <span style={{ width: 20, height: 20 }}>
           <StackIcon name={"typescript"} />
         </span>

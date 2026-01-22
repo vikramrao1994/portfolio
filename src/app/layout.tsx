@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "@/styles/global.scss";
-import { PageProvider } from "./providers";
 import Script from "next/script";
+import { PageProvider } from "./providers";
 
 export const metadata: Metadata = {
   title: "Vikram Rao",

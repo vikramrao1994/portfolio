@@ -1,24 +1,19 @@
-import { spacing } from "@/utils/utils";
 import { Badge, Body, Button, Card, Heading } from "@publicplan/kern-react-kit";
 import Avatar from "@/components/Avatar";
-import Image from "@/components/Image";
-import { SITE } from "@/lib/content";
-import { cardRootStyle } from "@/styles/styles";
 import Counter from "@/components/Counter";
-import { useBreakpointFlags } from "@/hooks/useBreakpoints";
+import Image from "@/components/Image";
 import { useLanguage } from "@/context/LanguageContext";
+import { useBreakpointFlags } from "@/hooks/useBreakpoints";
+import { SITE } from "@/lib/content";
 import { translations } from "@/lib/translations";
+import { cardRootStyle } from "@/styles/styles";
+import { spacing } from "@/utils/utils";
 
 const Intro = () => {
   const { isMobile } = useBreakpointFlags();
   const { language } = useLanguage();
   return (
-    <Card.Root
-      id="introduction"
-      size="small"
-      aria-label="Introduction"
-      style={cardRootStyle}
-    >
+    <Card.Root id="introduction" size="small" aria-label="Introduction" style={cardRootStyle}>
       <Card.Container>
         <div style={{ position: "relative", width: "100%" }}>
           <Image
@@ -43,8 +38,7 @@ const Intro = () => {
             borderStyle={{
               border: "6px solid #e0e0e0",
               boxShadow: "0 0 0 8px #f5f5f5, 0 4px 24px rgba(0,0,0,0.08)",
-              backgroundImage:
-                "linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)",
+              backgroundImage: "linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)",
             }}
           />
         </div>
@@ -97,12 +91,7 @@ const Intro = () => {
               marginTop: spacing(2),
             }}
           >
-            <Image
-              src="/address.webp"
-              alt="Address Icon"
-              width={24}
-              height={24}
-            />
+            <Image src="/address.webp" alt="Address Icon" width={24} height={24} />
             <Body
               isBold
               style={{
@@ -137,10 +126,7 @@ const Intro = () => {
                   textAlign: "right",
                 }}
               >
-                <Counter
-                  target={Number(SITE.heading.years_of_experience)}
-                  duration={2000}
-                />
+                <Counter target={Number(SITE.heading.years_of_experience)} duration={2000} />
               </span>
               <Body
                 text={translations.yearsOfExperience[language]}

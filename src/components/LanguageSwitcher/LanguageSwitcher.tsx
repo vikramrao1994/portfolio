@@ -1,8 +1,8 @@
-import { spacing } from "@/utils/utils";
 import { Body, Label } from "@publicplan/kern-react-kit";
-import Image from "@/components/Image";
 import { useState } from "react";
+import Image from "@/components/Image";
 import { useLanguage } from "@/context/LanguageContext";
+import { spacing } from "@/utils/utils";
 
 const LANGUAGES = [
   { code: "en", label: "EN", flag: "/usa.webp" },
@@ -17,13 +17,7 @@ interface LanguageButton {
   onSelect: (code: string) => void;
 }
 
-const LanguageButton: React.FC<LanguageButton> = ({
-  code,
-  label,
-  flag,
-  selected,
-  onSelect,
-}) => {
+const LanguageButton: React.FC<LanguageButton> = ({ code, label, flag, selected, onSelect }) => {
   return (
     <button
       id="print-button"
@@ -39,7 +33,7 @@ const LanguageButton: React.FC<LanguageButton> = ({
           background: "transparent",
         }}
       >
-        <Image src={flag} alt={label + " Flag"} width={20} height={20} />
+        <Image src={flag} alt={`${label} Flag`} width={20} height={20} />
       </span>
       <Label className={"kern-label"}>{label}</Label>
     </button>
@@ -49,12 +43,14 @@ const LanguageSwitcher = () => {
   const { language, setLanguage } = useLanguage();
   const [open, setOpen] = useState(false);
 
-  const current = LANGUAGES.find((l) => l.code === language)!;
+  const current = LANGUAGES.find((l) => l.code === language);
+
+  if (!current) {
+    return null;
+  }
 
   return (
-    <div
-      style={{ position: "relative", display: "flex", alignItems: "center" }}
-    >
+    <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
       <LanguageButton
         onSelect={() => setOpen((o) => !o)}
         label={current.label}
@@ -77,13 +73,14 @@ const LanguageSwitcher = () => {
             marginTop: spacing(0.5),
             listStyle: "none",
           }}
-          role="listbox"
         >
           {LANGUAGES.map((l) => (
-            <li
+            <button
               key={l.code}
+              type="button"
               role="option"
               aria-selected={l.code === language}
+              tabIndex={0}
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -92,20 +89,24 @@ const LanguageSwitcher = () => {
                 cursor: "pointer",
                 background: l.code === language ? "#f0f4ff" : undefined,
                 fontWeight: l.code === language ? 600 : 400,
+                border: "none",
+                width: "100%",
+                textAlign: "left",
               }}
               onClick={() => {
                 setLanguage(l.code as "en" | "de");
                 setOpen(false);
               }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  setLanguage(l.code as "en" | "de");
+                  setOpen(false);
+                }
+              }}
             >
-              <Image
-                src={l.flag}
-                alt={l.label + " Flag"}
-                width={20}
-                height={20}
-              />
+              <Image src={l.flag} alt={`${l.label} Flag`} width={20} height={20} />
               <Body className={"kern-label"} size="small" text={l.label} />
-            </li>
+            </button>
           ))}
         </ul>
       )}

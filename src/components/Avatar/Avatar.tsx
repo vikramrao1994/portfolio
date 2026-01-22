@@ -1,7 +1,7 @@
-import AvatarCanvas from "@/components/Avatar/AvatarCanvas";
-import { useEffect, useRef, useState } from "react";
-import Image from "@/components/Image";
 import { Button } from "@publicplan/kern-react-kit";
+import { useEffect, useRef, useState } from "react";
+import AvatarCanvas from "@/components/Avatar/AvatarCanvas";
+import Image from "@/components/Image";
 import { spacing } from "@/utils/utils";
 
 type AvatarProps = {

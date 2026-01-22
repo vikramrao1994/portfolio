@@ -1,17 +1,12 @@
 "use client";
 import { ThemeProvider } from "@publicplan/kern-react-kit";
-import { LanguageProvider } from "@/context/LanguageContext";
-
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
+import { LanguageProvider } from "@/context/LanguageContext";
 
 function BodyProvider({ children }: { children: React.ReactNode }) {
   return (
-    <ThemeProvider
-      global={false}
-      className="kern-body-custom"
-      data-kern-theme="light"
-    >
+    <ThemeProvider global={false} className="kern-body-custom" data-kern-theme="light">
       {children}
     </ThemeProvider>
   );
@@ -19,11 +14,7 @@ function BodyProvider({ children }: { children: React.ReactNode }) {
 
 function FooterProvider({ children }: { children: React.ReactNode }) {
   return (
-    <ThemeProvider
-      global={false}
-      className="kern-footer-custom"
-      data-kern-theme="light"
-    >
+    <ThemeProvider global={false} className="kern-footer-custom" data-kern-theme="light">
       {children}
     </ThemeProvider>
   );
@@ -31,11 +22,7 @@ function FooterProvider({ children }: { children: React.ReactNode }) {
 
 function HeaderProvider({ children }: { children: React.ReactNode }) {
   return (
-    <ThemeProvider
-      global={false}
-      className="kern-header-custom"
-      data-kern-theme="light"
-    >
+    <ThemeProvider global={false} className="kern-header-custom" data-kern-theme="light">
       {children}
     </ThemeProvider>
   );

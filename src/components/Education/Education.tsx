@@ -1,22 +1,17 @@
-import { useBreakpointFlags } from "@/hooks/useBreakpoints";
+import { Body, Card, Grid, Heading, Link } from "@publicplan/kern-react-kit";
 import Image from "@/components/Image";
+import { useLanguage } from "@/context/LanguageContext";
+import { useBreakpointFlags } from "@/hooks/useBreakpoints";
 import { SITE } from "@/lib/content";
+import { translations } from "@/lib/translations";
 import { cardRootStyle } from "@/styles/styles";
 import { spacing } from "@/utils/utils";
-import { Body, Card, Grid, Heading, Link } from "@publicplan/kern-react-kit";
-import { useLanguage } from "@/context/LanguageContext";
-import { translations } from "@/lib/translations";
 
 const Education = () => {
   const { isDesktop } = useBreakpointFlags();
   const { language } = useLanguage();
   return (
-    <Card.Root
-      id="education"
-      size="small"
-      aria-label="Education"
-      style={cardRootStyle}
-    >
+    <Card.Root id="education" size="small" aria-label="Education" style={cardRootStyle}>
       <Card.Container>
         <Card.Header>
           <div
@@ -28,12 +23,7 @@ const Education = () => {
               width: "100%",
             }}
           >
-            <Image
-              src="/school.webp"
-              alt="Education Icon"
-              width={50}
-              height={50}
-            />
+            <Image src="/school.webp" alt="Education Icon" width={50} height={50} />
             <Heading
               title={translations.education[language]}
               type={"medium"}
@@ -43,7 +33,7 @@ const Education = () => {
         </Card.Header>
         {SITE.education.map((edu, index) => (
           <Grid
-            key={index}
+            key={`edu-${index}-${language}`}
             style={{
               marginBottom: spacing(2),
               display: "flex",

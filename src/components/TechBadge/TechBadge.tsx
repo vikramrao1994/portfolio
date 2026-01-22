@@ -12,11 +12,7 @@ const TechBadge: React.FC<TechBadgeProps> = ({
   ...rest
 }: TechBadgeProps) => {
   return (
-    <span
-      {...rest}
-      role="status"
-      className={`kern-badge kern-badge--${variant} ${className}`}
-    >
+    <span {...rest} className={`kern-badge kern-badge--${variant} ${className}`}>
       <span style={{ width: 20, height: 20 }}>
         <StackIcon name={tech.id} />
       </span>
