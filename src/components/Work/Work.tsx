@@ -138,7 +138,7 @@ const Work = () => {
             <Grid style={{ marginBottom: spacing(2) }}>
               <Accordion.Group>
                 <Accordion.Root
-                  aria-label={`Technologies Used in ${work.title} at ${work.company}`}
+                  aria-label={`Technologies Used in ${work.title[language]} at ${work.company}`}
                   isOpened={allOpen}
                 >
                   <Accordion.Summary
@@ -162,7 +162,7 @@ const Work = () => {
                   </div>
                 </Accordion.Root>
                 <Accordion.Root
-                  aria-label={`Key Responsibilities for ${work.title} at ${work.company}`}
+                  aria-label={`Key Responsibilities for ${work.title[language]} at ${work.company}`}
                   isOpened={allOpen}
                 >
                   <Accordion.Summary
