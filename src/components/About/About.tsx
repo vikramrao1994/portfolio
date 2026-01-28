@@ -1,15 +1,17 @@
 import { Body, Card, Grid, Heading } from "@publicplan/kern-react-kit";
+import { useLocale, useTranslations } from "next-intl";
 import Image from "@/components/Image";
-import { useLanguage } from "@/context/LanguageContext";
+import { useSiteContent } from "@/context/SiteContentContext";
 import { useBreakpointFlags } from "@/hooks/useBreakpoints";
-import { SITE } from "@/lib/content";
-import { translations } from "@/lib/translations";
+import type { Language } from "@/lib/siteSchema";
 import { cardRootStyle } from "@/styles/styles";
 import { spacing } from "@/utils/utils";
 
 const AboutMe = () => {
-  const { language } = useLanguage();
+  const SITE = useSiteContent();
+  const language = useLocale() as Language;
   const { isMobile } = useBreakpointFlags();
+  const t = useTranslations();
   return (
     <Card.Root
       id="about"
@@ -29,7 +31,7 @@ const AboutMe = () => {
             }}
           >
             <Image src="/aboutme.webp" alt="About Me Icon" width={50} height={50} />
-            <Heading title={translations.aboutMe[language]} type={"medium"} headerElement={"h2"} />
+            <Heading title={t("aboutMe")} type={"medium"} headerElement={"h2"} />
           </div>
         </Card.Header>
         <Grid

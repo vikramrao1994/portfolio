@@ -2,7 +2,8 @@
 import { ThemeProvider } from "@publicplan/kern-react-kit";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
-import { LanguageProvider } from "@/context/LanguageContext";
+import { SiteContentProvider } from "@/context/SiteContentContext";
+import type { Site } from "@/lib/siteSchema";
 
 function BodyProvider({ children }: { children: React.ReactNode }) {
   return (
@@ -28,9 +29,15 @@ function HeaderProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function PageProvider({ children }: { children: React.ReactNode }) {
+export function PageProvider({
+  children,
+  initialSite,
+}: {
+  children: React.ReactNode;
+  initialSite: Site;
+}) {
   return (
-    <LanguageProvider>
+    <SiteContentProvider initialSite={initialSite}>
       <header>
         <HeaderProvider>
           <Header />
@@ -44,6 +51,6 @@ export function PageProvider({ children }: { children: React.ReactNode }) {
           <Footer />
         </FooterProvider>
       </footer>
-    </LanguageProvider>
+    </SiteContentProvider>
   );
 }

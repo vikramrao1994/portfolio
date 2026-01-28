@@ -1,12 +1,11 @@
 import { Body, Button, Grid, Link } from "@publicplan/kern-react-kit";
 import { usePathname } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import Image from "@/components/Image";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
-import { useLanguage } from "@/context/LanguageContext";
+import { useSiteContent } from "@/context/SiteContentContext";
 import { useBreakpointFlags } from "@/hooks/useBreakpoints";
-import { SITE } from "@/lib/content";
-import { translations } from "@/lib/translations";
 import { spacing } from "@/utils/utils";
 
 interface StickyBarProps {
@@ -25,33 +24,36 @@ const DrawerButton = ({ onClick }: { onClick: () => void }) => (
   />
 );
 
-const StickyBar = ({ show, onClick }: StickyBarProps) => (
-  <div
-    style={{
-      display: show ? "flex" : "none",
-      alignItems: "center",
-      justifyContent: "space-between",
-      paddingBottom: spacing(2),
-      paddingLeft: spacing(2),
-    }}
-  >
-    <div style={{ display: "flex", alignItems: "center", gap: spacing(1) }}>
-      <Image
-        alt="Profile"
-        src="/portrait.webp"
-        width={40}
-        height={40}
-        style={{
-          borderRadius: "50%",
-          border: "2px solid #e0e0e0",
-          objectFit: "cover",
-        }}
-      />
-      <Body isBold>{SITE.heading.name}</Body>
+const StickyBar = ({ show, onClick }: StickyBarProps) => {
+  const SITE = useSiteContent();
+  return (
+    <div
+      style={{
+        display: show ? "flex" : "none",
+        alignItems: "center",
+        justifyContent: "space-between",
+        paddingBottom: spacing(2),
+        paddingLeft: spacing(2),
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: spacing(1) }}>
+        <Image
+          alt="Profile"
+          src="/portrait.webp"
+          width={40}
+          height={40}
+          style={{
+            borderRadius: "50%",
+            border: "2px solid #e0e0e0",
+            objectFit: "cover",
+          }}
+        />
+        <Body isBold>{SITE.heading.name}</Body>
+      </div>
+      <DrawerButton onClick={onClick} />
     </div>
-    <DrawerButton onClick={onClick} />
-  </div>
-);
+  );
+};
 
 interface DrawerProps {
   open: boolean;
@@ -60,7 +62,7 @@ interface DrawerProps {
 
 const Drawer = ({ open, onClose }: DrawerProps) => {
   const { isMobile } = useBreakpointFlags();
-  const { language } = useLanguage();
+  const t = useTranslations();
   useEffect(() => {
     const prev = document.body.style.overflowY;
     document.body.style.overflowY = open ? "hidden" : prev || "auto";
@@ -149,25 +151,20 @@ const Drawer = ({ open, onClose }: DrawerProps) => {
         >
           <Link
             href="/#introduction"
-            title={translations.introduction[language]}
+            title={t("introduction")}
             aria-label="Introduction Section"
             onClick={onClose}
           />
           <Link
             href="/#work"
-            title={translations.workExperience[language]}
+            title={t("workExperience")}
             aria-label="Work Section"
             onClick={onClose}
           />
-          <Link
-            href="/#skills"
-            title={translations.skills[language]}
-            aria-label="Skills Section"
-            onClick={onClose}
-          />
+          <Link href="/#skills" title={t("skills")} aria-label="Skills Section" onClick={onClose} />
           <Link
             href="/#education"
-            title={translations.education[language]}
+            title={t("education")}
             aria-label="Education Section"
             onClick={onClose}
           />
@@ -178,11 +175,12 @@ const Drawer = ({ open, onClose }: DrawerProps) => {
 };
 
 const Header = () => {
-  const { language } = useLanguage();
+  const language = useLocale();
   const { isMobile } = useBreakpointFlags();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [showSticky, setShowSticky] = useState(false);
   const pathname = usePathname();
+  const SITE = useSiteContent();
 
   const isPhotographyPage: boolean = pathname === "/photography";
 

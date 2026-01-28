@@ -1,7 +1,8 @@
 import { Body, Label } from "@publicplan/kern-react-kit";
+import { useLocale } from "next-intl";
 import { useState } from "react";
 import Image from "@/components/Image";
-import { useLanguage } from "@/context/LanguageContext";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { spacing } from "@/utils/utils";
 
 const LANGUAGES = [
@@ -40,7 +41,9 @@ const LanguageButton: React.FC<LanguageButton> = ({ code, label, flag, selected,
   );
 };
 const LanguageSwitcher = () => {
-  const { language, setLanguage } = useLanguage();
+  const language = useLocale();
+  const router = useRouter();
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
   const current = LANGUAGES.find((l) => l.code === language);
@@ -94,12 +97,12 @@ const LanguageSwitcher = () => {
                 textAlign: "left",
               }}
               onClick={() => {
-                setLanguage(l.code as "en" | "de");
+                router.replace(pathname, { locale: l.code });
                 setOpen(false);
               }}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
-                  setLanguage(l.code as "en" | "de");
+                  router.replace(pathname, { locale: l.code });
                   setOpen(false);
                 }
               }}

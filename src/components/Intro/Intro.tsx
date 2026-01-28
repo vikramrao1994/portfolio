@@ -1,17 +1,18 @@
 import { Badge, Body, Button, Card, Heading } from "@publicplan/kern-react-kit";
+import { useLocale, useTranslations } from "next-intl";
 import Avatar from "@/components/Avatar";
 import Counter from "@/components/Counter";
 import Image from "@/components/Image";
-import { useLanguage } from "@/context/LanguageContext";
+import { useSiteContent } from "@/context/SiteContentContext";
 import { useBreakpointFlags } from "@/hooks/useBreakpoints";
-import { SITE } from "@/lib/content";
-import { translations } from "@/lib/translations";
 import { cardRootStyle } from "@/styles/styles";
 import { spacing } from "@/utils/utils";
 
 const Intro = () => {
   const { isMobile } = useBreakpointFlags();
-  const { language } = useLanguage();
+  const language = useLocale() as "en" | "de";
+  const SITE = useSiteContent();
+  const t = useTranslations();
   return (
     <Card.Root id="introduction" size="small" aria-label="Introduction" style={cardRootStyle}>
       <Card.Container>
@@ -53,7 +54,7 @@ const Intro = () => {
             }}
           >
             <Heading
-              title={`${translations.titleGreeting[language]} ${SITE.heading.name}`}
+              title={`${t("titleGreeting")} ${SITE.heading.name}`}
               type={"large"}
               headerElement={"h1"}
             />
@@ -61,7 +62,7 @@ const Intro = () => {
           </div>
           <Heading
             headerElement="h2"
-            title={SITE.heading.subheadline[language]}
+            title={SITE.heading.subheadline[language] ?? ""}
             type="small"
             style={{ textAlign: "center", width: "100%" }}
           />
@@ -74,11 +75,7 @@ const Intro = () => {
                 marginTop: spacing(1),
               }}
             >
-              <Badge
-                variant="info"
-                title={translations.oppertunitiesBadge[language]}
-                showIcon={true}
-              />
+              <Badge variant="info" title={t("oppertunitiesBadge")} showIcon={true} />
             </div>
           )}
           <div
@@ -128,11 +125,7 @@ const Intro = () => {
               >
                 <Counter target={Number(SITE.heading.years_of_experience)} duration={2000} />
               </span>
-              <Body
-                text={translations.yearsOfExperience[language]}
-                size="small"
-                style={{ marginLeft: spacing(2) }}
-              />
+              <Body text={t("yearsOfExperience")} size="small" style={{ marginLeft: spacing(2) }} />
             </div>
           </div>
         </Card.Header>
@@ -160,7 +153,7 @@ const Intro = () => {
               icon={{ name: "download" }}
               isBlock={isMobile}
               iconLeft
-              text={translations.viewCv[language]}
+              text={t("viewCv")}
               variant="secondary"
             />
           </a>
