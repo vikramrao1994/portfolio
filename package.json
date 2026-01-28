@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "prebuild": "bun scripts/prefetch.js && bun db:init && bun db:import && python3 scripts/cv/main.py",
+    "prebuild": "bun scripts/prefetch.js && bun db:init && bun db:import",
     "dev": "bun --bun next dev --turbopack",
     "build": "bun --bun next build --turbopack && next-image-export-optimizer",
     "start": "bun --bun next start",

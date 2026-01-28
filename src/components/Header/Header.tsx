@@ -269,7 +269,7 @@ const Header = () => {
         {isMobile &&
           (showSticky ? (
             <a
-              href={`/documents/CV_Vikram_${language.toUpperCase()}.pdf`}
+              href={`/api/cv?lang=${language}`}
               target="_blank"
               rel="noopener noreferrer"
               style={{ marginRight: spacing(2) }}

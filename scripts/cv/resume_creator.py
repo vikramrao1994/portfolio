@@ -448,7 +448,13 @@ class Resume_Creator:
         # elf.add_hobbies();
         # self.add_projects()
         self.doc.build(self.data, onFirstPage = myFirstPage);
-        with open(self.file_name + ".pdf", "wb") as f:
+        output_path = (
+            self.file_name
+            if str(self.file_name).endswith(".pdf")
+            else self.file_name.with_suffix(".pdf")
+        )
+
+        with open(output_path, "wb") as f:
             f.write(self.pdf_buffer.getbuffer())
             self.pdf_buffer.close();
         print("✅ CV generated successfully at %s.pdf" % self.file_name)
