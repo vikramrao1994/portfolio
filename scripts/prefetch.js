@@ -1,6 +1,8 @@
+import { Database } from "bun:sqlite";
 import fs from "node:fs";
 import https from "node:https";
 import { createRequire } from "node:module";
+import path from "node:path";
 
 const require = createRequire(import.meta.url);
 const unzipper = require("unzipper");
@@ -10,6 +12,32 @@ const assetsUrl =
   "https://firebasestorage.googleapis.com/v0/b/alpha-dog-9ce25.appspot.com/o/assets.zip?alt=media";
 const dest = "./src/data/data.json";
 const assetsZipPath = "./public/assets.zip";
+const dbPath = path.join(process.cwd(), "data", "portfolio.db");
+
+// Check if database already has data
+let shouldFetchJson = true;
+
+if (fs.existsSync(dbPath)) {
+  try {
+    const db = new Database(dbPath);
+    const result = db.query("SELECT COUNT(*) as count FROM heading").get();
+    db.close();
+
+    if (result.count > 0 && process.env.FORCE_DB_IMPORT !== "true") {
+      console.log("⏭️  Database already has data, skipping JSON fetch");
+      console.log("   To force re-fetch, set FORCE_DB_IMPORT=true");
+      shouldFetchJson = false;
+    }
+  } catch (_err) {
+    // Database exists but schema might not be ready yet, continue with full prefetch
+    console.log("📥 Database schema not ready, proceeding with full prefetch...");
+  }
+}
+
+if (shouldFetchJson) {
+  console.log("🌐 Fetching data from Firebase...");
+}
+console.log("📦 Downloading assets...");
 
 fs.mkdirSync("./src/data", { recursive: true });
 fs.mkdirSync("./public", { recursive: true });
@@ -31,9 +59,8 @@ function fetchZip(url, outPath) {
   });
 }
 
-Promise.all([
-  fetchZip(assetsUrl, assetsZipPath),
-  new Promise((resolve, reject) => {
+function fetchJson(url, dest) {
+  return new Promise((resolve, reject) => {
     https
       .get(url, (res) => {
         if (res.statusCode !== 200) return reject(new Error(`HTTP ${res.statusCode}`));
@@ -53,8 +80,15 @@ Promise.all([
         });
       })
       .on("error", reject);
-  }),
-])
+  });
+}
+
+const fetchPromises = [fetchZip(assetsUrl, assetsZipPath)];
+if (shouldFetchJson) {
+  fetchPromises.push(fetchJson(url, dest));
+}
+
+Promise.all(fetchPromises)
   .then(() => {
     unzipper.Open.file(assetsZipPath)
       .then((d) =>

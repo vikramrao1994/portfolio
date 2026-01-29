@@ -9,11 +9,24 @@ const JSON_PATH = path.join(process.cwd(), "src", "data", "data.json"); // your 
 const db = new Database(DB_PATH);
 db.exec("PRAGMA foreign_keys = ON;");
 
+// Check if database already has data
+const existingData = db.query("SELECT COUNT(*) as count FROM heading").get() as { count: number };
+const forceImport = process.env.FORCE_DB_IMPORT === "true";
+
+if (existingData.count > 0 && !forceImport) {
+  console.log("⏭️  Database already has data, skipping import");
+  console.log("   To force re-import, set FORCE_DB_IMPORT=true");
+  db.close();
+  process.exit(0);
+}
+
+console.log(forceImport ? "🔄 Force re-importing database..." : "📥 Seeding database for the first time...");
+
 const raw = fs.readFileSync(JSON_PATH, "utf8");
 const json = JSON.parse(raw);
 
 const runImport = db.transaction(() => {
-  // Wipe in dependency order
+  // Wipe in dependency order (only if force importing)
   db.exec(`
     DELETE FROM experience_summary;
     DELETE FROM experience_tech;
@@ -237,4 +250,4 @@ const runImport = db.transaction(() => {
 
 runImport();
 db.close();
-console.log("✅ Imported src/data/data.json into data/portfolio.db");
+console.log("✅ Database seeded successfully from src/data/data.json");
