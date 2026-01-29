@@ -18,7 +18,7 @@ jobs:
     # Optional: Use GitHub environment for additional protection
     environment:
       name: production
-      url: https://your-app-name.fly.dev # Update with your actual URL
+      url: https://vikram-portfolio.fly.dev # Update with your actual URL
 
     steps:
       - name: Checkout code
@@ -45,7 +45,7 @@ jobs:
       - name: Run smoke tests
         run: |
           echo "🧪 Running smoke tests..."
-          APP_URL="https://your-app-name.fly.dev" # Update with your actual URL
+          APP_URL="https://vikram-portfolio.fly.dev" # Update with your actual URL
 
           # Wait for deployment to be ready
           sleep 10

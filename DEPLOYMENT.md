@@ -65,7 +65,7 @@ The database needs persistent storage:
 
 ```bash
 fly volumes create portfolio_data \
-  --region iad \
+  --region fra \
   --size 1
 ```
 
