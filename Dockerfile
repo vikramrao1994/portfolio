@@ -49,10 +49,6 @@ COPY . .
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Run prebuild script (fetches data and initializes DB)
-# This creates the initial database that will be copied to the image
-RUN bun run prebuild
-
 # Build Next.js application with standalone output
 RUN bun run build
 
