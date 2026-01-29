@@ -1,0 +1,71 @@
+name: Deploy to Fly.io Production
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # Allow manual deployment from GitHub UI
+
+# Prevent concurrent deployments to production
+concurrency:
+  group: production-deployment
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+
+    # Optional: Use GitHub environment for additional protection
+    environment:
+      name: production
+      url: https://your-app-name.fly.dev # Update with your actual URL
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flyctl
+        uses: superfly/flyctl-actions/setup-flyctl@master
+        with:
+          version: 0.3.48 # Pin to specific version for stability (update as needed)
+
+      - name: Deploy to Fly.io
+        run: flyctl deploy --remote-only --ha=false
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Verify deployment
+        run: |
+          echo "🚀 Deployment completed!"
+          echo "🔍 Checking app status..."
+          flyctl status
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Run smoke tests
+        run: |
+          echo "🧪 Running smoke tests..."
+          APP_URL="https://your-app-name.fly.dev" # Update with your actual URL
+
+          # Wait for deployment to be ready
+          sleep 10
+
+          # Check if app responds
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" $APP_URL)
+
+          if [ $HTTP_CODE -eq 200 ]; then
+            echo "✅ App is responding with HTTP $HTTP_CODE"
+          else
+            echo "❌ App returned HTTP $HTTP_CODE"
+            exit 1
+          fi
+        continue-on-error: true # Don't fail deployment if smoke test fails
+
+      # Optional: Send deployment notification to Slack/Discord
+      # - name: Send deployment notification
+      #   if: always()
+      #   uses: 8398a7/action-slack@v3
+      #   with:
+      #     status: ${{ job.status }}
+      #     text: "Portfolio deployed to production"
+      #     webhook_url: ${{ secrets.SLACK_WEBHOOK }}

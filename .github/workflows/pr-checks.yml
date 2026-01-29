@@ -1,0 +1,94 @@
+name: PR Checks
+
+on:
+  pull_request:
+    branches: [main, feat--*]
+
+# Cancel in-progress runs for the same PR
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-and-validate:
+    name: Lint and Validate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: 'pip'
+
+      - name: Cache Bun dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - name: Install Node dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run linter
+        run: bun run check
+
+      - name: Validate Dockerfile
+        run: |
+          # Check if Dockerfile exists and is valid
+          if [ ! -f Dockerfile ]; then
+            echo "❌ Dockerfile not found"
+            exit 1
+          fi
+          echo "✅ Dockerfile exists"
+
+      - name: Validate Fly.io configuration
+        run: |
+          # Check if fly.toml exists
+          if [ ! -f fly.toml ]; then
+            echo "❌ fly.toml not found"
+            exit 1
+          fi
+          echo "✅ fly.toml exists"
+
+      - name: Build check (no deployment)
+        run: |
+          echo "📦 Running build check..."
+          bun run prebuild
+          bun run build
+        env:
+          NODE_ENV: production
+
+  # Optional: Docker build test (commented out to save CI time)
+  # docker-build-test:
+  #   name: Test Docker Build
+  #   runs-on: ubuntu-latest
+  #
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+  #
+  #     - name: Set up Docker Buildx
+  #       uses: docker/setup-buildx-action@v3
+  #
+  #     - name: Build Docker image
+  #       uses: docker/build-push-action@v5
+  #       with:
+  #         context: .
+  #         push: false
+  #         cache-from: type=gha
+  #         cache-to: type=gha,mode=max
+  #         tags: portfolio:pr-${{ github.event.pull_request.number }}

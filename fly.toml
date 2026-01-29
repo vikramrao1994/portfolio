@@ -1,8 +1,8 @@
 # fly.toml app configuration file
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 
-app = 'your-portfolio-app-name' # Replace with your desired app name
-primary_region = 'iad' # Replace with your preferred region (e.g., 'iad' for US East, 'fra' for Frankfurt)
+app = 'vikram-portfolio' # Replace with your desired app name
+primary_region = 'fra' # Replace with your preferred region (e.g., 'iad' for US East, 'fra' for Frankfurt)
 
 # Kill signal for graceful shutdown
 kill_signal = 'SIGTERM'

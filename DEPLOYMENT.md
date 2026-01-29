@@ -413,34 +413,352 @@ Fly.io free tier includes:
 
 ## CI/CD Integration
 
-### GitHub Actions
+This project includes a complete GitHub Actions CI/CD pipeline for automated deployments to Fly.io.
 
-Create `.github/workflows/deploy.yml`:
+### Workflows Overview
 
-```yaml
-name: Deploy to Fly.io
+The repository includes three GitHub Actions workflows:
 
-on:
-  push:
-    branches: [main]
+1. **[pr-checks.yml](.github/workflows/pr-checks.yml)** - Runs on every PR
+   - Lints code with Biome
+   - Validates Dockerfile and fly.toml
+   - Runs build checks
+   - Ensures code quality before merging
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: superfly/flyctl-actions/setup-flyctl@master
-      - run: flyctl deploy --remote-only
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-```
+2. **[deploy-production.yml](.github/workflows/deploy-production.yml)** - Deploys to production
+   - Triggers on push to `main` branch
+   - Can be manually triggered from GitHub UI
+   - Deploys to Fly.io with remote build
+   - Runs smoke tests after deployment
+   - Prevents concurrent deployments
 
-Add `FLY_API_TOKEN` to GitHub secrets:
+3. **[pr-review-apps.yml.disabled](.github/workflows/pr-review-apps.yml.disabled)** - Optional PR staging environments
+   - Creates temporary Fly.io apps for each PR
+   - Each PR gets a unique URL (e.g., `portfolio-pr-123.fly.dev`)
+   - Automatically destroys apps when PR is closed
+   - Disabled by default (rename to `.yml` to enable)
+
+### Initial Setup
+
+#### 1. Generate Fly.io Deploy Token
+
+Create a deploy token with access to your app:
 
 ```bash
-fly tokens create deploy
-# Add token to GitHub repo secrets
+# Generate a deploy token (recommended for single app)
+fly tokens create deploy --name "GitHub Actions" --app your-app-name
+
+# OR use an organization token for all apps in your org
+fly tokens create org --name "GitHub Actions"
 ```
+
+**Important**: Store the token securely - it won't be shown again!
+
+#### 2. Add Token to GitHub Secrets
+
+1. Go to your GitHub repository
+2. Navigate to **Settings** → **Secrets and variables** → **Actions**
+3. Click **New repository secret**
+4. Name: `FLY_API_TOKEN`
+5. Value: Paste the token from step 1
+6. Click **Add secret**
+
+Alternatively, use GitHub CLI:
+
+```bash
+gh secret set FLY_API_TOKEN --body "your-fly-token-here"
+```
+
+#### 3. Update Workflow Configuration
+
+Edit [.github/workflows/deploy-production.yml](.github/workflows/deploy-production.yml):
+
+```yaml
+environment:
+  name: production
+  url: https://your-actual-app-name.fly.dev # Update this
+```
+
+And update the smoke test URL:
+
+```yaml
+APP_URL="https://your-actual-app-name.fly.dev" # Update this
+```
+
+#### 4. (Optional) Create GitHub Environment
+
+For additional protection, create a `production` environment:
+
+1. Go to **Settings** → **Environments**
+2. Click **New environment**
+3. Name it `production`
+4. Add protection rules (optional):
+   - Required reviewers
+   - Wait timer
+   - Deployment branches (main only)
+
+### Workflow Behavior
+
+#### Pull Request Flow
+
+```mermaid
+PR opened/updated
+    ↓
+Run pr-checks.yml
+    ↓
+Lint code
+    ↓
+Validate configs
+    ↓
+Run build
+    ↓
+✅ PR checks pass
+```
+
+#### Production Deployment Flow
+
+```mermaid
+Push to main
+    ↓
+Run deploy-production.yml
+    ↓
+Setup Flyctl
+    ↓
+Deploy to Fly.io (remote build)
+    ↓
+Verify deployment status
+    ↓
+Run smoke tests
+    ↓
+✅ Production deployed
+```
+
+### Manual Deployment
+
+You can manually trigger a deployment from GitHub:
+
+1. Go to **Actions** tab
+2. Select **Deploy to Fly.io Production** workflow
+3. Click **Run workflow**
+4. Select branch (usually `main`)
+5. Click **Run workflow**
+
+### Enabling PR Review Apps
+
+To enable automatic staging environments for PRs:
+
+#### 1. Rename the workflow file
+
+```bash
+mv .github/workflows/pr-review-apps.yml.disabled .github/workflows/pr-review-apps.yml
+```
+
+#### 2. Update configuration
+
+Edit the workflow and set your app name prefix:
+
+```yaml
+env:
+  APP_NAME_PREFIX: "your-portfolio-pr" # Change this
+  FLY_REGION: "iad" # Your preferred region
+```
+
+#### 3. Commit and push
+
+```bash
+git add .github/workflows/pr-review-apps.yml
+git commit -m "Enable PR review apps"
+git push
+```
+
+Now, each PR will get its own isolated Fly.io app with a unique URL!
+
+### CI/CD Best Practices
+
+#### 1. Pin Flyctl Version
+
+The production workflow pins flyctl to a specific version:
+
+```yaml
+uses: superfly/flyctl-actions/setup-flyctl@master
+with:
+  version: 0.3.48 # Update periodically
+```
+
+Update this periodically after testing new versions.
+
+#### 2. Use Remote Builds
+
+The workflows use `--remote-only` to build on Fly.io's infrastructure:
+
+```bash
+flyctl deploy --remote-only --ha=false
+```
+
+Benefits:
+- Faster builds on Fly.io's optimized builders
+- No need for Docker in CI
+- Consistent build environment
+
+#### 3. Concurrency Controls
+
+Production deployments prevent concurrent runs:
+
+```yaml
+concurrency:
+  group: production-deployment
+  cancel-in-progress: false # Wait for current deployment
+```
+
+PR checks cancel old runs for the same PR:
+
+```yaml
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true # Cancel old checks
+```
+
+#### 4. Caching
+
+The PR check workflow uses caching to speed up builds:
+
+```yaml
+- name: Cache Bun dependencies
+  uses: actions/cache@v4
+  with:
+    path: ~/.bun/install/cache
+    key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
+```
+
+### Monitoring CI/CD
+
+#### View Workflow Runs
+
+```bash
+# Using GitHub CLI
+gh run list
+gh run view <run-id>
+gh run watch # Watch current run
+```
+
+#### Check Deployment Status
+
+After a workflow completes:
+
+```bash
+fly status
+fly logs --recent
+```
+
+#### Debugging Failed Workflows
+
+1. Check the workflow run in GitHub Actions
+2. View detailed logs for each step
+3. SSH into Fly.io machine to debug:
+   ```bash
+   fly ssh console
+   ```
+
+### Security Considerations
+
+#### Token Permissions
+
+- Use **deploy tokens** (app-specific) instead of personal auth tokens
+- Rotate tokens periodically
+- Never commit tokens to the repository
+- Use GitHub's encrypted secrets
+
+#### Environment Secrets
+
+For sensitive environment variables:
+
+```bash
+# Set via Fly.io CLI (not in fly.toml)
+fly secrets set DATABASE_URL=postgres://...
+fly secrets set API_KEY=secret-value
+
+# Or via GitHub Actions
+fly secrets set SECRET=${{ secrets.MY_SECRET }}
+```
+
+#### Branch Protection
+
+Recommended branch protection rules for `main`:
+
+1. Require PR reviews
+2. Require status checks (pr-checks)
+3. No direct pushes to main
+4. Require linear history
+
+### Advanced: Multi-Environment Setup
+
+For staging + production environments:
+
+#### 1. Create staging app
+
+```bash
+fly apps create your-app-staging
+fly volumes create portfolio_data --app your-app-staging --region iad --size 1
+```
+
+#### 2. Create additional workflow
+
+Copy `deploy-production.yml` → `deploy-staging.yml`:
+
+```yaml
+on:
+  push:
+    branches: [develop] # Deploy from develop branch
+
+environment:
+  name: staging
+  url: https://your-app-staging.fly.dev
+```
+
+#### 3. Update fly.toml per environment
+
+Use `--config` flag to specify different configs:
+
+```bash
+flyctl deploy --config fly.staging.toml --app your-app-staging
+```
+
+### Notifications
+
+Add Slack/Discord notifications:
+
+```yaml
+- name: Notify deployment
+  if: always()
+  uses: 8398a7/action-slack@v3
+  with:
+    status: ${{ job.status }}
+    text: 'Portfolio deployed to production'
+    webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+```
+
+### Cost Management
+
+Review apps can increase costs. To limit:
+
+1. Set a TTL for review apps (auto-destroy after N days)
+2. Limit concurrent review apps
+3. Use smaller machine sizes for staging
+4. Monitor usage in Fly.io dashboard
+
+### Rollback Strategy
+
+If a deployment fails:
+
+```bash
+# View deployment history
+fly releases
+
+# Rollback to previous version
+fly releases rollback <version>
+```
+
+Or redeploy a previous commit via GitHub Actions.
 
 ## Additional Resources
 
