@@ -24,7 +24,8 @@
     "react-dom": "^19.2.3",
     "sass": "^1.93.2",
     "tech-stack-icons": "^3.3.2",
-    "three": "^0.182.0"
+    "three": "^0.182.0",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.3.11",
