@@ -26,11 +26,9 @@ jobs:
 
       - name: Setup Flyctl
         uses: superfly/flyctl-actions/setup-flyctl@master
-        with:
-          version: 0.3.48 # Pin to specific version for stability (update as needed)
 
       - name: Deploy to Fly.io
-        run: flyctl deploy --remote-only --ha=false
+        run: flyctl deploy --remote-only
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
