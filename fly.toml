@@ -1,0 +1,72 @@
+# fly.toml app configuration file
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+
+app = 'vikram-portfolio' # Replace with your desired app name
+primary_region = 'fra' # Replace with your preferred region (e.g., 'iad' for US East, 'fra' for Frankfurt)
+
+# Kill signal for graceful shutdown
+kill_signal = 'SIGTERM'
+kill_timeout = '5s'
+
+# Build configuration
+[build]
+
+[deploy]
+  release_command = 'echo "Deployment starting..."'
+
+# Environment variables
+[env]
+  NODE_ENV = 'production'
+  PORT = '3000'
+  HOSTNAME = '0.0.0.0'
+  NEXT_TELEMETRY_DISABLED = '1'
+  DB_PATH = '/data/portfolio.db'
+
+# HTTP service configuration
+[[services]]
+  protocol = 'tcp'
+  internal_port = 3000
+  processes = ['app']
+
+  # HTTP checks
+  [[services.ports]]
+    port = 80
+    handlers = ['http']
+    force_https = true
+
+  [[services.ports]]
+    port = 443
+    handlers = ['tls', 'http']
+
+  # Health checks
+  [services.concurrency]
+    type = 'connections'
+    hard_limit = 25
+    soft_limit = 20
+
+  [[services.tcp_checks]]
+    interval = '15s'
+    timeout = '2s'
+    grace_period = '10s'
+
+  [[services.http_checks]]
+    interval = '30s'
+    timeout = '5s'
+    grace_period = '10s'
+    method = 'get'
+    path = '/'
+    protocol = 'http'
+
+# Persistent volume for SQLite database
+# This mounts a volume at /data where the SQLite database will be stored
+[mounts]
+  source = 'portfolio_data'
+  destination = '/data'
+  initial_size = '1GB' # Adjust size as needed
+
+# VM resources
+# Adjust based on your needs
+[[vm]]
+  cpu_kind = 'shared'
+  cpus = 1
+  memory_mb = 512

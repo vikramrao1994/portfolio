@@ -1,0 +1,176 @@
+# PR Review Apps (Staging Environments)
+#
+# DISABLED BY DEFAULT - Rename to .yml to enable
+#
+# This workflow creates a temporary staging app for each PR.
+# Each PR gets its own isolated Fly.io app with a unique URL.
+#
+# SETUP REQUIRED:
+# 1. Rename this file from .yml.disabled to .yml
+# 2. Add FLY_API_TOKEN to GitHub secrets
+# 3. Update APP_NAME_PREFIX below
+# 4. Ensure your fly.toml has appropriate settings for staging
+
+name: PR Review Apps
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, closed]
+    branches: [main]
+
+# Only run one deployment per PR at a time
+concurrency:
+  group: pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  APP_NAME_PREFIX: "portfolio-pr" # Change this to your app prefix
+  FLY_REGION: "iad" # Your preferred region
+
+jobs:
+  deploy-review-app:
+    name: Deploy Review App
+    runs-on: ubuntu-latest
+
+    # Only run for open PRs, not when closing
+    if: github.event.action != 'closed'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flyctl
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Generate app name
+        id: app-name
+        run: |
+          APP_NAME="${APP_NAME_PREFIX}-${{ github.event.pull_request.number }}"
+          echo "app_name=$APP_NAME" >> $GITHUB_OUTPUT
+          echo "🏷️  App name: $APP_NAME"
+
+      - name: Create or update review app
+        run: |
+          APP_NAME="${{ steps.app-name.outputs.app_name }}"
+
+          # Check if app exists
+          if flyctl apps list | grep -q "$APP_NAME"; then
+            echo "📦 App $APP_NAME already exists, deploying update..."
+          else
+            echo "🆕 Creating new review app: $APP_NAME"
+            flyctl apps create "$APP_NAME" --org personal
+
+            # Create volume for the review app
+            flyctl volumes create portfolio_data \
+              --app "$APP_NAME" \
+              --region "$FLY_REGION" \
+              --size 1 || echo "Volume may already exist"
+          fi
+
+          # Deploy with custom app name
+          flyctl deploy \
+            --app "$APP_NAME" \
+            --remote-only \
+            --ha=false
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Get app URL
+        id: app-url
+        run: |
+          APP_NAME="${{ steps.app-name.outputs.app_name }}"
+          APP_URL="https://${APP_NAME}.fly.dev"
+          echo "app_url=$APP_URL" >> $GITHUB_OUTPUT
+          echo "🌐 Review app URL: $APP_URL"
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Comment PR with app URL
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const appUrl = '${{ steps.app-url.outputs.app_url }}';
+            const appName = '${{ steps.app-name.outputs.app_name }}';
+
+            const comment = `## 🚀 Review App Deployed
+
+            Your review app has been deployed to Fly.io!
+
+            - **URL**: ${appUrl}
+            - **App**: \`${appName}\`
+            - **Region**: \`${{ env.FLY_REGION }}\`
+
+            This app will be automatically destroyed when the PR is closed.
+
+            ---
+            *Deployed from commit ${{ github.sha }}*`;
+
+            // Find existing comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' && comment.body.includes('Review App Deployed')
+            );
+
+            if (botComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: comment
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: comment
+              });
+            }
+
+  cleanup-review-app:
+    name: Cleanup Review App
+    runs-on: ubuntu-latest
+
+    # Only run when PR is closed
+    if: github.event.action == 'closed'
+
+    steps:
+      - name: Setup Flyctl
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Destroy review app
+        run: |
+          APP_NAME="${APP_NAME_PREFIX}-${{ github.event.pull_request.number }}"
+
+          echo "🗑️  Destroying review app: $APP_NAME"
+
+          # Destroy the app (volumes are automatically removed)
+          flyctl apps destroy "$APP_NAME" --yes || echo "App may not exist"
+
+          echo "✅ Review app destroyed"
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Comment PR with cleanup status
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const appName = `${process.env.APP_NAME_PREFIX}-${{ github.event.pull_request.number }}`;
+
+            const comment = `## 🗑️ Review App Destroyed
+
+            The review app \`${appName}\` has been automatically destroyed.`;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: comment
+            });

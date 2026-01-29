@@ -1,9 +1,9 @@
 import { Badge, Card, Divider, Grid, Heading } from "@publicplan/kern-react-kit";
+import { useLocale, useTranslations } from "next-intl";
 import { ArchitectureIcon, BackendIcon, FrontendIcon, ToolsDevOpsIcon } from "@/components/Icons";
 import Image from "@/components/Image";
-import { useLanguage } from "@/context/LanguageContext";
-import { SITE } from "@/lib/content";
-import { translations } from "@/lib/translations";
+import { useSiteContent } from "@/context/SiteContentContext";
+import type { Language } from "@/lib/siteSchema";
 import { cardRootStyle } from "@/styles/styles";
 import { spacing } from "@/utils/utils";
 
@@ -22,7 +22,9 @@ const SKILL_META: Record<
 };
 
 const Skills = () => {
-  const { language } = useLanguage();
+  const language = useLocale() as Language;
+  const SITE = useSiteContent();
+  const t = useTranslations();
   return (
     <Card.Root id="skills" aria-label="Skills" size="small" style={cardRootStyle}>
       <Card.Container>
@@ -37,12 +39,12 @@ const Skills = () => {
             }}
           >
             <Image src="/tech_stack.webp" alt="Skills Icon" width={50} height={50} />
-            <Heading title={translations.skills[language]} type={"medium"} headerElement={"h2"} />
+            <Heading title={t("skills")} type={"medium"} headerElement={"h2"} />
           </div>
         </Card.Header>
         {SITE.skills.map((skill, index) => {
           const title = skill.key[language];
-          const meta = SKILL_META[title];
+          const meta = SKILL_META[title ?? ""];
           const Icon = meta?.Icon;
           const accent = meta?.accent ?? "#5B93FF";
           const items = [
@@ -87,7 +89,7 @@ const Skills = () => {
                     <Icon width={22} height={22} style={{ color: "white" }} aria-hidden="true" />
                   ) : null}
                 </div>
-                <Heading title={title} type="small" headerElement="h3" />
+                <Heading title={title ?? ""} type="small" headerElement="h3" />
               </Grid>
               {items.map((item, i) => (
                 <Badge

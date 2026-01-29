@@ -1,15 +1,17 @@
 import { Body, Card, Grid, Heading, Link } from "@publicplan/kern-react-kit";
+import { useLocale, useTranslations } from "next-intl";
 import Image from "@/components/Image";
-import { useLanguage } from "@/context/LanguageContext";
+import { useSiteContent } from "@/context/SiteContentContext";
 import { useBreakpointFlags } from "@/hooks/useBreakpoints";
-import { SITE } from "@/lib/content";
-import { translations } from "@/lib/translations";
+import type { Language } from "@/lib/siteSchema";
 import { cardRootStyle } from "@/styles/styles";
 import { spacing } from "@/utils/utils";
 
 const Education = () => {
+  const SITE = useSiteContent();
   const { isDesktop } = useBreakpointFlags();
-  const { language } = useLanguage();
+  const t = useTranslations();
+  const language = useLocale() as Language;
   return (
     <Card.Root id="education" size="small" aria-label="Education" style={cardRootStyle}>
       <Card.Container>
@@ -24,11 +26,7 @@ const Education = () => {
             }}
           >
             <Image src="/school.webp" alt="Education Icon" width={50} height={50} />
-            <Heading
-              title={translations.education[language]}
-              type={"medium"}
-              headerElement={"h2"}
-            />
+            <Heading title={t("education")} type={"medium"} headerElement={"h2"} />
           </div>
         </Card.Header>
         {SITE.education.map((edu, index) => (
@@ -42,7 +40,7 @@ const Education = () => {
               justifyContent: isDesktop ? "space-between" : "flex-start",
             }}
           >
-            <Image src={edu.logo} alt={edu.degree} height={70} width={60} />
+            <Image src={edu.logo ?? ""} alt={edu.degree} height={70} width={60} />
             <div style={{ display: "flex", flexDirection: "column" }}>
               <Body isBold text={edu.degree} />
               <Body text={edu.course[language]} size={"small"} />
@@ -50,7 +48,7 @@ const Education = () => {
               <Body text={edu.location[language]} size={"small"} />
               {!isDesktop && <Body isBold text={edu.duration} size={"small"} />}
               <Link
-                href={edu.certificate}
+                href={edu.certificate ?? ""}
                 icon={{
                   "aria-hidden": true,
                   name: "open-in-new",
@@ -58,7 +56,7 @@ const Education = () => {
                 }}
                 target="_blank"
                 iconLeft
-                title={translations.degree[language]}
+                title={t("degree")}
                 aria-label={`View ${edu.degree} Degree Certificate`}
                 variant="small"
               />

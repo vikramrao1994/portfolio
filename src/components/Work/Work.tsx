@@ -8,19 +8,21 @@ import {
   Link,
   Lists,
 } from "@publicplan/kern-react-kit";
+import { useLocale, useTranslations } from "next-intl";
 import { Fragment, useState } from "react";
 import Image from "@/components/Image";
 import TechBadge from "@/components/TechBadge";
-import { useLanguage } from "@/context/LanguageContext";
+import { useSiteContent } from "@/context/SiteContentContext";
 import { useBreakpointFlags } from "@/hooks/useBreakpoints";
-import { SITE } from "@/lib/content";
-import { translations } from "@/lib/translations";
+import type { Language } from "@/lib/siteSchema";
 import { cardRootStyle } from "@/styles/styles";
 import { getDurationString, spacing } from "@/utils/utils";
 
 const Work = () => {
   const { isDesktop, isMobile } = useBreakpointFlags();
-  const { language } = useLanguage();
+  const language = useLocale() as Language;
+  const SITE = useSiteContent();
+  const t = useTranslations();
 
   const [allOpen, setAllOpen] = useState<null | boolean>(null);
   const toggleAll = () => setAllOpen((prev) => prev !== true);
@@ -39,20 +41,12 @@ const Work = () => {
             }}
           >
             <Image src="/work.webp" alt="Work Icon" width={50} height={50} />
-            <Heading
-              title={translations.workExperience[language]}
-              type={"medium"}
-              headerElement={"h2"}
-            />
+            <Heading title={t("workExperience")} type={"medium"} headerElement={"h2"} />
           </div>
         </Card.Header>
         <Grid style={{ display: "flex", justifyContent: "flex-end" }}>
           <Button
-            text={
-              allOpen === true
-                ? translations.collapseAll[language]
-                : translations.expandAll[language]
-            }
+            text={allOpen === true ? t("collapseAll") : t("expandAll")}
             variant={"secondary"}
             onClick={toggleAll}
             style={{
@@ -73,7 +67,12 @@ const Work = () => {
               }}
             >
               {isDesktop && (
-                <Image src={work.logo} alt={work.title[language]} height={70} width={70} />
+                <Image
+                  src={work.logo ?? ""}
+                  alt={work.title[language] ?? ""}
+                  height={70}
+                  width={70}
+                />
               )}
               <div
                 style={{
@@ -91,7 +90,7 @@ const Work = () => {
                     <Body isBold text={work.duration} size={"small"} />
                     <Body
                       isBold
-                      text={getDurationString(work.exact_duration, language)}
+                      text={getDurationString(work.exact_duration ?? "0", language)}
                       size={"small"}
                     />
                   </>
@@ -106,7 +105,7 @@ const Work = () => {
                     }}
                     target="_blank"
                     iconLeft
-                    title={translations.certificate[language]}
+                    title={t("certificate")}
                     aria-label={`View Experience Certificate for ${work.title[language]} at ${work.company}`}
                     variant="small"
                   />
@@ -117,7 +116,7 @@ const Work = () => {
                   <Body isBold text={work.duration} size={"small"} />
                   <Body
                     isBold
-                    text={getDurationString(work.exact_duration, language)}
+                    text={getDurationString(work.exact_duration ?? "0", language)}
                     size={"small"}
                     style={{ textAlign: "right" }}
                   />
@@ -131,7 +130,12 @@ const Work = () => {
                     width: "20%",
                   }}
                 >
-                  <Image src={work.logo} alt={work.title[language]} height={70} width={70} />
+                  <Image
+                    src={work.logo ?? ""}
+                    alt={work.title[language] ?? ""}
+                    height={70}
+                    width={70}
+                  />
                 </div>
               )}
             </Grid>
@@ -144,7 +148,7 @@ const Work = () => {
                   <Accordion.Summary
                     title={{
                       textWrapper: "h3",
-                      title: translations.technologiesUsed[language],
+                      title: t("technologiesUsed"),
                       variant: "small",
                     }}
                   />
@@ -168,7 +172,7 @@ const Work = () => {
                   <Accordion.Summary
                     title={{
                       textWrapper: "h3",
-                      title: translations.keyResponsibilities[language],
+                      title: t("keyResponsibilities"),
                       variant: "small",
                     }}
                   />

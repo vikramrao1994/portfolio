@@ -1,9 +1,10 @@
 import { Grid, Preline, Subline } from "@publicplan/kern-react-kit";
 import StackIcon from "tech-stack-icons";
-import { SITE } from "@/lib/content";
+import { useSiteContent } from "@/context/SiteContentContext";
 import { spacing } from "@/utils/utils";
 
 const Footer = () => {
+  const SITE = useSiteContent();
   return (
     <Grid
       style={{
