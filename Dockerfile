@@ -16,7 +16,7 @@ RUN apt-get update && apt-get install -y \
 FROM base AS deps
 
 # Copy package files
-COPY package.json bun.lockb ./
+COPY package.json bun.lock ./
 
 # Install dependencies
 RUN bun install --frozen-lockfile
@@ -27,8 +27,8 @@ FROM base AS python-deps
 # Copy Python requirements
 COPY requirements.txt ./
 
-# Install Python dependencies
-RUN pip3 install --no-cache-dir -r requirements.txt --break-system-packages
+# Install Python dependencies to a specific directory
+RUN pip3 install --no-cache-dir -r requirements.txt --break-system-packages --target /python-packages
 
 # Builder stage
 FROM base AS builder
@@ -36,8 +36,11 @@ FROM base AS builder
 # Copy node modules from deps
 COPY --from=deps /app/node_modules ./node_modules
 
-# Copy Python dependencies
-COPY --from=python-deps /usr/local/lib/python3.11/dist-packages /usr/local/lib/python3.11/dist-packages
+# Copy Python dependencies to a known location
+COPY --from=python-deps /python-packages /python-packages
+
+# Add Python packages to PYTHONPATH
+ENV PYTHONPATH=/python-packages
 
 # Copy application source
 COPY . .
@@ -64,11 +67,14 @@ ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
 # Create non-root user
-RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 nextjs
+RUN groupadd --system --gid 1001 nodejs && \
+    useradd --system --uid 1001 --gid nodejs --shell /bin/bash --create-home nextjs
 
 # Copy Python dependencies
-COPY --from=python-deps /usr/local/lib/python3.11/dist-packages /usr/local/lib/python3.11/dist-packages
+COPY --from=python-deps /python-packages /python-packages
+
+# Add Python packages to PYTHONPATH so Python can find them
+ENV PYTHONPATH=/python-packages
 
 # Copy necessary files from builder
 COPY --from=builder /app/public ./public
