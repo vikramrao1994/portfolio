@@ -3,11 +3,11 @@ import { getDb } from "@/server/db";
 
 export type Lang = "en" | "de";
 
-function pick<T>(lang: Lang, en: T, de: T) {
+const pick = <T>(lang: Lang, en: T, de: T) => {
   return lang === "de" ? de : en;
-}
+};
 
-export function getHeading(lang: Lang) {
+export const getHeading = (lang: Lang) => {
   const db = getDb();
   const row = db
     .query(
@@ -40,9 +40,9 @@ export function getHeading(lang: Lang) {
     yearsOfExperience: row.years_of_experience,
     openToOpportunities: Boolean(row.open_to_opportunities),
   };
-}
+};
 
-export function getAboutMe(lang: Lang) {
+export const getAboutMe = (lang: Lang) => {
   const db = getDb();
   const rows = db
     .query(
@@ -55,9 +55,9 @@ export function getAboutMe(lang: Lang) {
   return rows.map((r) => ({
     text: pick(lang, r.en, r.de),
   }));
-}
+};
 
-export function getEducation(lang: Lang) {
+export const getEducation = (lang: Lang) => {
   const db = getDb();
   const rows = db
     .query(
@@ -80,9 +80,9 @@ export function getEducation(lang: Lang) {
     logo: r.logo,
     certificate: r.certificate,
   }));
-}
+};
 
-export function getExecutiveSummary(lang: Lang) {
+export const getExecutiveSummary = (lang: Lang) => {
   const db = getDb();
   const rows = db
     .query(
@@ -93,9 +93,9 @@ export function getExecutiveSummary(lang: Lang) {
     .all() as any[];
 
   return rows.map((r) => pick(lang, r.en, r.de));
-}
+};
 
-export function getExperience(lang: Lang) {
+export const getExperience = (lang: Lang) => {
   const db = getDb();
 
   const experiences = db
@@ -155,9 +155,9 @@ export function getExperience(lang: Lang) {
       techIcons: iconRows.map((t) => ({ id: t.tech_id, title: t.title })),
     };
   });
-}
+};
 
-export function getSkills(lang: Lang) {
+export const getSkills = (lang: Lang) => {
   const db = getDb();
 
   const groups = db
@@ -184,4 +184,4 @@ export function getSkills(lang: Lang) {
       other: items.filter((i) => i.bucket === "other").map((i) => i.name),
     };
   });
-}
+};

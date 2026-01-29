@@ -10,7 +10,7 @@ import {
 
 export type Language = "en" | "de";
 
-export async function getSiteContent(language: Language) {
+export const getSiteContent = async (language: Language) => {
   const heading = getHeading(language);
   const aboutMe = getAboutMe(language);
   const education = getEducation(language);
@@ -89,4 +89,6 @@ export async function getSiteContent(language: Language) {
     throw new Error("SITE schema validation failed");
   }
   return parsed.data;
-}
+};
+
+export default getSiteContent;
