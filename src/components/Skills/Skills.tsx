@@ -1,10 +1,9 @@
-import { Badge, Card, Divider, Grid, Heading } from "@publicplan/kern-react-kit";
+import { Badge, Divider, Grid, Heading } from "@publicplan/kern-react-kit";
 import { useLocale, useTranslations } from "next-intl";
 import { ArchitectureIcon, BackendIcon, FrontendIcon, ToolsDevOpsIcon } from "@/components/Icons";
-import Image from "@/components/Image";
+import Section from "@/components/Section";
 import { useSiteContent } from "@/context/SiteContentContext";
 import type { Language } from "@/lib/siteSchema";
-import { cardRootStyle } from "@/styles/styles";
 import { spacing } from "@/utils/utils";
 
 const SKILL_META: Record<
@@ -26,89 +25,78 @@ const Skills = () => {
   const SITE = useSiteContent();
   const t = useTranslations();
   return (
-    <Card.Root id="skills" aria-label="Skills" size="small" style={cardRootStyle}>
-      <Card.Container>
-        <Card.Header>
-          <div
+    <Section
+      id="skills"
+      ariaLabel="Skills"
+      title={t("skills")}
+      icon={{ src: "/tech_stack.webp", alt: "Skills Icon" }}
+    >
+      {SITE.skills.map((skill, index) => {
+        const title = skill.key[language];
+        const meta = SKILL_META[title ?? ""];
+        const Icon = meta?.Icon;
+        const accent = meta?.accent ?? "#5B93FF";
+        const items = [
+          ...(skill.most_used_skills ?? []).map((t) => ({
+            text: t,
+            variant: "success" as const,
+          })),
+          ...(skill.skills ?? []).map((t) => ({
+            text: t,
+            variant: "info" as const,
+          })),
+        ];
+
+        return (
+          <Grid
+            key={`skill-${index}-${language}`}
             style={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              gap: spacing(2),
-              width: "100%",
+              marginBottom: index < SITE.skills.length - 1 ? spacing(1) : spacing(2),
             }}
           >
-            <Image src="/tech_stack.webp" alt="Skills Icon" width={50} height={50} />
-            <Heading title={t("skills")} type={"medium"} headerElement={"h2"} />
-          </div>
-        </Card.Header>
-        {SITE.skills.map((skill, index) => {
-          const title = skill.key[language];
-          const meta = SKILL_META[title ?? ""];
-          const Icon = meta?.Icon;
-          const accent = meta?.accent ?? "#5B93FF";
-          const items = [
-            ...(skill.most_used_skills ?? []).map((t) => ({
-              text: t,
-              variant: "success" as const,
-            })),
-            ...(skill.skills ?? []).map((t) => ({
-              text: t,
-              variant: "info" as const,
-            })),
-          ];
-
-          return (
             <Grid
-              key={`skill-${index}-${language}`}
               style={{
-                marginBottom: index < SITE.skills.length - 1 ? spacing(1) : spacing(2),
+                display: "flex",
+                alignItems: "center",
+                gap: spacing(1),
+                padding: 0,
+                marginBottom: spacing(2),
               }}
             >
-              <Grid
+              <div
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: spacing(1),
-                  padding: 0,
-                  marginBottom: spacing(2),
+                  width: 44,
+                  height: 44,
+                  borderRadius: spacing(1.5),
+                  display: "grid",
+                  placeItems: "center",
+                  background: accent,
+                  boxShadow: `0 10px 30px ${accent}33`,
                 }}
               >
-                <div
-                  style={{
-                    width: 44,
-                    height: 44,
-                    borderRadius: spacing(1.5),
-                    display: "grid",
-                    placeItems: "center",
-                    background: accent,
-                    boxShadow: `0 10px 30px ${accent}33`,
-                  }}
-                >
-                  {Icon ? (
-                    <Icon width={22} height={22} style={{ color: "white" }} aria-hidden="true" />
-                  ) : null}
-                </div>
-                <Heading title={title ?? ""} type="small" headerElement="h3" />
-              </Grid>
-              {items.map((item, i) => (
-                <Badge
-                  key={`mu-${i}-${language}`}
-                  variant={item.variant}
-                  title={item.text}
-                  style={{
-                    marginRight: spacing(1),
-                    marginBottom: spacing(1),
-                  }}
-                  aria-hidden="true"
-                />
-              ))}
-              {index < SITE.skills.length - 1 && <Divider style={{ marginTop: spacing(2) }} />}
+                {Icon ? (
+                  <Icon width={22} height={22} style={{ color: "white" }} aria-hidden="true" />
+                ) : null}
+              </div>
+              <Heading title={title ?? ""} type="small" headerElement="h3" />
             </Grid>
-          );
-        })}
-      </Card.Container>
-    </Card.Root>
+            {items.map((item, i) => (
+              <Badge
+                key={`mu-${i}-${language}`}
+                variant={item.variant}
+                title={item.text}
+                style={{
+                  marginRight: spacing(1),
+                  marginBottom: spacing(1),
+                }}
+                aria-hidden="true"
+              />
+            ))}
+            {index < SITE.skills.length - 1 && <Divider style={{ marginTop: spacing(2) }} />}
+          </Grid>
+        );
+      })}
+    </Section>
   );
 };
 export default Skills;

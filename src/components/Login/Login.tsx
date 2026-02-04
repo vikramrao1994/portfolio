@@ -1,8 +1,8 @@
-import { Button, Card, Grid, Heading, PasswordInput } from "@publicplan/kern-react-kit";
+import { Button, Grid, PasswordInput } from "@publicplan/kern-react-kit";
 import { useRouter } from "next/navigation";
 import { type SubmitHandler, useForm } from "react-hook-form";
+import Section from "@/components/Section";
 import { useMutation } from "@/hooks/useMutation";
-import { cardRootStyle } from "@/styles/styles";
 import { spacing } from "@/utils/utils";
 
 interface LoginFormInputs {
@@ -40,48 +40,42 @@ const Login = () => {
     }
   };
   return (
-    <Card.Root id="login" size="small" aria-label="Admin Login" style={{ ...cardRootStyle }}>
-      <Card.Container>
-        <Card.Header>
+    <Section id="login" ariaLabel="Admin Login" title="Admin Login">
+      <Grid>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <PasswordInput
+            aria-required="true"
+            autoComplete="current-password"
+            id="input-password"
+            label="Password"
+            autoFocus
+            {...register("password", {
+              required: "Password is required",
+              minLength: {
+                value: 4,
+                message: "Password must be at least 4 characters",
+              },
+            })}
+            style={{ marginBottom: spacing(2) }}
+            error={errors.password?.message}
+          />
           <div
             style={{
               display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: spacing(2),
-              width: "100%",
+              justifyContent: "flex-end",
+              marginTop: spacing(6),
             }}
           >
-            <Heading title={"Admin Login"} type={"medium"} headerElement={"h2"} />
-          </div>
-        </Card.Header>
-        <Grid>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <PasswordInput
-              aria-required="true"
-              autoComplete="current-password"
-              id="input-password"
-              label="Password"
-              autoFocus
-              {...register("password", {
-                required: "Password is required",
-                minLength: { value: 4, message: "Password must be at least 4 characters" },
-              })}
-              style={{ marginBottom: spacing(2) }}
-              error={errors.password?.message}
+            <Button
+              type="submit"
+              disabled={isMutating}
+              variant="secondary"
+              text={isMutating ? "Logging in..." : "Login"}
             />
-            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: spacing(6) }}>
-              <Button
-                type="submit"
-                disabled={isMutating}
-                variant="secondary"
-                text={isMutating ? "Logging in..." : "Login"}
-              />
-            </div>
-          </form>
-        </Grid>
-      </Card.Container>
-    </Card.Root>
+          </div>
+        </form>
+      </Grid>
+    </Section>
   );
 };
 
