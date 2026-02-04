@@ -10,20 +10,29 @@ export const JWTPayloadSchema = z.object({
 
 export type JWTPayload = z.infer<typeof JWTPayloadSchema>;
 
-// Environment variables
-const JWT_SECRET = process.env.JWT_SECRET;
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
-
-if (!JWT_SECRET) {
-  throw new Error("JWT_SECRET environment variable is not set");
+/**
+ * Gets the JWT secret, throwing if not configured
+ * Lazy evaluation to avoid build-time errors
+ */
+function getJWTSecret(): Uint8Array {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error("JWT_SECRET environment variable is not set");
+  }
+  return new TextEncoder().encode(secret);
 }
 
-if (!ADMIN_PASSWORD) {
-  throw new Error("ADMIN_PASSWORD environment variable is not set");
+/**
+ * Gets the admin password, throwing if not configured
+ * Lazy evaluation to avoid build-time errors
+ */
+function getAdminPassword(): string {
+  const password = process.env.ADMIN_PASSWORD;
+  if (!password) {
+    throw new Error("ADMIN_PASSWORD environment variable is not set");
+  }
+  return password;
 }
-
-// Convert secret to Uint8Array for jose
-const secret = new TextEncoder().encode(JWT_SECRET);
 
 /**
  * Creates a signed JWT with 24-hour expiry
@@ -33,7 +42,7 @@ export async function createJWT(): Promise<string> {
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime("24h")
-    .sign(secret);
+    .sign(getJWTSecret());
 
   return jwt;
 }
@@ -44,7 +53,7 @@ export async function createJWT(): Promise<string> {
  */
 export async function verifyJWT(token: string): Promise<JWTPayload | null> {
   try {
-    const { payload } = await jwtVerify(token, secret);
+    const { payload } = await jwtVerify(token, getJWTSecret());
 
     // Validate payload structure with Zod
     const result = JWTPayloadSchema.safeParse(payload);
@@ -63,11 +72,13 @@ export async function verifyJWT(token: string): Promise<JWTPayload | null> {
  * Constant-time password comparison to prevent timing attacks
  */
 export function comparePasswords(input: string): boolean {
+  const adminPassword = getAdminPassword();
+
   // Simple comparison since password is in env var (not stored/hashed)
   // Constant-time comparison using crypto if available
   if (typeof crypto !== "undefined" && crypto.subtle) {
     const inputBuffer = new TextEncoder().encode(input);
-    const storedBuffer = new TextEncoder().encode(ADMIN_PASSWORD);
+    const storedBuffer = new TextEncoder().encode(adminPassword);
 
     // Use subtle crypto for constant-time comparison
     // This is a basic implementation; in production consider using a dedicated library
@@ -84,5 +95,5 @@ export function comparePasswords(input: string): boolean {
   }
 
   // Fallback to simple comparison
-  return input === ADMIN_PASSWORD;
+  return input === adminPassword;
 }
