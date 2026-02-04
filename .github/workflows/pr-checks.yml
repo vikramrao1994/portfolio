@@ -27,7 +27,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          cache: 'pip'
+          cache: "pip"
 
       - name: Cache Bun dependencies
         uses: actions/cache@v4
@@ -71,6 +71,8 @@ jobs:
           bun run build
         env:
           NODE_ENV: production
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
 
   # Optional: Docker build test (commented out to save CI time)
   # docker-build-test:
