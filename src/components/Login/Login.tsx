@@ -1,7 +1,7 @@
 import { Button, Card, Grid, Heading, PasswordInput } from "@publicplan/kern-react-kit";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
+import { useMutation } from "@/hooks/useMutation";
 import { cardRootStyle } from "@/styles/styles";
 import { spacing } from "@/utils/utils";
 
@@ -9,9 +9,13 @@ interface LoginFormInputs {
   password: string;
 }
 
+interface LoginResponse {
+  success: boolean;
+  message?: string;
+}
+
 const Login = () => {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
 
   const {
     register,
@@ -20,35 +24,19 @@ const Login = () => {
     setError,
   } = useForm<LoginFormInputs>();
 
-  const onSubmit: SubmitHandler<LoginFormInputs> = async (data) => {
-    setLoading(true);
-    try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ password: data.password }),
-      });
+  const { mutate, isMutating } = useMutation<LoginResponse, LoginFormInputs>("/api/auth/login");
 
-      const result = await response.json();
-      if (!response.ok) {
-        setError("password", {
-          type: "server",
-          message: result.message ?? "Invalid password",
-        });
-        setLoading(false);
-        return;
-      }
-      if (result.success) {
+  const onSubmit: SubmitHandler<LoginFormInputs> = async (data) => {
+    try {
+      const result = await mutate(data);
+      if (result?.success) {
         router.push("/admin");
       }
-    } catch (_err) {
+    } catch (err) {
       setError("password", {
         type: "server",
-        message: "An unexpected error occurred. Please try again.",
+        message: err instanceof Error ? err.message : "An unexpected error occurred",
       });
-      setLoading(false);
     }
   };
   return (
@@ -85,9 +73,9 @@ const Login = () => {
             <div style={{ display: "flex", justifyContent: "flex-end", marginTop: spacing(6) }}>
               <Button
                 type="submit"
-                disabled={loading}
+                disabled={isMutating}
                 variant="secondary"
-                text={loading ? "Logging in..." : "Login"}
+                text={isMutating ? "Logging in..." : "Login"}
               />
             </div>
           </form>
