@@ -14,5 +14,12 @@
   "degree": "View Degree",
   "aboutMe": "About Me",
   "expandAll": "Expand all",
-  "collapseAll": "Collapse all"
+  "collapseAll": "Collapse all",
+  "adminLogin": "Admin Login",
+  "password": "Password",
+  "login": "Log In",
+  "logout": "Log Out",
+  "adminDashboard": "Admin Dashboard",
+  "invalidPassword": "Invalid password",
+  "loginError": "Login failed. Please try again."
 }

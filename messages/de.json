@@ -14,5 +14,12 @@
   "degree": "Abschluss anzeigen",
   "aboutMe": "Über mich",
   "expandAll": "Alle erweitern",
-  "collapseAll": "Alle reduzieren"
+  "collapseAll": "Alle reduzieren",
+  "adminLogin": "Admin-Anmeldung",
+  "password": "Passwort",
+  "login": "Anmelden",
+  "logout": "Abmelden",
+  "adminDashboard": "Admin-Dashboard",
+  "invalidPassword": "Ungültiges Passwort",
+  "loginError": "Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut."
 }
