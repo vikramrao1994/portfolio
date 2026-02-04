@@ -20,7 +20,9 @@ if (existingData.count > 0 && !forceImport) {
   process.exit(0);
 }
 
-console.log(forceImport ? "🔄 Force re-importing database..." : "📥 Seeding database for the first time...");
+console.log(
+  forceImport ? "🔄 Force re-importing database..." : "📥 Seeding database for the first time...",
+);
 
 const raw = fs.readFileSync(JSON_PATH, "utf8");
 const json = JSON.parse(raw);
