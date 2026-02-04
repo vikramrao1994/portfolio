@@ -40,9 +40,13 @@ src/
 ├── app/                    # Next.js App Router
 │   ├── [locale]/          # Locale-based routing (en/de)
 │   │   ├── page.tsx       # Main portfolio page
+│   │   ├── admin/         # Protected admin dashboard (placeholder)
+│   │   ├── login/         # Admin login page
 │   │   ├── photography/   # Photography page (placeholder)
 │   │   └── [...rest]/     # 404 catch-all
-│   ├── api/cv/            # PDF CV generation endpoint
+│   ├── api/
+│   │   ├── cv/            # PDF CV generation endpoint
+│   │   └── auth/          # Authentication endpoints (login, logout)
 │   ├── layout.tsx         # Root layout with providers
 │   └── providers.tsx      # Client-side providers
 ├── components/            # React components (all have index.ts for clean imports)
@@ -52,8 +56,9 @@ src/
 │   ├── db.ts             # SQLite connection
 │   ├── siteContent.ts    # Main data aggregation function
 │   └── queries/          # Database queries (typed with Zod)
-├── lib/                   # Zod schemas and validation
+├── lib/                   # Zod schemas and validation (includes auth.ts)
 ├── i18n/                  # Internationalization config
+├── proxy.ts               # Middleware for i18n routing + admin auth
 ├── styles/                # Global SCSS styles
 └── utils/                 # Utility functions
 
@@ -181,6 +186,54 @@ const { heading, about, work, skills, education } = useSiteContent()
 - Process: Fetch data → write JSON → call Python script → return PDF
 - Scripts: `scripts/cv/generate_cv_en.py` and `generate_cv_de.py`
 
+### POST /api/auth/login
+- Authenticates admin with password
+- Returns JWT in httpOnly cookie (`auth_token`)
+- Request body: `{ "password": "string" }`
+
+### POST /api/auth/logout
+- Clears the `auth_token` cookie
+- Returns success JSON
+
+## Admin Authentication
+
+### Overview
+The admin section (`/admin` and `/de/admin`) is protected by simple password authentication using JWT-based sessions stored in httpOnly cookies.
+
+### Architecture
+- **Password**: Single admin password stored in `ADMIN_PASSWORD` env var
+- **Sessions**: Stateless JWT tokens (24-hour expiry) signed with `JWT_SECRET`
+- **Protection**: Middleware in `src/proxy.ts` validates JWT before allowing access
+- **Library**: `jose` for JWT signing/verification (Web Crypto API based)
+
+### Authentication Flow
+1. User visits `/admin` → Middleware redirects to `/login` if no valid token
+2. User submits password → `POST /api/auth/login` validates and sets cookie
+3. On success → Redirect to `/admin` with valid JWT cookie
+4. Logout → `POST /api/auth/logout` clears cookie
+
+### Key Files
+- `src/lib/auth.ts` - JWT utilities (`createJWT`, `verifyJWT`, `comparePasswords`)
+- `src/proxy.ts` - Middleware combining i18n routing + admin auth
+- `src/app/api/auth/login/route.ts` - Login endpoint
+- `src/app/api/auth/logout/route.ts` - Logout endpoint
+- `src/app/[locale]/login/page.tsx` - Login form UI
+- `src/app/[locale]/admin/page.tsx` - Protected admin dashboard
+
+### Security Features
+- HttpOnly cookies (XSS protection)
+- Secure flag in production (HTTPS only)
+- SameSite: 'lax' (CSRF protection)
+- 24-hour JWT expiry
+- Constant-time password comparison (timing attack prevention)
+- Lazy env var evaluation (secrets not baked into Docker image)
+
+### Locale-Aware Routing
+The middleware (`src/proxy.ts`) handles both locales:
+- `/admin` → Protected (EN)
+- `/de/admin` → Protected (DE)
+- Redirects to locale-appropriate login page (`/login` or `/de/login`)
+
 ## Code Conventions
 
 ### TypeScript
@@ -267,6 +320,15 @@ NEXT_TELEMETRY_DISABLED=1
 BACKGROUND_PIC_URL=<firebase_url>      # .env only
 PROFILE_PIC_URL=<firebase_url>          # .env only
 DATA_JSON_URL=<firebase_realtime_db>    # .env only
+ADMIN_PASSWORD=<secure_password>        # .env + Fly.io secret (runtime only)
+JWT_SECRET=<random_secret_64+_chars>    # .env + Fly.io secret (runtime only)
+```
+
+### Setting Fly.io Secrets
+Admin auth secrets must be set via Fly.io CLI (not in Dockerfile):
+```bash
+fly secrets set ADMIN_PASSWORD="your-secure-password"
+fly secrets set JWT_SECRET="$(openssl rand -base64 64)"
 ```
 
 ## Important Notes
@@ -301,7 +363,9 @@ DATA_JSON_URL=<firebase_realtime_db>    # .env only
 - **Main data aggregation**: `src/server/siteContent.ts`
 - **Zod schemas**: `src/lib/schemas.ts`
 - **Context provider**: `src/context/SiteContentContext/index.tsx`
-- **i18n config**: `src/i18n/request.ts`
+- **i18n config**: `src/i18n/request.ts`, `src/i18n/routing.ts`
+- **Middleware**: `src/proxy.ts` (i18n + admin auth)
+- **Auth utilities**: `src/lib/auth.ts` (JWT, password comparison)
 - **Next.js config**: `next.config.ts`
 - **Build config**: `fly.toml`, `Dockerfile`
 - **CV generation**: `scripts/cv/generate_cv_en.py`, `generate_cv_de.py`
