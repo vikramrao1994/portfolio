@@ -19,6 +19,11 @@ This is a multilingual (EN/DE) full-stack portfolio website built with Next.js 1
 - **TypeScript 5.x** in strict mode
 - **Turbopack** for fast builds (configured in next.config.ts)
 
+### Data Fetching & Mutations
+- **tRPC v11** for type-safe API layer (admin mutations)
+- **TanStack Query** for client-side data fetching and caching
+- **Zod** for runtime validation (shared between server and client)
+
 ### UI & Styling
 - **Kern React Kit** (@publicplan/kern-react-kit): Use these components instead of creating custom ones
   - Available: Grid, Card, Button, Badge, Accordion, AccordionItem, List, ListItem, Drawer, etc.
@@ -40,22 +45,29 @@ src/
 ├── app/                    # Next.js App Router
 │   ├── [locale]/          # Locale-based routing (en/de)
 │   │   ├── page.tsx       # Main portfolio page
-│   │   ├── admin/         # Protected admin dashboard (placeholder)
+│   │   ├── admin/         # Protected admin dashboard
 │   │   ├── login/         # Admin login page
 │   │   ├── photography/   # Photography page (placeholder)
 │   │   └── [...rest]/     # 404 catch-all
 │   ├── api/
 │   │   ├── cv/            # PDF CV generation endpoint
-│   │   └── auth/          # Authentication endpoints (login, logout)
+│   │   ├── auth/          # Authentication endpoints (login, logout)
+│   │   └── trpc/[trpc]/   # tRPC API handler
 │   ├── layout.tsx         # Root layout with providers
-│   └── providers.tsx      # Client-side providers
+│   └── providers.tsx      # Client-side providers (QueryClientProvider)
 ├── components/            # React components (all have index.ts for clean imports)
 ├── context/               # SiteContentContext for sharing data
-├── hooks/                 # Custom hooks (useBreakpoints)
+├── hooks/                 # Custom hooks (useBreakpoints, useMutation)
 ├── server/                # Server-side logic
-│   ├── db.ts             # SQLite connection
+│   ├── db.ts             # SQLite connection (getDb for reads, getWriteDb for admin writes)
 │   ├── siteContent.ts    # Main data aggregation function
 │   └── queries/          # Database queries (typed with Zod)
+├── trpc/                  # tRPC setup
+│   ├── init.ts           # Context, procedures, router factory
+│   ├── router.ts         # Root app router
+│   ├── routers/          # Sub-routers by domain (heading.ts, etc.)
+│   ├── client.tsx        # TRPCProvider and useTRPC hook
+│   └── query-client.ts   # TanStack Query client factory
 ├── lib/                   # Zod schemas and validation (includes auth.ts)
 ├── i18n/                  # Internationalization config
 ├── proxy.ts               # Middleware for i18n routing + admin auth
@@ -78,8 +90,8 @@ messages/
 ## Database Patterns
 
 ### Connection
-- Use `getDb()` from `src/server/db.ts` for all database access
-- Database is **read-only in production** (`readonly: true`)
+- Use `getDb()` from `src/server/db.ts` for **read-only** public queries
+- Use `getWriteDb()` from `src/server/db.ts` for **admin write operations** (via tRPC protected procedures)
 - Single connection per process (connection pooling)
 - Location: `./data/portfolio.db` (dev) or `/data/portfolio.db` (production)
 
@@ -144,6 +156,10 @@ import { useBreakpoints } from '@/hooks/useBreakpoints'
 const { mobile, tablet, desktop } = useBreakpoints()
 // mobile: 0-576px, tablet: 577-991px, desktop: 992+
 ```
+
+### Custom Hooks
+- `useBreakpoints` - Responsive breakpoint detection
+- `useMutation` - TanStack Query wrapper for simple POST/PUT/DELETE mutations (used for login/logout)
 
 ## Internationalization (i18n)
 
@@ -233,6 +249,55 @@ The middleware (`src/proxy.ts`) handles both locales:
 - `/admin` → Protected (EN)
 - `/de/admin` → Protected (DE)
 - Redirects to locale-appropriate login page (`/login` or `/de/login`)
+
+## tRPC (Admin Data Mutations)
+
+### Overview
+tRPC v11 provides type-safe API layer for admin operations. It reuses JWT authentication from the existing auth system.
+
+### Architecture
+- **Server**: `src/trpc/init.ts` creates context with JWT verification
+- **Router**: `src/trpc/router.ts` exports `AppRouter` type
+- **Procedures**: `protectedProcedure` requires valid JWT, `publicProcedure` for unauthenticated access
+- **Client**: `useTRPC()` hook provides typed access to procedures
+
+### Usage Pattern
+```typescript
+// In a client component wrapped with TRPCProvider
+import { useTRPC } from "@/trpc/client";
+import { useQuery, useMutation } from "@tanstack/react-query";
+
+const trpc = useTRPC();
+
+// Query
+const { data } = useQuery(trpc.heading.getRaw.queryOptions());
+
+// Mutation
+const mutation = useMutation(trpc.heading.update.mutationOptions());
+await mutation.mutateAsync({ name: "New Name" });
+```
+
+### Type Inference
+Infer input/output types from procedures instead of defining manually:
+```typescript
+import type { inferProcedureInput } from "@trpc/server";
+import type { AppRouter } from "@/trpc/router";
+
+type HeadingInput = inferProcedureInput<AppRouter["heading"]["update"]>;
+```
+
+### Adding New Routers
+1. Create router in `src/trpc/routers/yourRouter.ts`
+2. Use `protectedProcedure` for admin-only operations
+3. Add Zod schema for input validation
+4. Export and add to `src/trpc/router.ts`
+
+### Key Files
+- `src/trpc/init.ts` - Context creation, procedure definitions
+- `src/trpc/router.ts` - Root router combining all sub-routers
+- `src/trpc/routers/heading.ts` - Heading CRUD operations
+- `src/trpc/client.tsx` - TRPCProvider and useTRPC hook
+- `src/app/api/trpc/[trpc]/route.ts` - API handler
 
 ## Code Conventions
 
@@ -339,17 +404,19 @@ fly secrets set JWT_SECRET="$(openssl rand -base64 64)"
 - Don't use npm/Node.js commands (use Bun)
 - Don't bypass Zod validation for database data
 - Don't create new components if Kern React Kit has equivalent
-- Don't write to database in production (read-only)
+- Don't write to database without using `protectedProcedure` (admin auth required)
 - Don't skip translations when adding UI text
 - Don't use barrel exports outside of component index files
+- Don't use SWR (use TanStack Query via tRPC or `useMutation` hook)
 
 ### Performance Considerations
 - React Compiler is enabled (automatic memoization)
 - Images are optimized with WebP conversion
-- Database has read-only mode in production
+- Database uses read-only connection for public queries, write connection for admin only
 - CV generation is cached for 10 minutes
 - 3D avatar respects `prefers-reduced-motion`
 - Lazy loading with IntersectionObserver
+- TanStack Query provides 30-second stale time for cached data
 
 ### Accessibility
 - Respect `prefers-reduced-motion` (see Avatar component)
@@ -359,13 +426,16 @@ fly secrets set JWT_SECRET="$(openssl rand -base64 64)"
 
 ## Key Files Reference
 
-- **Database**: `src/server/db.ts`, `db/schema.sql`
+- **Database**: `src/server/db.ts` (getDb, getWriteDb), `db/schema.sql`
 - **Main data aggregation**: `src/server/siteContent.ts`
 - **Zod schemas**: `src/lib/schemas.ts`
 - **Context provider**: `src/context/SiteContentContext/index.tsx`
 - **i18n config**: `src/i18n/request.ts`, `src/i18n/routing.ts`
 - **Middleware**: `src/proxy.ts` (i18n + admin auth)
 - **Auth utilities**: `src/lib/auth.ts` (JWT, password comparison)
+- **tRPC setup**: `src/trpc/init.ts`, `src/trpc/router.ts`, `src/trpc/client.tsx`
+- **tRPC routers**: `src/trpc/routers/heading.ts`
+- **Query client**: `src/trpc/query-client.ts`, `src/app/providers.tsx`
 - **Next.js config**: `next.config.ts`
 - **Build config**: `fly.toml`, `Dockerfile`
 - **CV generation**: `scripts/cv/generate_cv_en.py`, `generate_cv_de.py`
