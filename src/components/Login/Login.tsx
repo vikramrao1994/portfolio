@@ -1,8 +1,8 @@
 import { Button, Grid, PasswordInput } from "@publicplan/kern-react-kit";
-import { useRouter } from "next/navigation";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import Section from "@/components/Section";
 import { useMutation } from "@/hooks/useMutation";
+import { useRouter } from "@/i18n/navigation";
 import { spacing } from "@/utils/utils";
 
 interface LoginFormInputs {

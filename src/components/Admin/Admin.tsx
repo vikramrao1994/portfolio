@@ -1,7 +1,7 @@
 import { Accordion, Body, Button, Grid } from "@publicplan/kern-react-kit";
-import { useRouter } from "next/navigation";
 import Section from "@/components/Section";
 import { useMutation } from "@/hooks/useMutation";
+import { useRouter } from "@/i18n/navigation";
 import { TRPCProvider } from "@/trpc/client";
 import { spacing } from "@/utils/utils";
 import HeadingForm from "./HeadingForm";
