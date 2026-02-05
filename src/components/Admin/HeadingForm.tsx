@@ -1,4 +1,3 @@
-"use client";
 import {
   Body,
   Button,
@@ -13,7 +12,6 @@ import {
 } from "@publicplan/kern-react-kit";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type { inferProcedureInput } from "@trpc/server";
-import { useEffect } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { useTRPC } from "@/trpc/client";
 import type { AppRouter } from "@/trpc/router";
@@ -21,6 +19,25 @@ import { spacing } from "@/utils/utils";
 
 // Infer input type directly from tRPC procedure
 type HeadingFormInputs = inferProcedureInput<AppRouter["heading"]["update"]>;
+
+const defaultFormValues: HeadingFormInputs = {
+  name: "",
+  subheadline_en: "",
+  subheadline_de: "",
+  headline_en: "",
+  headline_de: "",
+  address_en: "",
+  address_de: "",
+  email: "",
+  phone: "",
+  website: "",
+  linkedin: "",
+  github: "",
+  instagram: "",
+  age: "",
+  years_of_experience: "",
+  open_to_opportunities: false,
+};
 
 const HeadingForm = () => {
   const trpc = useTRPC();
@@ -37,39 +54,15 @@ const HeadingForm = () => {
     }),
   );
 
+  // Use `values` prop to sync form with external data (more reliable than reset() with SSR)
   const {
     register,
     handleSubmit,
-    reset,
     formState: { errors, isDirty },
   } = useForm<HeadingFormInputs>({
-    defaultValues: {
-      name: "",
-      subheadline_en: "",
-      subheadline_de: "",
-      headline_en: "",
-      headline_de: "",
-      address_en: "",
-      address_de: "",
-      email: "",
-      phone: "",
-      website: "",
-      linkedin: "",
-      github: "",
-      instagram: "",
-      age: "",
-      years_of_experience: "",
-      open_to_opportunities: false,
-    },
+    defaultValues: defaultFormValues,
+    values: heading ?? undefined,
   });
-
-  // Populate form when data loads
-  useEffect(() => {
-    console.log("heading: ", heading);
-    if (heading) {
-      reset({ ...heading });
-    }
-  }, [heading, reset]);
 
   const onSubmit: SubmitHandler<HeadingFormInputs> = async (data) => {
     try {
