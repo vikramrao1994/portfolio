@@ -1,7 +1,7 @@
 import { Body, Grid, Link } from "@publicplan/kern-react-kit";
 import { useLocale, useTranslations } from "next-intl";
 import Image from "@/components/Image";
-import Section  from "@/components/Section";
+import Section from "@/components/Section";
 import { useSiteContent } from "@/context/SiteContentContext";
 import { useBreakpointFlags } from "@/hooks/useBreakpoints";
 import type { Language } from "@/lib/siteSchema";

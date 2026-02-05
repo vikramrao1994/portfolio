@@ -1,9 +1,11 @@
 "use client";
 import { ThemeProvider } from "@publicplan/kern-react-kit";
+import { QueryClientProvider } from "@tanstack/react-query";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import { SiteContentProvider } from "@/context/SiteContentContext";
 import type { Site } from "@/lib/siteSchema";
+import { getQueryClient } from "@/trpc/query-client";
 
 function BodyProvider({ children }: { children: React.ReactNode }) {
   return (
@@ -36,21 +38,25 @@ export function PageProvider({
   children: React.ReactNode;
   initialSite: Site;
 }) {
+  const queryClient = getQueryClient();
+
   return (
-    <SiteContentProvider initialSite={initialSite}>
-      <header>
-        <HeaderProvider>
-          <Header />
-        </HeaderProvider>
-      </header>
-      <main>
-        <BodyProvider>{children}</BodyProvider>
-      </main>
-      <footer>
-        <FooterProvider>
-          <Footer />
-        </FooterProvider>
-      </footer>
-    </SiteContentProvider>
+    <QueryClientProvider client={queryClient}>
+      <SiteContentProvider initialSite={initialSite}>
+        <header>
+          <HeaderProvider>
+            <Header />
+          </HeaderProvider>
+        </header>
+        <main>
+          <BodyProvider>{children}</BodyProvider>
+        </main>
+        <footer>
+          <FooterProvider>
+            <Footer />
+          </FooterProvider>
+        </footer>
+      </SiteContentProvider>
+    </QueryClientProvider>
   );
 }
