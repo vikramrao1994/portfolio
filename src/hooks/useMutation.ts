@@ -1,15 +1,16 @@
-import useSWRMutation, { type SWRMutationConfiguration } from "swr/mutation";
+import { useMutation as useReactQueryMutation } from "@tanstack/react-query";
 
 type HttpMethod = "POST" | "PUT" | "PATCH" | "DELETE";
 
 async function mutationFetcher<TResponse, TBody>(
   url: string,
-  { arg }: { arg: { method: HttpMethod; body?: TBody } },
+  method: HttpMethod,
+  body?: TBody,
 ): Promise<TResponse> {
   const response = await fetch(url, {
-    method: arg.method,
+    method,
     headers: { "Content-Type": "application/json" },
-    body: arg.body ? JSON.stringify(arg.body) : undefined,
+    body: body ? JSON.stringify(body) : undefined,
   });
 
   const result = await response.json();
@@ -21,36 +22,33 @@ async function mutationFetcher<TResponse, TBody>(
   return result;
 }
 
-interface UseMutationOptions<TResponse, TBody>
-  extends Omit<
-    SWRMutationConfiguration<TResponse, Error, string, { method: HttpMethod; body?: TBody }>,
-    "fetcher"
-  > {
+interface UseMutationOptions<TResponse> {
   method?: HttpMethod;
+  onSuccess?: (data: TResponse) => void;
+  onError?: (error: Error) => void;
 }
 
 export function useMutation<TResponse, TBody = unknown>(
   url: string,
-  options: UseMutationOptions<TResponse, TBody> = {},
+  options: UseMutationOptions<TResponse> = {},
 ) {
-  const { method = "POST", ...swrOptions } = options;
+  const { method = "POST", onSuccess, onError } = options;
 
-  const { trigger, isMutating, error, data, reset } = useSWRMutation<
-    TResponse,
-    Error,
-    string,
-    { method: HttpMethod; body?: TBody }
-  >(url, mutationFetcher, swrOptions);
+  const mutation = useReactQueryMutation<TResponse, Error, TBody | undefined>({
+    mutationFn: (body) => mutationFetcher<TResponse, TBody>(url, method, body),
+    onSuccess,
+    onError,
+  });
 
   const mutate = async (body?: TBody) => {
-    return trigger({ method, body });
+    return mutation.mutateAsync(body);
   };
 
   return {
     mutate,
-    isMutating,
-    error,
-    data,
-    reset,
+    isMutating: mutation.isPending,
+    error: mutation.error,
+    data: mutation.data,
+    reset: mutation.reset,
   };
 }

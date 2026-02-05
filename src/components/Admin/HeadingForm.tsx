@@ -1,5 +1,3 @@
-"use client";
-
 import {
   Body,
   Button,
@@ -7,6 +5,7 @@ import {
   EmailInput,
   Grid,
   Heading,
+  Loader,
   TelInput,
   TextInput,
   UrlInput,
@@ -80,7 +79,18 @@ const HeadingForm = () => {
   };
 
   if (isLoading) {
-    return <Body>Loading...</Body>;
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          marginTop: spacing(2),
+          marginBottom: spacing(4),
+        }}
+      >
+        <Loader visible />
+      </div>
+    );
   }
 
   if (!heading) {
@@ -262,14 +272,7 @@ const HeadingForm = () => {
         </div>
 
         {/* Submit Button */}
-        <div style={{ display: "flex", gap: spacing(2), justifyContent: "flex-end" }}>
-          <Button
-            type="button"
-            variant="secondary"
-            text="Reset"
-            onClick={() => reset()}
-            disabled={!isDirty}
-          />
+        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: spacing(2) }}>
           <Button
             type="submit"
             variant="primary"
@@ -280,10 +283,12 @@ const HeadingForm = () => {
 
         {/* Status Messages */}
         {updateMutation.isSuccess && (
-          <Body style={{ color: "green", marginTop: spacing(2) }}>Changes saved successfully!</Body>
+          <Body style={{ color: "green", marginTop: spacing(2), marginBottom: spacing(2) }}>
+            Changes saved successfully!
+          </Body>
         )}
         {updateMutation.isError && (
-          <Body style={{ color: "red", marginTop: spacing(2) }}>
+          <Body style={{ color: "red", marginTop: spacing(2), marginBottom: spacing(2) }}>
             Error: {updateMutation.error.message}
           </Body>
         )}

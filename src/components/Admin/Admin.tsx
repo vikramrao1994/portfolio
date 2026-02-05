@@ -1,5 +1,3 @@
-"use client";
-
 import { Accordion, Body, Button, Grid } from "@publicplan/kern-react-kit";
 import { useRouter } from "next/navigation";
 import Section from "@/components/Section";
@@ -30,20 +28,6 @@ const AdminContent = () => {
   return (
     <Section id="admin" ariaLabel="Admin Dashboard" title="Admin Dashboard">
       <Grid>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            marginBottom: spacing(3),
-          }}
-        >
-          <Button
-            onClick={handleLogout}
-            disabled={isLoggingOut}
-            text={isLoggingOut ? "Logging out..." : "Logout"}
-            variant="secondary"
-          />
-        </div>
         <Accordion.Group>
           <Accordion.Root isOpened={true}>
             <Accordion.Summary
@@ -52,7 +36,6 @@ const AdminContent = () => {
                 title: "Profile / Heading",
               }}
             />
-
             <HeadingForm />
           </Accordion.Root>
           <Accordion.Root>
@@ -93,6 +76,21 @@ const AdminContent = () => {
             <Body>Coming soon...</Body>
           </Accordion.Root>
         </Accordion.Group>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            marginTop: spacing(3),
+            // marginBottom: spacing(3),
+          }}
+        >
+          <Button
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            text={isLoggingOut ? "Logging out..." : "Logout"}
+            variant="secondary"
+          />
+        </div>
       </Grid>
     </Section>
   );
