@@ -72,10 +72,10 @@ COPY --from=python-deps /python-packages /python-packages
 # Add Python packages to PYTHONPATH so Python can find them
 ENV PYTHONPATH=/python-packages
 
-# Copy necessary files from builder
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
+# Copy necessary files from builder (with proper ownership for .next directories)
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder /app/scripts/cv ./scripts/cv
 COPY --from=builder /app/scripts/start.sh ./scripts/start.sh
 COPY --from=builder /app/messages ./messages
