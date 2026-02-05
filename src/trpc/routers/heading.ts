@@ -1,4 +1,5 @@
 import "server-only";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getDb, getWriteDb } from "@/server/db";
 import { protectedProcedure, router } from "@/trpc/init";
@@ -108,6 +109,9 @@ export const headingRouter = router({
       `);
 
     stmt.run(...values);
+
+    // Revalidate all pages since heading appears across the site
+    revalidatePath("/", "layout");
 
     return { success: true };
   }),
