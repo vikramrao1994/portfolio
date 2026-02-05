@@ -19,6 +19,7 @@ const AdminContent = () => {
   const handleLogout = async () => {
     try {
       await logout();
+      router.refresh();
       router.push("/");
     } catch (err) {
       console.error("Logout failed:", err);

@@ -1,7 +1,11 @@
+import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 
 export async function POST() {
   try {
+    // Revalidate all pages so user sees fresh content after logout
+    revalidatePath("/", "layout");
+
     // Create response
     const response = NextResponse.json({ success: true });
 
