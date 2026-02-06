@@ -2,6 +2,7 @@
 
 import { Accordion, Body, Grid } from "@publicplan/kern-react-kit";
 import AdminCard from "@/components/Admin/Card/AdminCard";
+import AboutMeForm from "@/components/Admin/Forms/AboutMeForm";
 import HeadingForm from "@/components/Admin/Forms/HeadingForm";
 
 export default function AdminPage() {
@@ -20,14 +21,14 @@ export default function AdminPage() {
                 />
                 <HeadingForm />
               </Accordion.Root>
-              <Accordion.Root>
+              <Accordion.Root isOpened={true}>
                 <Accordion.Summary
                   title={{
                     textWrapper: "h2",
                     title: "About Me",
                   }}
                 />
-                <Body>Coming soon...</Body>
+                <AboutMeForm />
               </Accordion.Root>
               <Accordion.Root>
                 <Accordion.Summary
