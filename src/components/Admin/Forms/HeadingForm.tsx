@@ -10,10 +10,9 @@ import {
   TextInput,
   UrlInput,
 } from "@publicplan/kern-react-kit";
-import { useMutation, useQuery } from "@tanstack/react-query";
 import type { inferProcedureInput } from "@trpc/server";
 import { type SubmitHandler, useForm } from "react-hook-form";
-import { useTRPC } from "@/trpc/client";
+import { useHeading } from "@/hooks/useAdmin";
 import type { AppRouter } from "@/trpc/router";
 import { spacing } from "@/utils/utils";
 
@@ -40,19 +39,7 @@ const defaultFormValues: HeadingFormInputs = {
 };
 
 const HeadingForm = () => {
-  const trpc = useTRPC();
-
-  // Fetch current heading data
-  const { data: heading, isLoading, refetch } = useQuery(trpc.heading.getRaw.queryOptions());
-
-  // Update mutation
-  const updateMutation = useMutation(
-    trpc.heading.update.mutationOptions({
-      onSuccess: () => {
-        refetch();
-      },
-    }),
-  );
+  const { heading, isLoading, updateMutation, hasError, isSuccess, error } = useHeading();
 
   // Use `values` prop to sync form with external data (more reliable than reset() with SSR)
   const {
@@ -276,14 +263,14 @@ const HeadingForm = () => {
         </div>
 
         {/* Status Messages */}
-        {updateMutation.isSuccess && (
+        {isSuccess && (
           <Body style={{ color: "green", marginTop: spacing(2), marginBottom: spacing(2) }}>
             Changes saved successfully!
           </Body>
         )}
-        {updateMutation.isError && (
+        {hasError && (
           <Body style={{ color: "red", marginTop: spacing(2), marginBottom: spacing(2) }}>
-            Error: {updateMutation.error.message}
+            Error: {error}
           </Body>
         )}
       </Grid>

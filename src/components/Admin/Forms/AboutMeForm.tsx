@@ -1,15 +1,7 @@
 import { Body, Button, Grid, Heading, Loader, TextareaInput } from "@publicplan/kern-react-kit";
-import { useMutation, useQuery } from "@tanstack/react-query";
 import { useFieldArray, useForm } from "react-hook-form";
-import { useTRPC } from "@/trpc/client";
+import { type AboutMeItem, useAboutMe } from "@/hooks/useAdmin";
 import { spacing } from "@/utils/utils";
-
-interface AboutMeItem {
-  dbId: number;
-  sort_order: number;
-  en: string;
-  de: string;
-}
 
 interface FormValues {
   paragraphs: AboutMeItem[];
@@ -20,23 +12,8 @@ interface FormValues {
 }
 
 const AboutMeForm = () => {
-  const trpc = useTRPC();
-
-  // Fetch all about_me items
-  const { data: items, isLoading, refetch } = useQuery(trpc.aboutMe.getAll.queryOptions());
-
-  // Transform server data to use dbId instead of id
-  const transformedItems = items?.map((item) => ({
-    dbId: item.id,
-    sort_order: item.sort_order,
-    en: item.en,
-    de: item.de,
-  }));
-
-  // Mutations
-  const updateMutation = useMutation(trpc.aboutMe.update.mutationOptions());
-  const createMutation = useMutation(trpc.aboutMe.create.mutationOptions());
-  const deleteMutation = useMutation(trpc.aboutMe.delete.mutationOptions());
+  const { items, isLoading, updateMutation, createMutation, deleteMutation, hasError, error } =
+    useAboutMe();
 
   // Form setup with useFieldArray for dynamic paragraphs
   const {
@@ -50,9 +27,9 @@ const AboutMeForm = () => {
       paragraphs: [],
       newParagraph: { en: "", de: "" },
     },
-    values: transformedItems
+    values: items
       ? {
-          paragraphs: transformedItems,
+          paragraphs: items,
           newParagraph: { en: "", de: "" },
         }
       : undefined,
@@ -74,7 +51,6 @@ const AboutMeForm = () => {
         en: values.en,
         de: values.de,
       });
-      await refetch();
     } catch (err) {
       console.error("Failed to update:", err);
     }
@@ -97,8 +73,6 @@ const AboutMeForm = () => {
         en: data.newParagraph.en,
         de: data.newParagraph.de,
       });
-
-      await refetch();
     } catch (err) {
       console.error("Failed to create:", err);
     }
@@ -111,7 +85,6 @@ const AboutMeForm = () => {
     try {
       await deleteMutation.mutateAsync({ id: dbId });
       remove(index);
-      await refetch();
     } catch (err) {
       console.error("Failed to delete:", err);
     }
@@ -242,13 +215,8 @@ const AboutMeForm = () => {
       </div>
 
       {/* Status Messages */}
-      {(updateMutation.isError || createMutation.isError || deleteMutation.isError) && (
-        <Body style={{ color: "red", marginTop: spacing(1) }}>
-          Error:{" "}
-          {updateMutation.error?.message ||
-            createMutation.error?.message ||
-            deleteMutation.error?.message}
-        </Body>
+      {hasError && (
+        <Body style={{ color: "red", marginTop: spacing(1) }}>Error: {error}</Body>
       )}
     </Grid>
   );
