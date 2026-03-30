@@ -1,4 +1,4 @@
-/** biome-ignore-all lint/suspicious/noExplicitAny: testing*/
+/** biome-ignore-all lint/suspicious/noExplicitAny: testing */
 import { getDb } from "@/server/db";
 
 export type Lang = "en" | "de";
