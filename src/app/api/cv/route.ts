@@ -6,6 +6,8 @@ import { NextResponse } from "next/server";
 import type { Language } from "@/lib/siteSchema";
 import { getSiteContent } from "@/server/siteContent";
 
+export const dynamic = "force-dynamic";
+
 const CACHE_SECONDS = 60 * 10; // 10 minutes
 
 function assertLang(lang: string | null): Language {
