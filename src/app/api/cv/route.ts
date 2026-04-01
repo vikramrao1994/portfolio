@@ -8,8 +8,6 @@ import { getSiteContent } from "@/server/siteContent";
 
 export const dynamic = "force-dynamic";
 
-const CACHE_SECONDS = 60 * 10; // 10 minutes
-
 function assertLang(lang: string | null): Language {
   if (lang === "de" || lang === "en") return lang;
   return "en";
@@ -60,7 +58,7 @@ export async function GET(req: Request) {
         "Content-Type": "application/pdf",
         "Content-Disposition": `attachment; filename="Vikram_Rao_CV_${lang.toUpperCase()}.pdf"`,
         // Server-side caching
-        "Cache-Control": `public, max-age=${CACHE_SECONDS}`,
+        "Cache-Control": "no-store",
       },
     });
   } catch (err: unknown) {
