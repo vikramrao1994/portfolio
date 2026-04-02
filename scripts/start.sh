@@ -44,6 +44,11 @@ echo "🔧 Applying schema migrations..."
 bun scripts/db/init.ts
 echo "✅ Schema up to date"
 
+# Always refresh data from Firebase on startup
+echo "🔄 Refreshing data from Firebase..."
+bun scripts/db/fetch-and-import.ts
+echo "✅ Data refresh complete"
+
 # Start the Next.js server
 echo "🌐 Starting Next.js server on port ${PORT:-3000}..."
 exec bun server.js
