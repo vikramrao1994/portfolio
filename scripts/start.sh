@@ -19,35 +19,21 @@ else
   echo "📦 Using local database at ${DB_PATH}"
 fi
 
-# Check if database exists
-if [ ! -f "${DB_PATH}" ]; then
-  echo "⚙️  Database not found, initializing..."
+# Always wipe the database on startup for a clean slate
+echo "🗑️  Wiping existing database..."
+rm -f "${DB_PATH}"
+mkdir -p "${DB_DIR}"
+echo "✅ Database wiped"
 
-  # Create data directory if it doesn't exist
-  mkdir -p "${DB_DIR}"
-
-  # Copy initial database from build if it exists
-  if [ -f "./data/portfolio.db" ]; then
-    echo "📋 Copying initial database from build..."
-    cp ./data/portfolio.db "${DB_PATH}"
-    echo "✅ Database initialized from build"
-  else
-    echo "❌ No initial database found in build"
-    echo "⚠️  Database will need to be initialized manually"
-  fi
-else
-  echo "✅ Database already exists at ${DB_PATH}"
-fi
-
-# Apply schema to ensure all tables exist (safe — all tables use IF NOT EXISTS)
-echo "🔧 Applying schema migrations..."
+# Initialize fresh schema
+echo "🔧 Initializing schema..."
 bun scripts/db/init.ts
-echo "✅ Schema up to date"
+echo "✅ Schema initialized"
 
-# Always refresh data from Firebase on startup
-echo "🔄 Refreshing data from Firebase..."
+# Fetch all data from Firebase
+echo "🔄 Fetching data from Firebase..."
 bun scripts/db/fetch-and-import.ts
-echo "✅ Data refresh complete"
+echo "✅ Data fetch complete"
 
 # Start the Next.js server
 echo "🌐 Starting Next.js server on port ${PORT:-3000}..."

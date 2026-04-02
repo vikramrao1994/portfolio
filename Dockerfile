@@ -85,10 +85,6 @@ COPY --from=builder /app/db ./db
 # Create data directory for SQLite database
 RUN mkdir -p /data && chown -R nextjs:nodejs /data
 
-# If database exists from build, copy it as initial seed
-# This will be overridden by the volume mount in production
-COPY --from=builder --chown=nextjs:nodejs /app/data/portfolio.db /app/data/portfolio.db
-
 # Make startup script executable
 RUN chmod +x ./scripts/start.sh
 
