@@ -77,6 +77,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder /app/scripts/cv ./scripts/cv
+COPY --from=builder /app/scripts/db ./scripts/db
 COPY --from=builder /app/scripts/start.sh ./scripts/start.sh
 COPY --from=builder /app/messages ./messages
 COPY --from=builder /app/db ./db

@@ -41,7 +41,7 @@ fi
 
 # Apply schema to ensure all tables exist (safe — all tables use IF NOT EXISTS)
 echo "🔧 Applying schema migrations..."
-bun run db:init
+bun scripts/db/init.ts
 echo "✅ Schema up to date"
 
 # Start the Next.js server
