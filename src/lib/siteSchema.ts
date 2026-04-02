@@ -22,6 +22,11 @@ export const TechIconSchema = z.object({
   title: z.string(),
 });
 
+export const WorkSampleSchema = z.object({
+  label: z.string(),
+  url: z.string(),
+});
+
 export const HeadingSchema = z.object({
   name: z.string(),
   subheadline: LocalizedStringSchema,
@@ -73,6 +78,7 @@ export const ExperienceItemSchema = z
     summary: z.array(LocalizedStringSchema),
     tech_stack: z.array(z.string()),
     tech_stack_icons: z.array(TechIconSchema),
+    work_samples: z.array(WorkSampleSchema).optional(),
   })
   .passthrough();
 

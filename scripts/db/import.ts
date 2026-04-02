@@ -30,6 +30,7 @@ const json = JSON.parse(raw);
 const runImport = db.transaction(() => {
   // Wipe in dependency order (only if force importing)
   db.exec(`
+    DELETE FROM experience_work_sample;
     DELETE FROM experience_summary;
     DELETE FROM experience_tech;
     DELETE FROM experience_tech_icon;
@@ -151,6 +152,11 @@ const runImport = db.transaction(() => {
     VALUES (?, ?, ?, ?)
   `);
 
+  const expWorkSampleStmt = db.prepare(`
+    INSERT INTO experience_work_sample (experience_id, sort_order, label, url)
+    VALUES (?, ?, ?, ?)
+  `);
+
   (json.experience ?? []).forEach((e: any, i: number) => {
     const meta = {
       location_picture: e.location_picture ?? null,
@@ -186,6 +192,10 @@ const runImport = db.transaction(() => {
 
     (e.tech_stack_icons ?? []).forEach((t: any, idx: number) => {
       expIconStmt.run(expId, idx, t.id ?? "", t.title ?? "");
+    });
+
+    (e.workSamples ?? []).forEach((s: any, idx: number) => {
+      expWorkSampleStmt.run(expId, idx, s.label ?? "", s.url ?? "");
     });
   });
 

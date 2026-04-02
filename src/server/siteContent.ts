@@ -72,6 +72,7 @@ export const getSiteContent = async (language: Language) => {
       summary: e.summary.map((s) => ({ [language]: s })),
       tech_stack: e.techStack,
       tech_stack_icons: e.techIcons,
+      work_samples: e.workSamples,
 
       ...e.meta,
     })),

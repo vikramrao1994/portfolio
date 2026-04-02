@@ -132,12 +132,20 @@ export const getExperience = (lang: Lang) => {
      ORDER BY sort_order ASC`,
   );
 
+  const workSampleStmt = db.query(
+    `SELECT sort_order, label, url
+     FROM experience_work_sample
+     WHERE experience_id = ?
+     ORDER BY sort_order ASC`,
+  );
+
   return experiences.map((e) => {
     const meta = e.meta_json ? JSON.parse(e.meta_json) : {};
 
     const summaryRows = summaryStmt.all(e.id) as any[];
     const techRows = techStmt.all(e.id) as any[];
     const iconRows = iconStmt.all(e.id) as any[];
+    const workSampleRows = workSampleStmt.all(e.id) as any[];
 
     return {
       company: e.company,
@@ -153,6 +161,7 @@ export const getExperience = (lang: Lang) => {
       summary: summaryRows.map((s) => pick(lang, s.en, s.de)),
       techStack: techRows.map((t) => t.name),
       techIcons: iconRows.map((t) => ({ id: t.tech_id, title: t.title })),
+      workSamples: workSampleRows.map((s) => ({ label: s.label, url: s.url })),
     };
   });
 };

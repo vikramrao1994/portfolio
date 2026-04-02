@@ -45,6 +45,7 @@ const AdminCard = ({ children, id, ariaLabel, title }: AdminCardProps) => {
             }}
           >
             <Button
+              type="button"
               onClick={handleLogout}
               disabled={isLoggingOut}
               text={isLoggingOut ? "Logging out..." : "Logout"}

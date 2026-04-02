@@ -215,9 +215,7 @@ const AboutMeForm = () => {
       </div>
 
       {/* Status Messages */}
-      {hasError && (
-        <Body style={{ color: "red", marginTop: spacing(1) }}>Error: {error}</Body>
-      )}
+      {hasError && <Body style={{ color: "red", marginTop: spacing(1) }}>Error: {error}</Body>}
     </Grid>
   );
 };

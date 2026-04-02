@@ -109,6 +109,15 @@ CREATE TABLE IF NOT EXISTS experience_tech_icon (
   FOREIGN KEY (experience_id) REFERENCES experience(id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS experience_work_sample (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  experience_id INTEGER NOT NULL,
+  sort_order INTEGER NOT NULL,
+  label TEXT NOT NULL,
+  url TEXT NOT NULL,
+  FOREIGN KEY (experience_id) REFERENCES experience(id) ON DELETE CASCADE
+);
+
 CREATE TABLE IF NOT EXISTS skills_group (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   sort_order INTEGER NOT NULL,

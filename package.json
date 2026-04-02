@@ -8,6 +8,7 @@
     "dev": "bun --bun next dev --turbopack",
     "build": "bun --bun next build --turbopack && next-image-export-optimizer",
     "start": "bun --bun next start",
+    "typecheck": "tsc --noEmit",
     "lint": "biome lint .",
     "format": "biome format . --write",
     "check": "biome check .",

@@ -163,6 +163,39 @@ const Work = () => {
                   ))}
                 </Lists.Root>
               </Accordion.Root>
+              {work.work_samples && work.work_samples.length > 0 && (
+                <Accordion.Root
+                  aria-label={`Work Samples for ${work.title[language]} at ${work.company}`}
+                  isOpened={allOpen}
+                >
+                  <Accordion.Summary
+                    title={{
+                      textWrapper: "h3",
+                      title: t("workSamples"),
+                      variant: "small",
+                    }}
+                  />
+                  <Lists.Root size="small" type="link" style={{ marginBottom: spacing(2) }}>
+                    {work.work_samples.map((sample, idx) => (
+                      <Lists.Item key={`work-sample-${idx}-${language}`}>
+                        <Link
+                          href={sample.url}
+                          icon={{
+                            "aria-hidden": true,
+                            name: "open-in-new",
+                            size: "default",
+                          }}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title={sample.label}
+                          aria-label={`${sample.label} - ${work.title[language]} at ${work.company}`}
+                          variant="small"
+                        />
+                      </Lists.Item>
+                    ))}
+                  </Lists.Root>
+                </Accordion.Root>
+              )}
             </Accordion.Group>
           </Grid>
         </Fragment>
