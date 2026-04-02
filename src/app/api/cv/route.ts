@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { NextResponse } from "next/server";
 import type { Language } from "@/lib/siteSchema";
-import { getSiteContent } from "@/server/siteContent";
+import { SiteSchema } from "@/lib/siteSchema";
 
 export const dynamic = "force-dynamic";
 
@@ -34,11 +34,17 @@ function runPython(args: string[], cwd: string) {
   });
 }
 
-export async function GET(req: Request) {
+export async function POST(req: Request) {
   const url = new URL(req.url);
   const lang = assertLang(url.searchParams.get("lang"));
 
-  const SITE = await getSiteContent(lang);
+  const body = await req.json();
+  const parsed = SiteSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Invalid site data" }, { status: 400 });
+  }
+
+  const SITE = parsed.data;
 
   const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "cv-"));
   const payloadPath = path.join(tmpDir, `payload-${lang}.json`);
@@ -57,7 +63,6 @@ export async function GET(req: Request) {
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": `attachment; filename="Vikram_Rao_CV_${lang.toUpperCase()}.pdf"`,
-        // Server-side caching
         "Cache-Control": "no-store",
       },
     });

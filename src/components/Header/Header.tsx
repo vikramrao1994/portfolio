@@ -1,11 +1,12 @@
 import { Body, Button, Grid, Link } from "@publicplan/kern-react-kit";
 import { usePathname } from "next/navigation";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import Image from "@/components/Image";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useSiteContent } from "@/context/SiteContentContext";
 import { useBreakpointFlags } from "@/hooks/useBreakpoints";
+import { useCvDownload } from "@/hooks/useCvDownload";
 import { spacing } from "@/utils/utils";
 
 interface StickyBarProps {
@@ -175,8 +176,8 @@ const Drawer = ({ open, onClose }: DrawerProps) => {
 };
 
 const Header = () => {
-  const language = useLocale();
   const { isMobile } = useBreakpointFlags();
+  const { download: downloadCv, loading: cvLoading } = useCvDownload();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [showSticky, setShowSticky] = useState(false);
   const pathname = usePathname();
@@ -268,19 +269,15 @@ const Header = () => {
         {!isMobile && <LanguageSwitcher />}
         {isMobile &&
           (showSticky ? (
-            <a
-              href={`/api/cv?lang=${language}`}
-              target="_blank"
-              rel="noopener noreferrer"
+            <Button
+              aria-label="Download CV"
+              icon={{ name: "download", "aria-hidden": "true" }}
+              iconOnly
+              variant="secondary"
               style={{ marginRight: spacing(2) }}
-            >
-              <Button
-                aria-label="Download CV"
-                icon={{ name: "download", "aria-hidden": "true" }}
-                iconOnly
-                variant="secondary"
-              />
-            </a>
+              onClick={downloadCv}
+              disabled={cvLoading}
+            />
           ) : (
             <DrawerButton onClick={() => setDrawerOpen(true)} />
           ))}

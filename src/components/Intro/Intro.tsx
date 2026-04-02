@@ -5,11 +5,13 @@ import Counter from "@/components/Counter";
 import Image from "@/components/Image";
 import { useSiteContent } from "@/context/SiteContentContext";
 import { useBreakpointFlags } from "@/hooks/useBreakpoints";
+import { useCvDownload } from "@/hooks/useCvDownload";
 import { cardRootStyle } from "@/styles/styles";
 import { spacing } from "@/utils/utils";
 
 const Intro = () => {
   const { isMobile } = useBreakpointFlags();
+  const { download: downloadCv, loading: cvLoading } = useCvDownload();
   const language = useLocale() as "en" | "de";
   const SITE = useSiteContent();
   const t = useTranslations();
@@ -139,24 +141,16 @@ const Intro = () => {
             marginBottom: spacing(2),
           }}
         >
-          <a
-            href={`/api/cv?lang=${language}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              textDecoration: "none",
-              width: isMobile ? "100%" : "auto",
-            }}
-          >
-            <Button
-              aria-label="Download CV"
-              icon={{ name: "download" }}
-              isBlock={isMobile}
-              iconLeft
-              text={t("viewCv")}
-              variant="secondary"
-            />
-          </a>
+          <Button
+            aria-label="Download CV"
+            icon={{ name: "download" }}
+            isBlock={isMobile}
+            iconLeft
+            text={cvLoading ? "…" : t("viewCv")}
+            variant="secondary"
+            onClick={downloadCv}
+            disabled={cvLoading}
+          />
         </Card.Footer>
       </Card.Container>
     </Card.Root>
