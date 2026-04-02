@@ -2,7 +2,7 @@ import { Database } from "bun:sqlite";
 import fs from "node:fs";
 import path from "node:path";
 
-const DB_PATH = path.join(process.cwd(), "data", "portfolio.db");
+const DB_PATH = process.env.DB_PATH ?? path.join(process.cwd(), "data", "portfolio.db");
 const SCHEMA_PATH = path.join(process.cwd(), "db", "schema.sql");
 
 fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });

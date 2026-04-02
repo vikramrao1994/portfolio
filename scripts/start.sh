@@ -39,6 +39,11 @@ else
   echo "✅ Database already exists at ${DB_PATH}"
 fi
 
+# Apply schema to ensure all tables exist (safe — all tables use IF NOT EXISTS)
+echo "🔧 Applying schema migrations..."
+bun run db:init
+echo "✅ Schema up to date"
+
 # Start the Next.js server
 echo "🌐 Starting Next.js server on port ${PORT:-3000}..."
 exec bun server.js
