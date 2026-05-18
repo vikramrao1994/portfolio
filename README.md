@@ -35,7 +35,6 @@ A modern personal portfolio built with Next.js, TypeScript, and deployed on Fly.
 - Automated PDF CV generation
 - Contact form with server-side validation
 - 3D interactive elements with Three.js
-- Automated deployments via GitHub Actions
 - Health checks and monitoring
 
 ## Project Structure
