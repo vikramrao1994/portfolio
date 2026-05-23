@@ -437,7 +437,8 @@ class Resume_Creator:
         self.add_header();
         # self.add_summary();
         self.add_experience();
-        self.data.append(PageBreak())
+        if self.lang == "en":
+            self.data.append(PageBreak());
         self.add_education();  
         self.add_skills();
         # elf.add_hobbies();
