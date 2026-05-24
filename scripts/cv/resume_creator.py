@@ -428,9 +428,9 @@ class Resume_Creator:
 
         self.data.append(Spacer(1, SPACER_VALUE))
 
-    def add_hobbies(self):
-        self.generate_heading("<b>HOBBIES</b>","public/hobby.webp")
-        self.generate_bullet_points(GENERAL_FONT_SIZE, self.input["hobbies"])
+    # def add_hobbies(self):
+    #     self.generate_heading("<b>HOBBIES</b>","public/hobby.webp")
+    #     self.generate_bullet_points(GENERAL_FONT_SIZE, self.input["hobbies"])
         # self.data.append(Spacer(1, 10))
 
     def save_resume(self):
