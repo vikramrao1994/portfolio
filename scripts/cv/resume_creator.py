@@ -100,7 +100,6 @@ class Resume_Creator:
     def get_body_style(self,type,parameters):
         sample_style_sheet = getSampleStyleSheet();
         body_style = sample_style_sheet[type];
-        # print(sample_style_sheet.list())
         for key in parameters:
             if key == "fontSize":
                 body_style.fontSize = parameters[key]
