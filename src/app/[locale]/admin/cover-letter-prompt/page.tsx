@@ -170,7 +170,6 @@ export default function CoverLetterPromptPage() {
                 value={form.language}
                 options={LANGUAGE_OPTIONS}
                 onChange={(e) => update("language", e.target.value as Language)}
-                style={{ marginBottom: spacing(2) }}
               />
               <SelectInput
                 id="tone"
@@ -178,13 +177,13 @@ export default function CoverLetterPromptPage() {
                 value={form.tone}
                 options={TONE_OPTIONS}
                 onChange={(e) => update("tone", e.target.value as Tone)}
-                style={{ marginBottom: spacing(4) }}
               />
               <CheckboxInput
                 id="includeFullCandidateData"
                 label="Include full candidate profile in prompt"
                 checked={form.includeFullCandidateData}
                 onChange={(e) => update("includeFullCandidateData", e.target.checked)}
+                style={{ marginTop: spacing(2) }}
               />
             </div>
 
