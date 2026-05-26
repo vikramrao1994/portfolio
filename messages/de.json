@@ -22,5 +22,7 @@
   "logout": "Abmelden",
   "adminDashboard": "Admin-Dashboard",
   "invalidPassword": "Ungültiges Passwort",
-  "loginError": "Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut."
+  "loginError": "Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.",
+  "coverLetterPrompt": "Anschreiben-Prompt-Generator",
+  "coverLetterPromptDescription": "Erstellt eine Markdown-Prompt-Datei zum Verfassen eines maßgeschneiderten Anschreibens."
 }

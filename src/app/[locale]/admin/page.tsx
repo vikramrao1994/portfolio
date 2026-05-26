@@ -34,6 +34,18 @@ export default function AdminPage() {
                   title="Photography Editor"
                 />
               </Lists.Item>
+              <Lists.Item>
+                <Link
+                  href="/admin/cover-letter-prompt"
+                  icon={{
+                    "aria-hidden": true,
+                    name: "arrow-forward",
+                    size: "default",
+                  }}
+                  iconLeft
+                  title="Cover Letter Prompt Generator"
+                />
+              </Lists.Item>
             </Lists.Root>
           </AdminCard>
         </Grid.Column>
