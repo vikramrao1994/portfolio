@@ -14,7 +14,7 @@ export const CoverLetterContentSchema = z.object({
   salutation: z.string().min(2).max(120),
 
   paragraphs: z
-    .array(z.string().min(40).max(900))
+    .array(z.string().min(40).max(1500))
     .min(3)
     .max(5),
 
