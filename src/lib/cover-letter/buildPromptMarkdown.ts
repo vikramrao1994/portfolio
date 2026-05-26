@@ -150,6 +150,9 @@ export function buildPromptMarkdown(
 ): string {
   const { jobDescription, language, companyName, jobTitle, recruiterName, tone, includeFullCandidateData } = req;
 
+  const matchedKeywords = new Set(evidence.flatMap((e) => e.matchedKeywords));
+  const unmatchedSkills = keywords.hardSkills.filter((kw) => !matchedKeywords.has(kw));
+
   const parts: string[] = [
     "# Cover Letter Generation Prompt\n",
 
@@ -193,6 +196,15 @@ export function buildPromptMarkdown(
         "- Avoid generic AI phrasing (e.g. 'I am excited to apply', 'I am a passionate...').",
         "- Structure: opening hook → strongest evidence → why this company/role → closing call to action.",
         "- Return **only** the final cover letter text — no preamble, no explanation.",
+        ...(unmatchedSkills.length > 0
+          ? [
+              "",
+              "### Skills Gap Note",
+              `- The following technologies were listed in the job posting but are not explicitly present in the candidate's profile: **${unmatchedSkills.join(", ")}**.`,
+              "- Do not pretend the candidate has hands-on experience with these — but do mention, naturally and briefly, that the candidate picks up new technologies quickly and is comfortable learning them.",
+              "- Frame it as a strength: a track record of adapting to new stacks fast, not as an apology for a gap.",
+            ]
+          : []),
         ...(language === "de" || keywords.languages.includes("German")
           ? [
               "",
