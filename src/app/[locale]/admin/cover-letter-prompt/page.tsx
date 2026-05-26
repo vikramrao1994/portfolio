@@ -12,6 +12,7 @@ import {
 } from "@publicplan/kern-react-kit";
 import { useState } from "react";
 import AdminCard from "@/components/Admin/Card/AdminCard";
+import type { CoverLetterContent } from "@/lib/cover-letter/coverLetterContentSchema";
 import { spacing } from "@/utils/utils";
 
 type Tone = "professional" | "warm" | "direct" | "modern";
@@ -25,6 +26,16 @@ interface FormState {
   recruiterName: string;
   tone: Tone;
   includeFullCandidateData: boolean;
+}
+
+interface GenerateResult {
+  coverLetter: CoverLetterContent;
+  promptMarkdown: string;
+  model: string;
+  usage: {
+    input_tokens: number | undefined;
+    output_tokens: number | undefined;
+  };
 }
 
 const DEFAULT: FormState = {
@@ -55,10 +66,28 @@ export default function CoverLetterPromptPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generateError, setGenerateError] = useState<string | null>(null);
+  const [generatedData, setGeneratedData] = useState<GenerateResult | null>(null);
+  const [copied, setCopied] = useState<"json" | "text" | null>(null);
+
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
     setError(null);
     setSuccess(false);
+    setGenerateError(null);
+  }
+
+  function buildRequestBody() {
+    return {
+      jobDescription: form.jobDescription,
+      language: form.language,
+      companyName: form.companyName || undefined,
+      jobTitle: form.jobTitle || undefined,
+      recruiterName: form.recruiterName || undefined,
+      tone: form.tone,
+      includeFullCandidateData: form.includeFullCandidateData,
+    };
   }
 
   async function handleDownload() {
@@ -75,15 +104,7 @@ export default function CoverLetterPromptPage() {
       const res = await fetch("/api/admin/cover-letter-prompt", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          jobDescription: form.jobDescription,
-          language: form.language,
-          companyName: form.companyName || undefined,
-          jobTitle: form.jobTitle || undefined,
-          recruiterName: form.recruiterName || undefined,
-          tone: form.tone,
-          includeFullCandidateData: form.includeFullCandidateData,
-        }),
+        body: JSON.stringify(buildRequestBody()),
       });
 
       if (res.status === 401) {
@@ -118,6 +139,69 @@ export default function CoverLetterPromptPage() {
     }
   }
 
+  async function handleGenerate() {
+    if (form.jobDescription.trim().length < 100) {
+      setGenerateError("Job description must be at least 100 characters.");
+      return;
+    }
+
+    setIsGenerating(true);
+    setGenerateError(null);
+    setGeneratedData(null);
+
+    try {
+      const res = await fetch("/api/admin/cover-letter-generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(buildRequestBody()),
+      });
+
+      if (res.status === 401) {
+        setGenerateError("Not authenticated. Please log in again.");
+        return;
+      }
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setGenerateError(data.error ?? "Claude generation failed. Please try again.");
+        return;
+      }
+
+      const data: GenerateResult = await res.json();
+      setGeneratedData(data);
+    } catch {
+      setGenerateError("Network error. Please try again.");
+    } finally {
+      setIsGenerating(false);
+    }
+  }
+
+  async function handleCopyJson() {
+    if (!generatedData) return;
+    await navigator.clipboard.writeText(JSON.stringify(generatedData.coverLetter, null, 2));
+    setCopied("json");
+    setTimeout(() => setCopied(null), 2000);
+  }
+
+  async function handleCopyText() {
+    if (!generatedData) return;
+    const cl = generatedData.coverLetter;
+    const text = [
+      cl.subject,
+      "",
+      cl.salutation,
+      "",
+      ...cl.paragraphs,
+      "",
+      cl.closing,
+      cl.signatureName,
+    ].join("\n");
+    await navigator.clipboard.writeText(text);
+    setCopied("text");
+    setTimeout(() => setCopied(null), 2000);
+  }
+
+  const jobDescriptionValid = form.jobDescription.trim().length >= 100;
+
   return (
     <Grid.Root>
       <Grid.Row>
@@ -127,6 +211,7 @@ export default function CoverLetterPromptPage() {
             title="Cover Letter Prompt Generator"
             ariaLabel="Cover Letter Prompt Generator"
           >
+            {/* ── Job Details ── */}
             <div style={{ marginBottom: spacing(3) }}>
               <Heading
                 type="small"
@@ -157,6 +242,7 @@ export default function CoverLetterPromptPage() {
               />
             </div>
 
+            {/* ── Generation Options ── */}
             <div style={{ marginBottom: spacing(3) }}>
               <Heading
                 type="small"
@@ -187,6 +273,7 @@ export default function CoverLetterPromptPage() {
               />
             </div>
 
+            {/* ── Job Description ── */}
             <div style={{ marginBottom: spacing(3) }}>
               <Heading
                 type="small"
@@ -207,19 +294,29 @@ export default function CoverLetterPromptPage() {
               </Body>
             </div>
 
+            {/* ── Actions ── */}
             <div
               style={{
                 display: "flex",
+                gap: spacing(2),
                 justifyContent: "flex-end",
                 marginBottom: spacing(2),
+                flexWrap: "wrap",
               }}
             >
               <Button
                 type="button"
-                variant="primary"
+                variant="secondary"
                 text={isLoading ? "Generating..." : "Download Prompt (.md)"}
-                disabled={isLoading || form.jobDescription.trim().length < 100}
+                disabled={isLoading || isGenerating || !jobDescriptionValid}
                 onClick={handleDownload}
+              />
+              <Button
+                type="button"
+                variant="primary"
+                text={isGenerating ? "Generating..." : "Generate Letter JSON"}
+                disabled={isLoading || isGenerating || !jobDescriptionValid}
+                onClick={handleGenerate}
               />
             </div>
 
@@ -233,9 +330,133 @@ export default function CoverLetterPromptPage() {
                 Error: {error}
               </Body>
             )}
+            {generateError && (
+              <Body style={{ color: "red", marginTop: spacing(2), marginBottom: spacing(2) }}>
+                Claude generation failed: {generateError}
+              </Body>
+            )}
           </AdminCard>
         </Grid.Column>
       </Grid.Row>
+
+      {/* ── Generated Letter JSON Preview ── */}
+      {generatedData && (
+        <Grid.Row>
+          <Grid.Column>
+            <AdminCard
+              id="cover-letter-result"
+              title="Generated Letter JSON"
+              ariaLabel="Generated Letter JSON"
+            >
+              <div style={{ marginBottom: spacing(2) }}>
+                <Body style={{ color: "#666", fontSize: "0.85em" }}>
+                  Model: {generatedData.model} · Input tokens:{" "}
+                  {generatedData.usage.input_tokens ?? "—"} · Output tokens:{" "}
+                  {generatedData.usage.output_tokens ?? "—"}
+                </Body>
+              </div>
+
+              {/* Structured preview */}
+              <div style={{ marginBottom: spacing(3) }}>
+                <Heading
+                  type="small"
+                  headerElement="h3"
+                  title="Subject"
+                  style={{ marginBottom: spacing(1) }}
+                />
+                <Body>{generatedData.coverLetter.subject}</Body>
+              </div>
+
+              <div style={{ marginBottom: spacing(3) }}>
+                <Heading
+                  type="small"
+                  headerElement="h3"
+                  title="Salutation"
+                  style={{ marginBottom: spacing(1) }}
+                />
+                <Body>{generatedData.coverLetter.salutation}</Body>
+              </div>
+
+              <div style={{ marginBottom: spacing(3) }}>
+                <Heading
+                  type="small"
+                  headerElement="h3"
+                  title="Paragraphs"
+                  style={{ marginBottom: spacing(1) }}
+                />
+                {generatedData.coverLetter.paragraphs.map((p) => (
+                  <Body
+                    key={p.slice(0, 40)}
+                    style={{ marginBottom: spacing(2), whiteSpace: "pre-wrap" }}
+                  >
+                    {p}
+                  </Body>
+                ))}
+              </div>
+
+              <div style={{ marginBottom: spacing(3) }}>
+                <Heading
+                  type="small"
+                  headerElement="h3"
+                  title="Closing"
+                  style={{ marginBottom: spacing(1) }}
+                />
+                <Body>{generatedData.coverLetter.closing}</Body>
+              </div>
+
+              <div style={{ marginBottom: spacing(3) }}>
+                <Heading
+                  type="small"
+                  headerElement="h3"
+                  title="Signature"
+                  style={{ marginBottom: spacing(1) }}
+                />
+                <Body>{generatedData.coverLetter.signatureName}</Body>
+              </div>
+
+              {/* Raw JSON */}
+              <div style={{ marginBottom: spacing(3) }}>
+                <Heading
+                  type="small"
+                  headerElement="h3"
+                  title="Raw JSON"
+                  style={{ marginBottom: spacing(1) }}
+                />
+                <pre
+                  style={{
+                    background: "#f4f4f4",
+                    border: "1px solid #ddd",
+                    borderRadius: 4,
+                    padding: spacing(2),
+                    fontSize: "0.8em",
+                    overflowX: "auto",
+                    whiteSpace: "pre-wrap",
+                    wordBreak: "break-word",
+                  }}
+                >
+                  {JSON.stringify(generatedData.coverLetter, null, 2)}
+                </pre>
+              </div>
+
+              {/* Copy buttons */}
+              <div style={{ display: "flex", gap: spacing(2), flexWrap: "wrap" }}>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  text={copied === "json" ? "Copied!" : "Copy JSON"}
+                  onClick={handleCopyJson}
+                />
+                <Button
+                  type="button"
+                  variant="secondary"
+                  text={copied === "text" ? "Copied!" : "Copy Letter Text"}
+                  onClick={handleCopyText}
+                />
+              </div>
+            </AdminCard>
+          </Grid.Column>
+        </Grid.Row>
+      )}
     </Grid.Root>
   );
 }

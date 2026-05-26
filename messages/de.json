@@ -24,5 +24,11 @@
   "invalidPassword": "Ungültiges Passwort",
   "loginError": "Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.",
   "coverLetterPrompt": "Anschreiben-Prompt-Generator",
-  "coverLetterPromptDescription": "Erstellt eine Markdown-Prompt-Datei zum Verfassen eines maßgeschneiderten Anschreibens."
+  "coverLetterPromptDescription": "Erstellt eine Markdown-Prompt-Datei zum Verfassen eines maßgeschneiderten Anschreibens.",
+  "generateLetterJson": "Anschreiben-JSON generieren",
+  "generating": "Wird generiert...",
+  "copyJson": "JSON kopieren",
+  "copyLetterText": "Anschreibentext kopieren",
+  "generatedLetterJson": "Generiertes Anschreiben-JSON",
+  "claudeGenerationFailed": "Claude-Generierung fehlgeschlagen"
 }

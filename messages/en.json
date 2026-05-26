@@ -24,5 +24,11 @@
   "invalidPassword": "Invalid password",
   "loginError": "Login failed. Please try again.",
   "coverLetterPrompt": "Cover Letter Prompt Generator",
-  "coverLetterPromptDescription": "Generate a Markdown prompt file for writing a tailored cover letter."
+  "coverLetterPromptDescription": "Generate a Markdown prompt file for writing a tailored cover letter.",
+  "generateLetterJson": "Generate Letter JSON",
+  "generating": "Generating...",
+  "copyJson": "Copy JSON",
+  "copyLetterText": "Copy Letter Text",
+  "generatedLetterJson": "Generated Letter JSON",
+  "claudeGenerationFailed": "Claude generation failed"
 }
