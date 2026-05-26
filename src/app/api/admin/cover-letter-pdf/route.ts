@@ -95,7 +95,10 @@ export async function POST(req: Request) {
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
     if (msg.includes("Python exited") || msg.includes("ENOENT")) {
-      return NextResponse.json({ error: "PDF generation failed" }, { status: 502 });
+      return NextResponse.json(
+        { error: "PDF generation failed", detail: msg.slice(0, 500) },
+        { status: 502 },
+      );
     }
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   } finally {

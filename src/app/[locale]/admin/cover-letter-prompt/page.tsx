@@ -204,7 +204,8 @@ export default function CoverLetterPromptPage() {
       }
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        setPdfError(data.error ?? "PDF generation failed. Please try again.");
+        const detail = data.detail ? ` — ${data.detail}` : "";
+        setPdfError((data.error ?? "PDF generation failed") + detail);
         return;
       }
 

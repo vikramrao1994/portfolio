@@ -211,4 +211,4 @@ class CoverLetterCreator:
             f.write(self.pdf_buffer.getbuffer())
         self.pdf_buffer.close()
 
-        print("✅ Cover letter generated at %s" % output_path)
+        print("Cover letter generated at %s" % output_path)
