@@ -7,8 +7,8 @@ import {
   Grid,
   Heading,
   SelectInput,
-  TextInput,
   TextareaInput,
+  TextInput,
 } from "@publicplan/kern-react-kit";
 import { useState } from "react";
 import AdminCard from "@/components/Admin/Card/AdminCard";
@@ -178,15 +178,13 @@ export default function CoverLetterPromptPage() {
                 value={form.tone}
                 options={TONE_OPTIONS}
                 onChange={(e) => update("tone", e.target.value as Tone)}
-                style={{ marginBottom: spacing(2) }}
+                style={{ marginBottom: spacing(4) }}
               />
               <CheckboxInput
                 id="includeFullCandidateData"
                 label="Include full candidate profile in prompt"
                 checked={form.includeFullCandidateData}
-                onChange={(e) =>
-                  update("includeFullCandidateData", e.target.checked)
-                }
+                onChange={(e) => update("includeFullCandidateData", e.target.checked)}
               />
             </div>
 
@@ -202,7 +200,7 @@ export default function CoverLetterPromptPage() {
                 label="Paste the full job description here (min. 100 characters)"
                 value={form.jobDescription}
                 onChange={(e) => update("jobDescription", e.target.value)}
-                rows={16}
+                rows={30}
                 style={{ marginBottom: spacing(1) }}
               />
               <Body style={{ color: "#666", fontSize: "0.85em" }}>
@@ -227,16 +225,12 @@ export default function CoverLetterPromptPage() {
             </div>
 
             {success && (
-              <Body
-                style={{ color: "green", marginTop: spacing(2), marginBottom: spacing(2) }}
-              >
+              <Body style={{ color: "green", marginTop: spacing(2), marginBottom: spacing(2) }}>
                 Prompt downloaded successfully.
               </Body>
             )}
             {error && (
-              <Body
-                style={{ color: "red", marginTop: spacing(2), marginBottom: spacing(2) }}
-              >
+              <Body style={{ color: "red", marginTop: spacing(2), marginBottom: spacing(2) }}>
                 Error: {error}
               </Body>
             )}
