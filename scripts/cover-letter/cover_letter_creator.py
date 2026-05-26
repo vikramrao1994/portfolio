@@ -9,10 +9,10 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."
 
 from line_generator import MCLine
 from reportlab.lib.colors import HexColor
-from reportlab.lib.enums import TA_JUSTIFY, TA_LEFT, TA_RIGHT
+from reportlab.lib.enums import TA_JUSTIFY
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
-from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table
+from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
 
 # ── Constants (mirror CV design system) ─────────────────────────────────────
 MARGIN_VERTICAL = 20
@@ -52,6 +52,19 @@ def footer_cb(canvas, doc):
     canvas.restoreState()
 
 
+def make_first_page_cb(date_str: str):
+    def first_page_cb(canvas, doc):
+        footer_cb(canvas, doc)
+        if date_str:
+            canvas.saveState()
+            canvas.setFontSize(GENERAL_FONT_SIZE)
+            canvas.setFillColor(HexColor("#000000"))
+            y = letter[1] - MARGIN_VERTICAL - GENERAL_FONT_SIZE
+            canvas.drawRightString(PAGE_WIDTH - MARGIN_HORIZONTAL, y, date_str)
+            canvas.restoreState()
+    return first_page_cb
+
+
 # ── Renderer ─────────────────────────────────────────────────────────────────
 
 class CoverLetterCreator:
@@ -76,9 +89,6 @@ class CoverLetterCreator:
         self.s_name = ParagraphStyle(
             "cl_name", parent=base, fontSize=NAME_FONT_SIZE,
             textColor=HEADING_COLOR, spaceBefore=0, spaceAfter=2,
-        )
-        self.s_date = ParagraphStyle(
-            "cl_date", parent=base, fontSize=GENERAL_FONT_SIZE, alignment=TA_RIGHT,
         )
         self.s_contact = ParagraphStyle(
             "cl_contact", parent=base, fontSize=GENERAL_FONT_SIZE - 1,
@@ -105,23 +115,11 @@ class CoverLetterCreator:
 
     def add_header(self):
         sender = self.payload["sender"]
-        date = self.payload.get("date", "")
+        self._date_str = self.payload.get("date", "")
 
-        # Name (left) + date (right) on the same row
-        name_row = [[
-            Paragraph("<b>%s</b>" % sanitize(sender["name"]), self.s_name),
-            Paragraph(sanitize(date), self.s_date),
-        ]]
-        name_table = Table(name_row, colWidths=[CONTENT_WIDTH - 120, 120])
-        name_table.setStyle([
-            ("VALIGN",        (0, 0), (-1, -1), "BOTTOM"),
-            ("LEFTPADDING",   (0, 0), (0,  -1), 0),
-            ("RIGHTPADDING",  (-1, 0), (-1, -1), 0),
-            ("TOPPADDING",    (0, 0), (-1, -1), 0),
-            ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
-        ])
-        self.data.append(name_table)
-        self.data.append(Spacer(1, 3))
+        # Name as a direct Paragraph so it aligns exactly with the left margin
+        self.data.append(Paragraph("<b>%s</b>" % sanitize(sender["name"]), self.s_name))
+        self.data.append(Spacer(1, 14))
 
         # Contact line
         contact_parts = []
@@ -206,7 +204,7 @@ class CoverLetterCreator:
         self.add_body()
         self.add_closing()
 
-        self.doc.build(self.data, onFirstPage=footer_cb)
+        self.doc.build(self.data, onFirstPage=make_first_page_cb(self._date_str))
 
         output_path = (
             self.file_name
