@@ -71,6 +71,9 @@ export default function CoverLetterPromptPage() {
   const [generatedData, setGeneratedData] = useState<GenerateResult | null>(null);
   const [copied, setCopied] = useState<"json" | "text" | null>(null);
 
+  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
+  const [pdfError, setPdfError] = useState<string | null>(null);
+
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
     setError(null);
@@ -180,6 +183,49 @@ export default function CoverLetterPromptPage() {
     await navigator.clipboard.writeText(JSON.stringify(generatedData.coverLetter, null, 2));
     setCopied("json");
     setTimeout(() => setCopied(null), 2000);
+  }
+
+  async function handleDownloadPdf() {
+    if (!generatedData) return;
+
+    setIsDownloadingPdf(true);
+    setPdfError(null);
+
+    try {
+      const res = await fetch("/api/admin/cover-letter-pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(generatedData.coverLetter),
+      });
+
+      if (res.status === 401) {
+        setPdfError("Not authenticated. Please log in again.");
+        return;
+      }
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setPdfError(data.error ?? "PDF generation failed. Please try again.");
+        return;
+      }
+
+      const blob = await res.blob();
+      const disposition = res.headers.get("Content-Disposition") ?? "";
+      const filenameMatch = disposition.match(/filename="([^"]+)"/);
+      const filename = filenameMatch?.[1] ?? "cover-letter.pdf";
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch {
+      setPdfError("Network error. Please try again.");
+    } finally {
+      setIsDownloadingPdf(false);
+    }
   }
 
   async function handleCopyText() {
@@ -438,8 +484,15 @@ export default function CoverLetterPromptPage() {
                 </pre>
               </div>
 
-              {/* Copy buttons */}
-              <div style={{ display: "flex", gap: spacing(2), flexWrap: "wrap" }}>
+              {/* Actions */}
+              <div style={{ display: "flex", gap: spacing(2), flexWrap: "wrap", marginBottom: spacing(2) }}>
+                <Button
+                  type="button"
+                  variant="primary"
+                  text={isDownloadingPdf ? "Generating PDF..." : "Download PDF"}
+                  disabled={isDownloadingPdf}
+                  onClick={handleDownloadPdf}
+                />
                 <Button
                   type="button"
                   variant="secondary"
@@ -453,6 +506,11 @@ export default function CoverLetterPromptPage() {
                   onClick={handleCopyText}
                 />
               </div>
+              {pdfError && (
+                <Body style={{ color: "red", marginTop: spacing(1) }}>
+                  PDF error: {pdfError}
+                </Body>
+              )}
             </AdminCard>
           </Grid.Column>
         </Grid.Row>
