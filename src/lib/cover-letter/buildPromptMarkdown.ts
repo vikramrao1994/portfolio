@@ -193,6 +193,16 @@ export function buildPromptMarkdown(
         "- Avoid generic AI phrasing (e.g. 'I am excited to apply', 'I am a passionate...').",
         "- Structure: opening hook → strongest evidence → why this company/role → closing call to action.",
         "- Return **only** the final cover letter text — no preamble, no explanation.",
+        ...(language === "de" || keywords.languages.includes("German")
+          ? [
+              "",
+              "### German Language Note",
+              "- The candidate's German is at a conversational/intermediate level and is actively improving.",
+              "- Be honest and direct about this — do not overstate fluency or claim native-level German.",
+              "- A natural way to frame it: the candidate is continuously learning German and is committed to reaching full professional proficiency.",
+              "- Do not make German language ability a centrepiece of the letter; mention it briefly and confidently, then move on.",
+            ]
+          : []),
       ].join("\n"),
     ),
   ];
