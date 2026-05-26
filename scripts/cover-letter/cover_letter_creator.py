@@ -113,7 +113,13 @@ class CoverLetterCreator:
             Paragraph(sanitize(date), self.s_date),
         ]]
         name_table = Table(name_row, colWidths=[CONTENT_WIDTH - 120, 120])
-        name_table.setStyle([("VALIGN", (0, 0), (-1, -1), "BOTTOM")])
+        name_table.setStyle([
+            ("VALIGN",        (0, 0), (-1, -1), "BOTTOM"),
+            ("LEFTPADDING",   (0, 0), (0,  -1), 0),
+            ("RIGHTPADDING",  (-1, 0), (-1, -1), 0),
+            ("TOPPADDING",    (0, 0), (-1, -1), 0),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
+        ])
         self.data.append(name_table)
         self.data.append(Spacer(1, 3))
 
