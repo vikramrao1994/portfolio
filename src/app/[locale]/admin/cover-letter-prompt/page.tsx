@@ -168,28 +168,18 @@ export default function CoverLetterPromptPage() {
                 id="language"
                 label="Output Language"
                 value={form.language}
+                options={LANGUAGE_OPTIONS}
                 onChange={(e) => update("language", e.target.value as Language)}
                 style={{ marginBottom: spacing(2) }}
-              >
-                {LANGUAGE_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </SelectInput>
+              />
               <SelectInput
                 id="tone"
                 label="Tone"
                 value={form.tone}
+                options={TONE_OPTIONS}
                 onChange={(e) => update("tone", e.target.value as Tone)}
                 style={{ marginBottom: spacing(2) }}
-              >
-                {TONE_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </SelectInput>
+              />
               <CheckboxInput
                 id="includeFullCandidateData"
                 label="Include full candidate profile in prompt"
