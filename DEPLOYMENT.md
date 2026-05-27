@@ -31,7 +31,71 @@ Set runtime secrets (NOT in fly.toml):
 ```bash
 fly secrets set ADMIN_PASSWORD="your-secure-password"
 fly secrets set JWT_SECRET="$(openssl rand -base64 64)"
+fly secrets set ANTHROPIC_API_KEY="sk-ant-..."
+fly secrets set ANTHROPIC_MODEL="claude-haiku-4-5-20251001"   # optional, this is the default
 ```
+
+## Remote MCP Endpoint
+
+The portfolio exposes a secure HTTP MCP endpoint at `/api/mcp` for use with Claude Desktop, Cursor, and other MCP clients over the internet.
+
+### Enable
+
+```bash
+fly secrets set MCP_AUTH_TOKEN="$(openssl rand -base64 32)"
+fly secrets set ENABLE_REMOTE_MCP="true"
+```
+
+The endpoint is **disabled by default** (`ENABLE_REMOTE_MCP` unset or not `"true"`) and returns 404.
+
+### Disable
+
+```bash
+fly secrets set ENABLE_REMOTE_MCP="false"
+```
+
+### Connecting from Claude Desktop
+
+```json
+{
+  "mcpServers": {
+    "cover-letter-remote": {
+      "url": "https://vikram-portfolio.fly.dev/api/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_MCP_AUTH_TOKEN"
+      }
+    }
+  }
+}
+```
+
+### Testing
+
+MCP Streamable HTTP requires `Accept: application/json, text/event-stream`. Responses are SSE-formatted.
+
+```bash
+# Unauthenticated → 401
+curl -s -X POST https://vikram-portfolio.fly.dev/api/mcp \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
+
+# Authenticated → tool list
+curl -s -X POST https://vikram-portfolio.fly.dev/api/mcp \
+  -H "Authorization: Bearer YOUR_MCP_AUTH_TOKEN" \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
+```
+
+### Security checklist
+
+- [ ] `MCP_AUTH_TOKEN` set to a random 32+ byte value
+- [ ] `ENABLE_REMOTE_MCP=true` only when actively using remote MCP
+- [ ] No `MCP_AUTH_TOKEN` committed to git or fly.toml
+- [ ] Token rotated after any suspected exposure (`fly secrets set MCP_AUTH_TOKEN="..."`)
+- [ ] `fly logs` reviewed for unexpected `/api/mcp` hits
+- [ ] Rate limiting implemented before sharing token with untrusted parties (see `src/app/api/mcp/route.ts` TODO)
 
 ## Deploy
 

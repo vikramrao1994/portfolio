@@ -2,19 +2,23 @@
 
 A local MCP (Model Context Protocol) server that exposes the portfolio's cover-letter pipeline as reusable tools for Claude Desktop, Cursor, and other MCP-compatible AI clients.
 
+Two deployment modes are available:
+- **Local stdio** — runs on your machine, used by Claude Desktop / Cursor
+- **Remote HTTP** — deployed inside the Fly.io portfolio app at `/api/mcp`
+
 ## Architecture
 
 ```
-Claude Desktop / Cursor
+Claude Desktop / Cursor / Remote Clients
   ↓
-MCP Tools  (mcp/)
+MCP Layer (stdio: mcp/server.ts  |  HTTP: src/app/api/mcp/route.ts)
   ↓
-Shared Service Layer  (src/lib/cover-letter/)
+Server Factory  mcp/createServer.ts  (shared, no duplication)
   ↓
-Existing App Logic  (extractors, scorers, builders, Python renderer)
+Tool Handlers   mcp/tools/
+  ↓
+Service Layer   src/lib/cover-letter/  (all business logic lives here)
 ```
-
-The MCP layer is a thin wrapper. All business logic stays in `src/lib/cover-letter/`.
 
 ## Prerequisites
 
@@ -22,19 +26,124 @@ The MCP layer is a thin wrapper. All business logic stays in `src/lib/cover-lett
 - Python 3 with ReportLab installed (`pip install reportlab`)
 - Portfolio database initialised (`bun db:init && bun db:import`)
 
-## Running the server
+---
+
+## Local stdio server
+
+Used by Claude Desktop and Cursor running on the same machine. No auth, no HTTP.
+
+### Running
 
 ```bash
 bun run mcp:cover-letter
-```
-
-Or directly:
-
-```bash
+# or:
 bun run mcp/server.ts
 ```
 
-The server communicates over stdio (no HTTP port, no auth).
+### Claude Desktop configuration
+
+Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
+
+```json
+{
+  "mcpServers": {
+    "cover-letter": {
+      "command": "bun",
+      "args": ["run", "mcp/server.ts"],
+      "cwd": "/absolute/path/to/portfolio"
+    }
+  }
+}
+```
+
+Replace `/absolute/path/to/portfolio` with the actual project root (e.g. `C:\\repos\\portfolio` on Windows).
+
+---
+
+## Remote HTTP server (Fly.io)
+
+Exposed at `https://vikram-portfolio.fly.dev/api/mcp`. Requires authentication.
+
+### Environment variables
+
+| Variable | Required | Description |
+|---|---|---|
+| `ENABLE_REMOTE_MCP` | yes | Must be `"true"` to activate the endpoint. Missing → 404. |
+| `MCP_AUTH_TOKEN` | yes | Secret Bearer token for AI client auth. Generate with `openssl rand -base64 32`. |
+| `ANTHROPIC_API_KEY` | yes (for `generate_cover_letter_pdf`) | Claude API key |
+
+### Setting Fly secrets
+
+```bash
+fly secrets set MCP_AUTH_TOKEN="$(openssl rand -base64 32)"
+fly secrets set ENABLE_REMOTE_MCP="true"
+fly secrets set ANTHROPIC_API_KEY="sk-ant-..."
+```
+
+### Connecting from Claude Desktop (remote)
+
+```json
+{
+  "mcpServers": {
+    "cover-letter-remote": {
+      "url": "https://vikram-portfolio.fly.dev/api/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_MCP_AUTH_TOKEN"
+      }
+    }
+  }
+}
+```
+
+### Testing with curl
+
+The MCP Streamable HTTP transport requires `Accept: application/json, text/event-stream`.
+Responses are SSE-formatted (`event: message\ndata: {...}`).
+
+```bash
+# No auth → 401
+curl -s -X POST https://vikram-portfolio.fly.dev/api/mcp \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
+
+# List tools (authenticated)
+curl -s -X POST https://vikram-portfolio.fly.dev/api/mcp \
+  -H "Authorization: Bearer YOUR_MCP_AUTH_TOKEN" \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
+
+# Call analyze_job_description
+curl -s -X POST https://vikram-portfolio.fly.dev/api/mcp \
+  -H "Authorization: Bearer YOUR_MCP_AUTH_TOKEN" \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "tools/call",
+    "params": {
+      "name": "analyze_job_description",
+      "arguments": {
+        "jobDescription": "We are looking for a senior TypeScript and React developer with Node.js experience...",
+        "language": "en"
+      }
+    }
+  }'
+```
+
+### Disabling remote MCP
+
+To disable without removing the secret:
+
+```bash
+fly secrets set ENABLE_REMOTE_MCP="false"
+```
+
+The endpoint returns 404 when disabled.
+
+---
 
 ## Available tools
 
@@ -179,27 +288,9 @@ Renders a validated cover letter JSON to a PDF file using ReportLab via the Pyth
 { "pdfPath": "/absolute/path/to/generated/cover-letters/cover-letter-acme-en.pdf" }
 ```
 
-PDFs are written to `generated/cover-letters/` at the project root (gitignored).
+PDFs are written to `generated/cover-letters/` at the project root (gitignored). On Fly.io, this path is inside the container — use `generate_cover_letter_pdf` which returns the full content instead.
 
 ---
-
-## Claude Desktop integration
-
-Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
-
-```json
-{
-  "mcpServers": {
-    "cover-letter": {
-      "command": "bun",
-      "args": ["run", "mcp/server.ts"],
-      "cwd": "/absolute/path/to/portfolio"
-    }
-  }
-}
-```
-
-Replace `/absolute/path/to/portfolio` with the actual project root path (e.g. `C:\\repos\\portfolio` on Windows).
 
 ## Example prompts
 
@@ -214,24 +305,39 @@ Job description: [paste]
 ```
 
 ```
-Render this cover letter JSON as a PDF:
-{ "language": "en", "recipient": { "companyName": "Stripe" }, ... }
+Generate a complete cover letter PDF for this role at Acme Corp:
+[paste job description]
 ```
+
+---
 
 ## Security notes
 
-- The server exposes **no admin write operations** — all DB access is read-only via `getSiteContent`.
-- No arbitrary SQL, filesystem traversal, or shell-string execution.
-- Python is invoked with `execFile`-style `spawn` (no shell interpolation).
-- PDF output is restricted to `generated/cover-letters/` at the project root.
-- Temporary JSON payload files are deleted after each PDF render.
-- Never log sensitive content (API keys, full job descriptions).
+### Local stdio
+- No auth required — trust is implicit (local process)
+- Exposes no admin write operations
+- All DB access is read-only via `getSiteContent`
+
+### Remote HTTP
+- Auth is mandatory — endpoint returns 404 when `ENABLE_REMOTE_MCP !== "true"`
+- Bearer token checked with timing-safe comparison (`crypto.timingSafeEqual`)
+- Fallback: existing admin JWT cookie (for browser-originated requests)
+- No arbitrary SQL, filesystem traversal, or shell-string execution
+- Python invoked with `spawn` (no shell interpolation, args array, not string)
+- PDF output restricted to `generated/cover-letters/` — no user-controlled paths
+- Temporary JSON payload files deleted after each PDF render
+- Errors are truncated before logging — no stack traces, no secrets in responses
+- `MCP_AUTH_TOKEN` never appears in logs or responses
+- Rate limiting: TODO (in-memory or Redis, 60 req/min per token recommended)
+
+---
 
 ## File layout
 
 ```
 mcp/
-├── server.ts                          MCP server entry point (stdio transport)
+├── createServer.ts                    Shared server factory (used by both transports)
+├── server.ts                          stdio entry point (local Claude Desktop)
 ├── tools/
 │   ├── generateCoverLetterPdf.ts      Tool 0: one-shot full pipeline (Claude + PDF)
 │   ├── analyzeJobDescription.ts       Tool 1: deterministic keyword extraction
@@ -244,6 +350,9 @@ mcp/
 │   ├── pdf.ts                         Shared PDF rendering utilities
 │   └── responses.ts                   MCP response helpers
 └── README.md
+
+src/app/api/mcp/
+└── route.ts                           Remote HTTP MCP endpoint (Fly.io)
 ```
 
-Business logic is **not** in this folder — it lives in `src/lib/cover-letter/`.
+Business logic is **not** in `mcp/` — it lives in `src/lib/cover-letter/`.
