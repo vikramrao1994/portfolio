@@ -6,7 +6,7 @@
   "scripts": {
     "prebuild": "bun scripts/prefetch.js && bun db:init && bun db:import",
     "dev": "bun --bun next dev --webpack",
-    "build": "bun --bun next build --turbopack && next-image-export-optimizer",
+    "build": "bun --bun next build --webpack && next-image-export-optimizer",
     "start": "bun --bun next start",
     "typecheck": "tsc --noEmit",
     "lint": "biome lint .",
@@ -16,10 +16,12 @@
     "db:init": "bun scripts/db/init.ts",
     "db:import": " FORCE_DB_IMPORT=true bun scripts/db/import.ts",
     "db:reimport": "FORCE_DB_IMPORT=true bun scripts/db/import.ts",
-    "db:reset": "FORCE_DB_IMPORT=true bun run prebuild"
+    "db:reset": "FORCE_DB_IMPORT=true bun run prebuild",
+    "mcp:cover-letter": "bun run mcp/server.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.98.0",
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "@publicplan/kern-react-kit": "^1.0.1",
     "@react-three/drei": "^10.7.7",
     "@tanstack/react-query": "^5.90.20",
