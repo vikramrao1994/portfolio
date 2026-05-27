@@ -1,7 +1,7 @@
 import type { Site } from "@/lib/siteSchema";
 import type { EvidenceItem, ExtractedKeywords } from "./types";
 
-const MAX_EVIDENCE = 8;
+const MAX_EVIDENCE = 6;
 
 function textContains(text: string, keyword: string): boolean {
   const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -50,7 +50,6 @@ export function scoreCandidateEvidence(
     const matchedKws = new Set<string>();
     const reasons: string[] = [];
     const title = getLang(exp.title);
-    const type = getLang(exp.type);
 
     // Tech stack exact match: +5 each
     for (const tech of exp.tech_stack) {
@@ -101,9 +100,9 @@ export function scoreCandidateEvidence(
       matchedKeywords: Array.from(matchedKws).sort(),
       reason: reasons.join("; "),
       content: [
-        `**${title}** at **${exp.company}** (${exp.duration}) — ${type}`,
-        summaryTexts.length > 0 ? summaryTexts[0] : "",
-        exp.tech_stack.length > 0 ? `Tech: ${exp.tech_stack.slice(0, 6).join(", ")}` : "",
+        `${title} at ${exp.company} (${exp.duration})`,
+        ...summaryTexts.slice(0, 3),
+        exp.tech_stack.length > 0 ? `Stack: ${exp.tech_stack.slice(0, 4).join(", ")}` : "",
       ]
         .filter(Boolean)
         .join("\n"),
