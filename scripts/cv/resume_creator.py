@@ -234,7 +234,7 @@ class Resume_Creator:
                 + " | <b>%s</b>" % experience["company"]
                 + " , %s" % self.tr(experience["location"])
             )
-            cert_url = experience.get("certificateUrl")
+            cert_url = experience.get("certificateUrl") or experience.get("certificate")
             if _is_valid_cert_url(cert_url):
                 cert_label = (experience.get("certificateLabel") or "Reference").strip() or "Reference"
                 heading_title += (
