@@ -1,10 +1,10 @@
+import { extractJobKeywords } from "@/lib/cover-letter/extractJobKeywords";
+import { buildCandidateChunks } from "@/lib/cover-letter/rag/buildCandidateChunks";
+import { buildEvidencePack } from "@/lib/cover-letter/rag/buildEvidencePack";
+import { lexicalRetrieveEvidence } from "@/lib/cover-letter/rag/lexicalRetrieveEvidence";
+import type { Language } from "@/lib/cover-letter/schemas";
+import { scoreCandidateEvidence } from "@/lib/cover-letter/scoreCandidateEvidence";
 import { getSiteContent } from "@/server/siteContent";
-import { extractJobKeywords } from "../extractJobKeywords";
-import { buildCandidateChunks } from "../rag/buildCandidateChunks";
-import { buildEvidencePack } from "../rag/buildEvidencePack";
-import { lexicalRetrieveEvidence } from "../rag/lexicalRetrieveEvidence";
-import type { Language } from "../schemas";
-import { scoreCandidateEvidence } from "../scoreCandidateEvidence";
 import type { CoverLetterContext } from "./types";
 
 export async function buildCoverLetterContext(

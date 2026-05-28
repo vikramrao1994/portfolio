@@ -1,12 +1,12 @@
+import { buildCoverLetterContext } from "@/lib/cover-letter/context/buildCoverLetterContext";
+import type { EvidencePackItem } from "@/lib/cover-letter/rag/types";
+import { buildCompanyAlignment } from "@/lib/cover-letter/rhetoric/buildCompanyAlignment";
+import { buildRhetoricalPlan } from "@/lib/cover-letter/rhetoric/buildRhetoricalPlan";
+import type { RhetoricalPlan } from "@/lib/cover-letter/rhetoric/types";
 import type { Site } from "@/lib/siteSchema";
 import { buildClaudeJsonPrompt } from "./buildClaudeJsonPrompt";
-import { buildCoverLetterContext } from "./context/buildCoverLetterContext";
 import type { CoverLetterContent } from "./coverLetterContentSchema";
 import { generateCoverLetterWithClaude } from "./generateCoverLetterWithClaude";
-import type { EvidencePackItem } from "./rag/types";
-import { buildCompanyAlignment } from "./rhetoric/buildCompanyAlignment";
-import { buildRhetoricalPlan } from "./rhetoric/buildRhetoricalPlan";
-import type { RhetoricalPlan } from "./rhetoric/types";
 import type { Language, Tone } from "./schemas";
 import type { EvidenceItem, ExtractedKeywords } from "./types";
 

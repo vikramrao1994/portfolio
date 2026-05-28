@@ -1,8 +1,8 @@
+import type { EvidencePackItem } from "@/lib/cover-letter/rag/types";
+import { buildNarrativeGuidelines } from "@/lib/cover-letter/rhetoric/buildNarrativeGuidelines";
+import type { RhetoricalPlan } from "@/lib/cover-letter/rhetoric/types";
 import type { Site } from "@/lib/siteSchema";
 import { COVER_LETTER_CONTENT_SCHEMA_DESCRIPTION } from "./coverLetterContentSchema";
-import type { EvidencePackItem } from "./rag/types";
-import { buildNarrativeGuidelines } from "./rhetoric/buildNarrativeGuidelines";
-import type { RhetoricalPlan } from "./rhetoric/types";
 import type { CoverLetterRequest } from "./schemas";
 import type { EvidenceItem, ExtractedKeywords } from "./types";
 import { getLang } from "./utils";

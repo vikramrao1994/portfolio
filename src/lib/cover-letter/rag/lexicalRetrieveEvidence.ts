@@ -1,4 +1,4 @@
-import type { ExtractedKeywords } from "../types";
+import type { ExtractedKeywords } from "@/lib/cover-letter/types";
 import { tokenizeText } from "./textUtils";
 import type { CandidateChunk, RetrievedCandidateChunk } from "./types";
 

@@ -1,7 +1,7 @@
 import { getSiteContent } from "@/server/siteContent";
-import { RenderCoverLetterPdfInputSchema } from "../schemas/toolSchemas";
-import { errorResponse, successResponse } from "../utils/responses";
-import { spawnPdfRenderer } from "../utils/pdf";
+import { RenderCoverLetterPdfInputSchema } from "@mcp/schemas/toolSchemas";
+import { errorResponse, successResponse } from "@mcp/utils/responses";
+import { spawnPdfRenderer } from "@mcp/utils/pdf";
 
 export async function renderCoverLetterPdf(args: unknown) {
   const start = Date.now();

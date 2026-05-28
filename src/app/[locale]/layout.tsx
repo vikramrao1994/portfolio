@@ -4,9 +4,9 @@ import { notFound } from "next/navigation";
 import Script from "next/script";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
+import { PageProvider } from "@/app/providers";
 import { routing } from "@/i18n/routing";
 import { getSiteContent } from "@/server/siteContent";
-import { PageProvider } from "../providers";
 
 export const metadata: Metadata = {
   title: "Vikram Rao",

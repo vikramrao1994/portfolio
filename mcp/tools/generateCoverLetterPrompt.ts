@@ -3,8 +3,8 @@ import { buildCoverLetterContext } from "@/lib/cover-letter/context/buildCoverLe
 import { buildCompanyAlignment } from "@/lib/cover-letter/rhetoric/buildCompanyAlignment";
 import { buildRhetoricalPlan } from "@/lib/cover-letter/rhetoric/buildRhetoricalPlan";
 import type { CoverLetterRequest } from "@/lib/cover-letter/schemas";
-import { GenerateCoverLetterPromptInputSchema } from "../schemas/toolSchemas";
-import { errorResponse, successResponse } from "../utils/responses";
+import { GenerateCoverLetterPromptInputSchema } from "@mcp/schemas/toolSchemas";
+import { errorResponse, successResponse } from "@mcp/utils/responses";
 
 export async function generateCoverLetterPrompt(args: unknown) {
   const start = Date.now();

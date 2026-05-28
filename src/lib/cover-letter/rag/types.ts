@@ -1,4 +1,4 @@
-import type { Language } from "../schemas";
+import type { Language } from "@/lib/cover-letter/schemas";
 
 export type CandidateChunk = {
   id: string;

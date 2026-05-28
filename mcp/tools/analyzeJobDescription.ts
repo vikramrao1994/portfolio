@@ -1,6 +1,6 @@
 import { extractJobKeywords } from "@/lib/cover-letter/extractJobKeywords";
-import { AnalyzeJobDescriptionInputSchema } from "../schemas/toolSchemas";
-import { errorResponse, successResponse } from "../utils/responses";
+import { AnalyzeJobDescriptionInputSchema } from "@mcp/schemas/toolSchemas";
+import { errorResponse, successResponse } from "@mcp/utils/responses";
 
 export async function analyzeJobDescription(args: unknown) {
   const start = Date.now();

@@ -1,4 +1,4 @@
-import type { EvidencePackItem } from "../rag/types";
+import type { EvidencePackItem } from "@/lib/cover-letter/rag/types";
 import type { CompanyAlignment, RhetoricalPlan, Tone } from "./types";
 
 function deriveRoleLabel(topEvidence: EvidencePackItem[]): string {

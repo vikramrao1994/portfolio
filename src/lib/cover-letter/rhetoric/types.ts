@@ -1,6 +1,6 @@
-import type { Tone } from "../schemas";
+import type { Tone } from "@/lib/cover-letter/schemas";
 
-export type { Tone } from "../schemas";
+export type { Tone } from "@/lib/cover-letter/schemas";
 
 export type CompanyAlignment = {
   companyTraits: string[];

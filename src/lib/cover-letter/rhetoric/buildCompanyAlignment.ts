@@ -1,4 +1,4 @@
-import type { ExtractedKeywords } from "../types";
+import type { ExtractedKeywords } from "@/lib/cover-letter/types";
 import {
   COMPANY_TRAIT_SIGNALS,
   ENGINEERING_CULTURE_SIGNALS,

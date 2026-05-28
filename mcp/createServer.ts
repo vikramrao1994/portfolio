@@ -1,10 +1,10 @@
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
-import { analyzeJobDescription } from "./tools/analyzeJobDescription";
-import { generateCoverLetterPdf } from "./tools/generateCoverLetterPdf";
-import { generateCoverLetterPrompt } from "./tools/generateCoverLetterPrompt";
-import { matchCandidateEvidence } from "./tools/matchCandidateEvidence";
-import { renderCoverLetterPdf } from "./tools/renderCoverLetterPdf";
+import { analyzeJobDescription } from "@mcp/tools/analyzeJobDescription";
+import { generateCoverLetterPdf } from "@mcp/tools/generateCoverLetterPdf";
+import { generateCoverLetterPrompt } from "@mcp/tools/generateCoverLetterPrompt";
+import { matchCandidateEvidence } from "@mcp/tools/matchCandidateEvidence";
+import { renderCoverLetterPdf } from "@mcp/tools/renderCoverLetterPdf";
 
 const TOOL_DEFINITIONS = [
   {

@@ -1,9 +1,9 @@
 import { timingSafeEqual } from "node:crypto";
+import { createMcpServer } from "@mcp/createServer";
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { verifyJWT } from "@/lib/auth";
-import { createMcpServer } from "../../../../mcp/createServer";
 
 export const dynamic = "force-dynamic";
 

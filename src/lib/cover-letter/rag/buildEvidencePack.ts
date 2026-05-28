@@ -1,4 +1,4 @@
-import type { EvidenceItem } from "../types";
+import type { EvidenceItem } from "@/lib/cover-letter/types";
 import type { CandidateChunk, EvidencePackItem, RetrievedCandidateChunk } from "./types";
 
 const MAX_PACK_SIZE = 8;

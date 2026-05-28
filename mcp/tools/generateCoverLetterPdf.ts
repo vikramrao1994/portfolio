@@ -1,7 +1,7 @@
 import { orchestrateCoverLetterGeneration } from "@/lib/cover-letter/orchestrateCoverLetterGeneration";
-import { GenerateCoverLetterPdfInputSchema } from "../schemas/toolSchemas";
-import { errorResponse, successResponse } from "../utils/responses";
-import { spawnPdfRenderer } from "../utils/pdf";
+import { GenerateCoverLetterPdfInputSchema } from "@mcp/schemas/toolSchemas";
+import { errorResponse, successResponse } from "@mcp/utils/responses";
+import { spawnPdfRenderer } from "@mcp/utils/pdf";
 
 export async function generateCoverLetterPdf(args: unknown) {
   const start = Date.now();

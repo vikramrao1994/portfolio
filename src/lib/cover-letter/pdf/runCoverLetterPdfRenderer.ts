@@ -2,9 +2,9 @@ import { spawn } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { buildPdfPayload } from "@/lib/cover-letter/buildPdfPayload";
+import type { CoverLetterContent } from "@/lib/cover-letter/coverLetterContentSchema";
 import type { Site } from "@/lib/siteSchema";
-import { buildPdfPayload } from "../buildPdfPayload";
-import type { CoverLetterContent } from "../coverLetterContentSchema";
 
 export function buildCoverLetterPdfFilename(companyName: string | undefined, lang: string): string {
   const slug = companyName

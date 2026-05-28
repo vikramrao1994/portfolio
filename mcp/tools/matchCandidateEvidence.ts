@@ -1,6 +1,6 @@
 import { buildCoverLetterContext } from "@/lib/cover-letter/context/buildCoverLetterContext";
-import { MatchCandidateEvidenceInputSchema } from "../schemas/toolSchemas";
-import { errorResponse, successResponse } from "../utils/responses";
+import { MatchCandidateEvidenceInputSchema } from "@mcp/schemas/toolSchemas";
+import { errorResponse, successResponse } from "@mcp/utils/responses";
 
 export async function matchCandidateEvidence(args: unknown) {
   const start = Date.now();

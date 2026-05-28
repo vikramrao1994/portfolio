@@ -1,6 +1,10 @@
+import type {
+  CandidateChunk,
+  EvidencePackItem,
+  RetrievedCandidateChunk,
+} from "@/lib/cover-letter/rag/types";
+import type { EvidenceItem, ExtractedKeywords } from "@/lib/cover-letter/types";
 import type { Site } from "@/lib/siteSchema";
-import type { CandidateChunk, EvidencePackItem, RetrievedCandidateChunk } from "../rag/types";
-import type { EvidenceItem, ExtractedKeywords } from "../types";
 
 export interface CoverLetterContext {
   siteContent: Site;

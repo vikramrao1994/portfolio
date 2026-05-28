@@ -1,6 +1,6 @@
+import type { Language } from "@/lib/cover-letter/schemas";
+import { getLang } from "@/lib/cover-letter/utils";
 import type { Site } from "@/lib/siteSchema";
-import type { Language } from "../schemas";
-import { getLang } from "../utils";
 import { normalizeText, slugifyChunkId, uniqueStrings } from "./textUtils";
 import type { CandidateChunk } from "./types";
 
