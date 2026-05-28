@@ -3,10 +3,8 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { verifyJWT } from "@/lib/auth";
 import { buildPromptMarkdown } from "@/lib/cover-letter/buildPromptMarkdown";
+import { buildCoverLetterContext } from "@/lib/cover-letter/context/buildCoverLetterContext";
 import { createPromptFilename } from "@/lib/cover-letter/createPromptFilename";
-import { extractJobKeywords } from "@/lib/cover-letter/extractJobKeywords";
-import { scoreCandidateEvidence } from "@/lib/cover-letter/scoreCandidateEvidence";
-import { getSiteContent } from "@/server/siteContent";
 
 export const dynamic = "force-dynamic";
 
@@ -51,10 +49,16 @@ export async function POST(req: Request) {
   const input = parsed.data;
 
   try {
-    const site = await getSiteContent(input.language);
-    const keywords = extractJobKeywords(input.jobDescription);
-    const evidence = scoreCandidateEvidence(site, keywords);
-    const markdown = buildPromptMarkdown(input, site, keywords, evidence);
+    const context = await buildCoverLetterContext(input.jobDescription, input.language);
+    const { siteContent, extractedKeywords, deterministicEvidence, evidencePack } = context;
+
+    const markdown = buildPromptMarkdown(
+      input,
+      siteContent,
+      extractedKeywords,
+      deterministicEvidence,
+      evidencePack,
+    );
     const filename = createPromptFilename(input.companyName, input.jobTitle, input.language);
 
     return new NextResponse(markdown, {

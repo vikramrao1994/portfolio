@@ -1,11 +1,10 @@
 import type { Site } from "@/lib/siteSchema";
-import { getSiteContent } from "@/server/siteContent";
 import { buildClaudeJsonPrompt } from "./buildClaudeJsonPrompt";
+import { buildCoverLetterContext } from "./context/buildCoverLetterContext";
 import type { CoverLetterContent } from "./coverLetterContentSchema";
-import { extractJobKeywords } from "./extractJobKeywords";
 import { generateCoverLetterWithClaude } from "./generateCoverLetterWithClaude";
-import { scoreCandidateEvidence } from "./scoreCandidateEvidence";
-import type { CoverLetterPromptRequest, EvidenceItem, ExtractedKeywords } from "./types";
+import type { EvidencePackItem } from "./rag/types";
+import type { EvidenceItem, ExtractedKeywords } from "./types";
 
 export interface OrchestrateCoverLetterInput {
   jobDescription: string;
@@ -22,6 +21,7 @@ export interface OrchestrateCoverLetterResult {
   siteContent: Site;
   extractedKeywords: ExtractedKeywords;
   evidence: EvidenceItem[];
+  evidencePack: EvidencePackItem[];
   prompt: string;
   model: string;
   usage: {
@@ -43,22 +43,35 @@ export async function orchestrateCoverLetterGeneration(
     includeFullCandidateData,
   } = input;
 
-  const siteContent = await getSiteContent(language);
-  const extractedKeywords = extractJobKeywords(jobDescription);
-  const evidence = scoreCandidateEvidence(siteContent, extractedKeywords);
+  const context = await buildCoverLetterContext(jobDescription, language);
+  const { siteContent, extractedKeywords, deterministicEvidence: evidence, evidencePack } = context;
 
-  const req: CoverLetterPromptRequest = {
-    jobDescription,
-    language,
-    companyName,
-    jobTitle,
-    recruiterName,
-    tone: tone ?? "professional",
-    includeFullCandidateData: includeFullCandidateData ?? true,
-  };
+  const prompt = buildClaudeJsonPrompt(
+    {
+      jobDescription,
+      language,
+      companyName,
+      jobTitle,
+      recruiterName,
+      tone: tone ?? "professional",
+      includeFullCandidateData: includeFullCandidateData ?? true,
+    },
+    siteContent,
+    extractedKeywords,
+    evidence,
+    evidencePack,
+  );
 
-  const prompt = buildClaudeJsonPrompt(req, siteContent, extractedKeywords, evidence);
   const { coverLetter, model, usage } = await generateCoverLetterWithClaude(prompt);
 
-  return { coverLetter, siteContent, extractedKeywords, evidence, prompt, model, usage };
+  return {
+    coverLetter,
+    siteContent,
+    extractedKeywords,
+    evidence,
+    evidencePack,
+    prompt,
+    model,
+    usage,
+  };
 }

@@ -1,4 +1,5 @@
 import type { Site } from "@/lib/siteSchema";
+import type { EvidencePackItem } from "./rag/types";
 import type { CoverLetterPromptRequest, EvidenceItem, ExtractedKeywords } from "./types";
 import { getLang } from "./utils";
 
@@ -61,6 +62,29 @@ function buildEvidenceSection(evidence: EvidenceItem[]): string {
     .join("\n\n---\n\n");
 }
 
+function buildEvidencePackSection(pack: EvidencePackItem[]): string {
+  if (pack.length === 0) return "_No retrieved evidence available._";
+
+  return pack
+    .map((item, i) => {
+      const metaLine = item.metadata?.skills?.length
+        ? `- **Skills:** ${item.metadata.skills.slice(0, 6).join(", ")}`
+        : null;
+      return [
+        `### ${i + 1}. ${item.title}`,
+        `- **Type:** ${item.type}`,
+        `- **Score:** ${item.score}`,
+        `- **Matched Keywords:** ${item.matchedKeywords.join(", ") || "—"}`,
+        metaLine,
+        `- **Reason:** ${item.reason}`,
+        `\n${item.content}`,
+      ]
+        .filter(Boolean)
+        .join("\n");
+    })
+    .join("\n\n---\n\n");
+}
+
 function buildCandidateProfile(
   site: Site,
   includeFullData: boolean,
@@ -86,7 +110,7 @@ function buildCandidateProfile(
   );
 
   if (!includeFullData) {
-    blocks.push("_Full candidate data excluded — see Ranked Candidate Evidence above._");
+    blocks.push("_Full candidate data excluded — see Retrieved Candidate Evidence above._");
     return blocks.join("\n\n");
   }
 
@@ -144,6 +168,7 @@ export function buildPromptMarkdown(
   site: Site,
   keywords: ExtractedKeywords,
   evidence: EvidenceItem[],
+  evidencePack?: EvidencePackItem[],
 ): string {
   const {
     jobDescription,
@@ -155,8 +180,11 @@ export function buildPromptMarkdown(
     includeFullCandidateData,
   } = req;
 
-  const matchedKeywords = new Set(evidence.flatMap((e) => e.matchedKeywords));
-  const unmatchedSkills = keywords.hardSkills.filter((kw) => !matchedKeywords.has(kw));
+  const activeKeywords =
+    evidencePack && evidencePack.length > 0
+      ? new Set(evidencePack.flatMap((e) => e.matchedKeywords))
+      : new Set(evidence.flatMap((e) => e.matchedKeywords));
+  const unmatchedSkills = keywords.hardSkills.filter((kw) => !activeKeywords.has(kw));
 
   const parts: string[] = [
     "# Cover Letter Generation Prompt\n",
@@ -182,7 +210,12 @@ export function buildPromptMarkdown(
 
     section("Recommended Emphasis", buildRecommendedEmphasis(evidence, keywords)),
 
-    section("Ranked Candidate Evidence", buildEvidenceSection(evidence)),
+    evidencePack && evidencePack.length > 0
+      ? section(
+          "Retrieved Candidate Evidence",
+          `_Use this as the primary factual basis for the cover letter. Do not reference experience not listed here._\n\n${buildEvidencePackSection(evidencePack)}`,
+        )
+      : section("Ranked Candidate Evidence", buildEvidenceSection(evidence)),
 
     section("Candidate Profile", buildCandidateProfile(site, includeFullCandidateData, evidence)),
 
@@ -193,7 +226,7 @@ export function buildPromptMarkdown(
       [
         "- Write in the **Output Language** specified above.",
         "- Use only the candidate data provided in this prompt — do not invent experience, credentials, or facts.",
-        "- Prioritize the skills and evidence with the highest scores from the Ranked Evidence section.",
+        "- Prioritize the skills and evidence with the highest scores from the Retrieved Candidate Evidence section.",
         "- Emphasize the keywords listed under Recommended Emphasis.",
         `- Match the **${tone}** tone throughout.`,
         `- Address the letter to **${recruiterName || "the hiring team"}**${companyName ? ` at **${companyName}**` : ""}.`,

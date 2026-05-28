@@ -1,5 +1,6 @@
 import type { Site } from "@/lib/siteSchema";
 import { COVER_LETTER_CONTENT_SCHEMA_DESCRIPTION } from "./coverLetterContentSchema";
+import type { EvidencePackItem } from "./rag/types";
 import type { CoverLetterPromptRequest, EvidenceItem, ExtractedKeywords } from "./types";
 import { getLang } from "./utils";
 
@@ -39,6 +40,30 @@ function buildEvidenceBlock(evidence: EvidenceItem[]): string {
     .join("\n\n");
 }
 
+function buildEvidencePackBlock(pack: EvidencePackItem[]): string {
+  if (pack.length === 0) return "No evidence available.";
+
+  // Experience items first, then by score
+  const sorted = [...pack].sort((a, b) => {
+    if (a.type === "experience" && b.type !== "experience") return -1;
+    if (b.type === "experience" && a.type !== "experience") return 1;
+    return b.score - a.score;
+  });
+
+  return sorted
+    .map((item, i) => {
+      const content = item.content
+        .replace(/\*\*/g, "")
+        .split("\n")
+        .map((l) => `    ${l}`)
+        .join("\n");
+      const keywords =
+        item.matchedKeywords.length > 0 ? ` [${item.matchedKeywords.join(", ")}]` : "";
+      return `[${i + 1}] ${item.title}${keywords}\n${content}`;
+    })
+    .join("\n\n");
+}
+
 function buildCandidateSnapshot(site: Site): string {
   const h = site.heading;
   const header = [
@@ -73,18 +98,24 @@ export function buildClaudeJsonPrompt(
   site: Site,
   keywords: ExtractedKeywords,
   evidence: EvidenceItem[],
+  evidencePack?: EvidencePackItem[],
 ): string {
   const { jobDescription, language, companyName, jobTitle, recruiterName, tone } = req;
   const outputLanguage = language === "de" ? "German (Deutsch)" : "English";
   const toneNote = TONE_INSTRUCTIONS[tone] ?? TONE_INSTRUCTIONS.professional;
 
-  const matchedKeywords = new Set(evidence.flatMap((e) => e.matchedKeywords));
-  const unmatchedSkills = keywords.hardSkills.filter((kw) => !matchedKeywords.has(kw));
+  const activeEvidence = evidencePack && evidencePack.length > 0 ? evidencePack : null;
+  const allMatchedKeywords = activeEvidence
+    ? new Set(activeEvidence.flatMap((e) => e.matchedKeywords))
+    : new Set(evidence.flatMap((e) => e.matchedKeywords));
+  const unmatchedSkills = keywords.hardSkills.filter((kw) => !allMatchedKeywords.has(kw));
 
   const sections: string[] = [
     `=== TASK ===
 Write a cover letter. Output language: ${outputLanguage}
-Tone guidance: ${toneNote}`,
+Tone guidance: ${toneNote}
+Use retrieved candidate evidence as the primary factual basis for the cover letter.
+Do not invent unsupported technologies, employers, responsibilities, or achievements.`,
 
     `=== ROLE ===
 Company: ${companyName || "(not specified)"}
@@ -102,7 +133,7 @@ ${buildCandidateSnapshot(site)}`,
     `=== STRONGEST FITS ===
 Base the letter on these experiences. Do not reference experience not listed here.
 
-${buildEvidenceBlock(evidence)}`,
+${activeEvidence ? buildEvidencePackBlock(activeEvidence) : buildEvidenceBlock(evidence)}`,
 
     unmatchedSkills.length > 0
       ? `=== SKILLS NOTE ===

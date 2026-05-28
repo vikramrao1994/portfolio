@@ -1,8 +1,6 @@
 import { buildPromptMarkdown } from "@/lib/cover-letter/buildPromptMarkdown";
-import { extractJobKeywords } from "@/lib/cover-letter/extractJobKeywords";
-import { scoreCandidateEvidence } from "@/lib/cover-letter/scoreCandidateEvidence";
+import { buildCoverLetterContext } from "@/lib/cover-letter/context/buildCoverLetterContext";
 import type { CoverLetterPromptRequest } from "@/lib/cover-letter/types";
-import { getSiteContent } from "@/server/siteContent";
 import { GenerateCoverLetterPromptInputSchema } from "../schemas/toolSchemas";
 import { errorResponse, successResponse } from "../utils/responses";
 
@@ -15,9 +13,9 @@ export async function generateCoverLetterPrompt(args: unknown) {
 
   try {
     const { jobDescription, language, companyName, jobTitle } = parsed.data;
-    const keywords = extractJobKeywords(jobDescription);
-    const site = await getSiteContent(language);
-    const evidence = scoreCandidateEvidence(site, keywords);
+
+    const context = await buildCoverLetterContext(jobDescription, language);
+    const { siteContent, extractedKeywords, deterministicEvidence, evidencePack } = context;
 
     const req: CoverLetterPromptRequest = {
       jobDescription,
@@ -28,7 +26,7 @@ export async function generateCoverLetterPrompt(args: unknown) {
       includeFullCandidateData: true,
     };
 
-    const markdown = buildPromptMarkdown(req, site, keywords, evidence);
+    const markdown = buildPromptMarkdown(req, siteContent, extractedKeywords, deterministicEvidence, evidencePack);
     console.error(`[generate_cover_letter_prompt] completed in ${Date.now() - start}ms`);
     return successResponse({ markdown });
   } catch (err) {
