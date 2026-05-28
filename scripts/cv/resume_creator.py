@@ -234,19 +234,31 @@ class Resume_Creator:
                 + " | <b>%s</b>" % experience["company"]
                 + " , %s" % self.tr(experience["location"])
             )
-            cert_url = experience.get("certificateUrl") or experience.get("certificate")
-            if _is_valid_cert_url(cert_url):
-                cert_label = (experience.get("certificateLabel") or "Reference").strip() or "Reference"
-                heading_title += (
-                    '  <a href="%s"><font color="#6969e5" size="%s"><u>%s</u></font></a>'
-                    % (cert_url, GENERAL_FONT_SIZE - 1, cert_label)
-                )
-            heading = [
-                [
+            heading_rows = [[
                 Paragraph(heading_title, word_style),
                 self.generate_alignment_style("<b>%s</b>" % experience["duration"], TA_RIGHT, GENERAL_FONT_SIZE)
-                ]
-            ]
+            ]]
+            cert_url = experience.get("certificateUrl") or experience.get("certificate")
+            if _is_valid_cert_url(cert_url):
+                _cert_label_defaults = {"en": "Reference", "de": "Zeugnis"}
+                cert_label = (
+                    experience.get("certificateLabel")
+                    or _cert_label_defaults.get(self.lang, "Reference")
+                ).strip()
+                cert_para_style = ParagraphStyle(
+                    "CertRight_%s" % experience.get("company", ""),
+                    alignment=TA_RIGHT,
+                    fontSize=GENERAL_FONT_SIZE - 1,
+                )
+                heading_rows.append([
+                    "",
+                    Paragraph(
+                        '<a href="%s"><font color="#6969e5"><u>%s</u></font></a>'
+                        % (cert_url, cert_label),
+                        cert_para_style,
+                    )
+                ])
+            heading = heading_rows
 
             tech_stack = [
                 [   
