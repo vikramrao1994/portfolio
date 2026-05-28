@@ -36,7 +36,7 @@ const TOOL_DEFINITIONS = [
   {
     name: "generate_cover_letter_prompt",
     description:
-      "Generate a detailed Markdown prompt for LLM-based cover letter writing. Includes keyword analysis, ranked candidate evidence, and full candidate profile. Does NOT call Claude — returns the prompt only.",
+      "Generate a human-readable Markdown context document for reviewing cover letter generation inputs. Includes keyword analysis, ranked candidate evidence, and full candidate profile. Useful for inspecting what data would be sent before committing to a full generation. Does NOT call Claude. Note: this is NOT the internal prompt Claude receives during generation — that is a structured =SECTION= format built separately inside generate_cover_letter_pdf.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -51,7 +51,7 @@ const TOOL_DEFINITIONS = [
   {
     name: "generate_cover_letter_pdf",
     description:
-      "One-shot: generate a complete cover letter PDF from a job description. Runs the full pipeline — keyword extraction, candidate evidence scoring, Claude generation, and ReportLab PDF rendering — in a single call. Requires ANTHROPIC_API_KEY.",
+      "One-shot: generate a complete cover letter PDF from a job description. Runs the full pipeline — keyword extraction, candidate evidence scoring, Claude generation, and ReportLab PDF rendering — in a single call. Requires ANTHROPIC_API_KEY. Returns pdfPath: the absolute path on the server's filesystem. When using the local stdio server this path is directly accessible; when calling via the remote HTTP endpoint on a cloud host (e.g. Fly.io) the path is local to the container.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -72,7 +72,7 @@ const TOOL_DEFINITIONS = [
   {
     name: "render_cover_letter_pdf",
     description:
-      "Render a validated cover letter JSON to a PDF using the ReportLab renderer. Returns the absolute path to the generated PDF file.",
+      "Render a validated cover letter JSON to a PDF using the ReportLab renderer. Returns pdfPath: the absolute path on the server's filesystem. When using the local stdio server this path is directly accessible; when calling via the remote HTTP endpoint on a cloud host (e.g. Fly.io) the path is local to the container and may not be accessible from the calling client.",
     inputSchema: {
       type: "object" as const,
       properties: {

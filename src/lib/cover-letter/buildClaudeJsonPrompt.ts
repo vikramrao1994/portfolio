@@ -1,13 +1,12 @@
 import type { Site } from "@/lib/siteSchema";
+import { COVER_LETTER_CONTENT_SCHEMA_DESCRIPTION } from "./coverLetterContentSchema";
 import type { CoverLetterPromptRequest, EvidenceItem, ExtractedKeywords } from "./types";
-
-function getLang<T extends { en?: string; de?: string }>(obj: T): string {
-  return obj.en ?? obj.de ?? "";
-}
+import { getLang } from "./utils";
 
 const TONE_INSTRUCTIONS: Record<string, string> = {
   professional: "Formal register. No contractions. Measured confidence.",
-  direct: "Lead with your strongest point immediately. Skip warm-up sentences. Short, declarative paragraphs.",
+  direct:
+    "Lead with your strongest point immediately. Skip warm-up sentences. Short, declarative paragraphs.",
   warm: "Slightly personal tone. Reference something specific about the company's work. Still concise and grounded.",
   modern: "Conversational-professional. Contractions are fine. Less stiff than traditional formal.",
 };
@@ -64,32 +63,10 @@ function buildCandidateSnapshot(site: Site): string {
     .slice(0, 3)
     .map((exp) => `  ${getLang(exp.title)} @ ${exp.company} (${exp.duration})`);
 
-  return [
-    header,
-    contact,
-    recentRoles.length ? `Recent roles:\n${recentRoles.join("\n")}` : null,
-  ]
+  return [header, contact, recentRoles.length ? `Recent roles:\n${recentRoles.join("\n")}` : null]
     .filter(Boolean)
     .join("\n");
 }
-
-const JSON_SCHEMA = `{
-  "language": "<en or de>",
-  "recipient": {
-    "companyName": "<company name, or omit if unknown>",
-    "contactName": "<recruiter/contact name, or omit if unknown>",
-    "addressLines": ["<street>", "<city, postcode>"]
-  },
-  "subject": "<formal subject line, 5-160 characters>",
-  "salutation": "<formal greeting ending with comma, 2-120 characters>",
-  "paragraphs": [
-    "<paragraph 1 — 40-900 characters>",
-    "<paragraph 2 — 40-900 characters>",
-    "<paragraph 3 — 40-900 characters>"
-  ],
-  "closing": "<formal sign-off ending with comma, 2-120 characters>",
-  "signatureName": "<full name, 2-120 characters>"
-}`;
 
 export function buildClaudeJsonPrompt(
   req: CoverLetterPromptRequest,
@@ -142,7 +119,7 @@ Return ONLY a single valid JSON object. The entire response must be parseable by
 No Markdown. No code fences. No explanations. No text outside the JSON.
 
 Schema:
-${JSON_SCHEMA}
+${COVER_LETTER_CONTENT_SCHEMA_DESCRIPTION}
 
 Rules:
 - Language: ${outputLanguage}

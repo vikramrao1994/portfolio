@@ -147,8 +147,8 @@ const DOMAINS: Record<string, string> = {
   ecommerce: "E-Commerce",
   "e-commerce": "E-Commerce",
   saas: "SaaS",
-  "b2b": "B2B",
-  "b2c": "B2C",
+  b2b: "B2B",
+  b2c: "B2C",
   logistics: "Logistics",
   edtech: "EdTech",
   "media & entertainment": "Media & Entertainment",
@@ -198,12 +198,12 @@ const LANGUAGES: Record<string, string> = {
   deutsch: "German",
   french: "French",
   spanish: "Spanish",
-  "bilingual": "Bilingual",
+  bilingual: "Bilingual",
   "native speaker": "Native Speaker",
   fluent: "Fluent",
-  "c1": "C1",
-  "c2": "C2",
-  "b2": "B2",
+  c1: "C1",
+  c2: "C2",
+  b2: "B2",
 };
 
 function matchDict(text: string, dict: Record<string, string>): string[] {

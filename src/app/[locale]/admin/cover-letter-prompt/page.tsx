@@ -486,7 +486,14 @@ export default function CoverLetterPromptPage() {
               </div>
 
               {/* Actions */}
-              <div style={{ display: "flex", gap: spacing(2), flexWrap: "wrap", marginBottom: spacing(2) }}>
+              <div
+                style={{
+                  display: "flex",
+                  gap: spacing(2),
+                  flexWrap: "wrap",
+                  marginBottom: spacing(2),
+                }}
+              >
                 <Button
                   type="button"
                   variant="primary"
@@ -508,9 +515,7 @@ export default function CoverLetterPromptPage() {
                 />
               </div>
               {pdfError && (
-                <Body style={{ color: "red", marginTop: spacing(1) }}>
-                  PDF error: {pdfError}
-                </Body>
+                <Body style={{ color: "red", marginTop: spacing(1) }}>PDF error: {pdfError}</Body>
               )}
             </AdminCard>
           </Grid.Column>

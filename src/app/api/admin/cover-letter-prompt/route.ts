@@ -1,11 +1,11 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { verifyJWT } from "@/lib/auth";
 import { buildPromptMarkdown } from "@/lib/cover-letter/buildPromptMarkdown";
 import { createPromptFilename } from "@/lib/cover-letter/createPromptFilename";
 import { extractJobKeywords } from "@/lib/cover-letter/extractJobKeywords";
 import { scoreCandidateEvidence } from "@/lib/cover-letter/scoreCandidateEvidence";
-import { verifyJWT } from "@/lib/auth";
 import { getSiteContent } from "@/server/siteContent";
 
 export const dynamic = "force-dynamic";
@@ -16,9 +16,7 @@ const CoverLetterPromptRequestSchema = z.object({
   companyName: z.string().trim().max(120).optional(),
   jobTitle: z.string().trim().max(120).optional(),
   recruiterName: z.string().trim().max(120).optional(),
-  tone: z
-    .enum(["professional", "warm", "direct", "modern"])
-    .default("professional"),
+  tone: z.enum(["professional", "warm", "direct", "modern"]).default("professional"),
   includeFullCandidateData: z.boolean().default(true),
 });
 

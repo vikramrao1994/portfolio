@@ -1,5 +1,6 @@
 import type { Site } from "@/lib/siteSchema";
 import type { CoverLetterContent } from "./coverLetterContentSchema";
+import { getLang } from "./utils";
 
 export type CoverLetterPdfPayload = {
   language: "en" | "de";
@@ -22,10 +23,6 @@ export type CoverLetterPdfPayload = {
   closing: string;
   signatureName: string;
 };
-
-function getLang(obj: { en?: string; de?: string }): string {
-  return obj.en ?? obj.de ?? "";
-}
 
 function formatDate(lang: "en" | "de"): string {
   const now = new Date();

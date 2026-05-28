@@ -1,9 +1,6 @@
 import type { Site } from "@/lib/siteSchema";
 import type { CoverLetterPromptRequest, EvidenceItem, ExtractedKeywords } from "./types";
-
-function getLang<T extends { en?: string; de?: string }>(obj: T): string {
-  return obj.en ?? obj.de ?? "";
-}
+import { getLang } from "./utils";
 
 function section(title: string, body: string): string {
   return `## ${title}\n\n${body.trim()}\n`;
@@ -11,25 +8,19 @@ function section(title: string, body: string): string {
 
 function buildKeywordSummary(keywords: ExtractedKeywords): string {
   const lines: string[] = [];
-  if (keywords.hardSkills.length)
-    lines.push(`**Hard Skills:** ${keywords.hardSkills.join(", ")}`);
-  if (keywords.softSkills.length)
-    lines.push(`**Soft Skills:** ${keywords.softSkills.join(", ")}`);
-  if (keywords.domains.length)
-    lines.push(`**Domains:** ${keywords.domains.join(", ")}`);
+  if (keywords.hardSkills.length) lines.push(`**Hard Skills:** ${keywords.hardSkills.join(", ")}`);
+  if (keywords.softSkills.length) lines.push(`**Soft Skills:** ${keywords.softSkills.join(", ")}`);
+  if (keywords.domains.length) lines.push(`**Domains:** ${keywords.domains.join(", ")}`);
   if (keywords.seniority.length)
     lines.push(`**Seniority Signals:** ${keywords.seniority.join(", ")}`);
-  if (keywords.workMode.length)
-    lines.push(`**Work Mode:** ${keywords.workMode.join(", ")}`);
+  if (keywords.workMode.length) lines.push(`**Work Mode:** ${keywords.workMode.join(", ")}`);
   if (keywords.languages.length)
     lines.push(`**Language Requirements:** ${keywords.languages.join(", ")}`);
   return lines.join("\n");
 }
 
 function buildRecommendedEmphasis(evidence: EvidenceItem[], keywords: ExtractedKeywords): string {
-  const topKeywords = [
-    ...new Set(evidence.flatMap((e) => e.matchedKeywords)),
-  ].slice(0, 10);
+  const topKeywords = [...new Set(evidence.flatMap((e) => e.matchedKeywords))].slice(0, 10);
 
   const lines: string[] = [];
 
@@ -70,23 +61,29 @@ function buildEvidenceSection(evidence: EvidenceItem[]): string {
     .join("\n\n---\n\n");
 }
 
-function buildCandidateProfile(site: Site, includeFullData: boolean, _evidence: EvidenceItem[]): string {
+function buildCandidateProfile(
+  site: Site,
+  includeFullData: boolean,
+  _evidence: EvidenceItem[],
+): string {
   const h = site.heading;
   const blocks: string[] = [];
 
   // Always include heading
-  blocks.push([
-    `**Name:** ${h.name}`,
-    `**Email:** ${h.email}`,
-    `**Phone:** ${h.phone}`,
-    h.website ? `**Website:** ${h.website}` : null,
-    h.linkedin ? `**LinkedIn:** ${h.linkedin}` : null,
-    h.github ? `**GitHub:** ${h.github}` : null,
-    h.years_of_experience ? `**Years of Experience:** ${h.years_of_experience}` : null,
-    getLang(h.headline) ? `**Role:** ${getLang(h.headline)}` : null,
-  ]
-    .filter(Boolean)
-    .join("\n"));
+  blocks.push(
+    [
+      `**Name:** ${h.name}`,
+      `**Email:** ${h.email}`,
+      `**Phone:** ${h.phone}`,
+      h.website ? `**Website:** ${h.website}` : null,
+      h.linkedin ? `**LinkedIn:** ${h.linkedin}` : null,
+      h.github ? `**GitHub:** ${h.github}` : null,
+      h.years_of_experience ? `**Years of Experience:** ${h.years_of_experience}` : null,
+      getLang(h.headline) ? `**Role:** ${getLang(h.headline)}` : null,
+    ]
+      .filter(Boolean)
+      .join("\n"),
+  );
 
   if (!includeFullData) {
     blocks.push("_Full candidate data excluded — see Ranked Candidate Evidence above._");
@@ -148,7 +145,15 @@ export function buildPromptMarkdown(
   keywords: ExtractedKeywords,
   evidence: EvidenceItem[],
 ): string {
-  const { jobDescription, language, companyName, jobTitle, recruiterName, tone, includeFullCandidateData } = req;
+  const {
+    jobDescription,
+    language,
+    companyName,
+    jobTitle,
+    recruiterName,
+    tone,
+    includeFullCandidateData,
+  } = req;
 
   const matchedKeywords = new Set(evidence.flatMap((e) => e.matchedKeywords));
   const unmatchedSkills = keywords.hardSkills.filter((kw) => !matchedKeywords.has(kw));

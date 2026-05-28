@@ -212,7 +212,13 @@ const runImport = db.transaction(() => {
     VALUES (?, ?, ?)
   `);
   (json.personal_projects ?? []).forEach((p: any, i: number) => {
-    const r = projStmt.run(i, p.link ?? null, p.logo ?? null, p.project?.en ?? "", p.project?.de ?? "");
+    const r = projStmt.run(
+      i,
+      p.link ?? null,
+      p.logo ?? null,
+      p.project?.en ?? "",
+      p.project?.de ?? "",
+    );
     const projectId = Number(r.lastInsertRowid);
     (p.summary ?? []).forEach((s: any, idx: number) => {
       projSumStmt.run(projectId, idx, s.en ?? "", s.de ?? "");

@@ -1,5 +1,6 @@
 import type { Site } from "@/lib/siteSchema";
 import type { EvidenceItem, ExtractedKeywords } from "./types";
+import { getLang } from "./utils";
 
 const MAX_EVIDENCE = 6;
 
@@ -12,19 +13,8 @@ function matchKeywords(text: string, keywords: string[]): string[] {
   return keywords.filter((kw) => textContains(text, kw));
 }
 
-function getLang<T extends { en?: string; de?: string }>(obj: T): string {
-  return obj.en ?? obj.de ?? "";
-}
-
-export function scoreCandidateEvidence(
-  site: Site,
-  keywords: ExtractedKeywords,
-): EvidenceItem[] {
-  const allKeywords = [
-    ...keywords.hardSkills,
-    ...keywords.softSkills,
-    ...keywords.domains,
-  ];
+export function scoreCandidateEvidence(site: Site, keywords: ExtractedKeywords): EvidenceItem[] {
+  const allKeywords = [...keywords.hardSkills, ...keywords.softSkills, ...keywords.domains];
   const items: EvidenceItem[] = [];
 
   // Score executive summary bullets
@@ -66,10 +56,7 @@ export function scoreCandidateEvidence(
     const summaryTexts = exp.summary.map((s) => getLang(s)).filter(Boolean);
     for (const s of summaryTexts) {
       const hardMatches = matchKeywords(s, keywords.hardSkills);
-      const softMatches = matchKeywords(s, [
-        ...keywords.softSkills,
-        ...keywords.domains,
-      ]);
+      const softMatches = matchKeywords(s, [...keywords.softSkills, ...keywords.domains]);
       for (const m of hardMatches) {
         score += 3;
         matchedKws.add(m);
@@ -134,9 +121,7 @@ export function scoreCandidateEvidence(
       matchedKeywords: Array.from(matched).sort(),
       reason: `${matched.size} exact skill match(es) in "${groupName}" group`,
       content: allSkills
-        .filter((s) =>
-          [...matched].some((kw) => textContains(s.toLowerCase(), kw)),
-        )
+        .filter((s) => [...matched].some((kw) => textContains(s.toLowerCase(), kw)))
         .join(", "),
     });
   }
@@ -158,7 +143,5 @@ export function scoreCandidateEvidence(
     });
   }
 
-  return items
-    .sort((a, b) => b.score - a.score)
-    .slice(0, MAX_EVIDENCE);
+  return items.sort((a, b) => b.score - a.score).slice(0, MAX_EVIDENCE);
 }

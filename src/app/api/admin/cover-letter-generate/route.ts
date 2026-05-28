@@ -2,11 +2,7 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { verifyJWT } from "@/lib/auth";
-import { buildClaudeJsonPrompt } from "@/lib/cover-letter/buildClaudeJsonPrompt";
-import { extractJobKeywords } from "@/lib/cover-letter/extractJobKeywords";
-import { generateCoverLetterWithClaude } from "@/lib/cover-letter/generateCoverLetterWithClaude";
-import { scoreCandidateEvidence } from "@/lib/cover-letter/scoreCandidateEvidence";
-import { getSiteContent } from "@/server/siteContent";
+import { orchestrateCoverLetterGeneration } from "@/lib/cover-letter/orchestrateCoverLetterGeneration";
 
 export const dynamic = "force-dynamic";
 
@@ -50,15 +46,10 @@ export async function POST(req: Request) {
     );
   }
 
-  const input = parsed.data;
-
   try {
-    const site = await getSiteContent(input.language);
-    const keywords = extractJobKeywords(input.jobDescription);
-    const evidence = scoreCandidateEvidence(site, keywords);
-    const prompt = buildClaudeJsonPrompt(input, site, keywords, evidence);
-
-    const { coverLetter, model, usage } = await generateCoverLetterWithClaude(prompt);
+    const { coverLetter, prompt, model, usage } = await orchestrateCoverLetterGeneration(
+      parsed.data,
+    );
 
     return NextResponse.json(
       { coverLetter, promptMarkdown: prompt, model, usage },
