@@ -441,7 +441,7 @@ class Resume_Creator:
         self.add_education();  
         self.add_skills();
         # elf.add_hobbies();
-        # self.add_projects()
+        self.add_projects()
         self.doc.build(self.data, onFirstPage = myFirstPage);
         output_path = (
             self.file_name
