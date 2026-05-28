@@ -1,4 +1,6 @@
-export type Tone = "professional" | "warm" | "direct" | "modern";
+import type { Tone } from "../schemas";
+
+export type { Tone } from "../schemas";
 
 export type CompanyAlignment = {
   companyTraits: string[];

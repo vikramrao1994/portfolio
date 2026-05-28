@@ -15,13 +15,3 @@ export interface EvidenceItem {
   reason: string;
   content: string;
 }
-
-export interface CoverLetterPromptRequest {
-  jobDescription: string;
-  language: "en" | "de";
-  companyName?: string;
-  jobTitle?: string;
-  recruiterName?: string;
-  tone: "professional" | "warm" | "direct" | "modern";
-  includeFullCandidateData: boolean;
-}

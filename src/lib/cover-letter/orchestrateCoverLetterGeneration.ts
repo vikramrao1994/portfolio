@@ -7,17 +7,20 @@ import type { EvidencePackItem } from "./rag/types";
 import { buildCompanyAlignment } from "./rhetoric/buildCompanyAlignment";
 import { buildRhetoricalPlan } from "./rhetoric/buildRhetoricalPlan";
 import type { RhetoricalPlan } from "./rhetoric/types";
+import type { Language, Tone } from "./schemas";
 import type { EvidenceItem, ExtractedKeywords } from "./types";
 
-export interface OrchestrateCoverLetterInput {
+// Pre-default input type: tone and includeFullCandidateData are optional.
+// After defaults are applied, services receive the required CoverLetterRequest type.
+export type OrchestrateCoverLetterInput = {
   jobDescription: string;
-  language: "en" | "de";
+  language: Language;
   companyName?: string;
   jobTitle?: string;
   recruiterName?: string;
-  tone?: "professional" | "warm" | "direct" | "modern";
+  tone?: Tone;
   includeFullCandidateData?: boolean;
-}
+};
 
 export interface OrchestrateCoverLetterResult {
   coverLetter: CoverLetterContent;

@@ -2,7 +2,7 @@ import { buildPromptMarkdown } from "@/lib/cover-letter/buildPromptMarkdown";
 import { buildCoverLetterContext } from "@/lib/cover-letter/context/buildCoverLetterContext";
 import { buildCompanyAlignment } from "@/lib/cover-letter/rhetoric/buildCompanyAlignment";
 import { buildRhetoricalPlan } from "@/lib/cover-letter/rhetoric/buildRhetoricalPlan";
-import type { CoverLetterPromptRequest } from "@/lib/cover-letter/types";
+import type { CoverLetterRequest } from "@/lib/cover-letter/schemas";
 import { GenerateCoverLetterPromptInputSchema } from "../schemas/toolSchemas";
 import { errorResponse, successResponse } from "../utils/responses";
 
@@ -27,7 +27,7 @@ export async function generateCoverLetterPrompt(args: unknown) {
       tone: "professional",
     });
 
-    const req: CoverLetterPromptRequest = {
+    const req: CoverLetterRequest = {
       jobDescription,
       language,
       companyName,

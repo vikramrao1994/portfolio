@@ -1,9 +1,10 @@
 import type { Site } from "@/lib/siteSchema";
+import type { Language } from "../schemas";
 import { getLang } from "../utils";
 import { normalizeText, slugifyChunkId, uniqueStrings } from "./textUtils";
 import type { CandidateChunk } from "./types";
 
-export function buildCandidateChunks(site: Site, language: "en" | "de"): CandidateChunk[] {
+export function buildCandidateChunks(site: Site, language: Language): CandidateChunk[] {
   const chunks: CandidateChunk[] = [];
   const seen = new Set<string>();
 

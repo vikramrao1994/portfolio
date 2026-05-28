@@ -1,19 +1,18 @@
 import { z } from "zod";
 import { CoverLetterContentSchema } from "@/lib/cover-letter/coverLetterContentSchema";
+import { LanguageSchema, ToneSchema } from "@/lib/cover-letter/schemas";
 
-export const AnalyzeJobDescriptionInputSchema = z.object({
+// Shared base for tools that only need a job description + language.
+// AnalyzeJobDescription and MatchCandidateEvidence have identical input shapes.
+const JobDescriptionInputSchema = z.object({
   jobDescription: z.string().min(50).max(20000),
-  language: z.enum(["en", "de"]),
+  language: LanguageSchema,
 });
 
-export const MatchCandidateEvidenceInputSchema = z.object({
-  jobDescription: z.string().min(50).max(20000),
-  language: z.enum(["en", "de"]),
-});
+export const AnalyzeJobDescriptionInputSchema = JobDescriptionInputSchema;
+export const MatchCandidateEvidenceInputSchema = JobDescriptionInputSchema;
 
-export const GenerateCoverLetterPromptInputSchema = z.object({
-  jobDescription: z.string().min(50).max(20000),
-  language: z.enum(["en", "de"]),
+export const GenerateCoverLetterPromptInputSchema = JobDescriptionInputSchema.extend({
   companyName: z.string().max(100).optional(),
   jobTitle: z.string().max(100).optional(),
 });
@@ -24,9 +23,9 @@ export const RenderCoverLetterPdfInputSchema = z.object({
 
 export const GenerateCoverLetterPdfInputSchema = z.object({
   jobDescription: z.string().min(50).max(20000),
-  language: z.enum(["en", "de"]),
+  language: LanguageSchema,
   companyName: z.string().max(100).optional(),
   jobTitle: z.string().max(100).optional(),
   recruiterName: z.string().max(100).optional(),
-  tone: z.enum(["professional", "warm", "direct", "modern"]).optional(),
+  tone: ToneSchema.optional(),
 });

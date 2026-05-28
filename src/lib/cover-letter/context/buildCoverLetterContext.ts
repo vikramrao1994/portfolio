@@ -3,12 +3,13 @@ import { extractJobKeywords } from "../extractJobKeywords";
 import { buildCandidateChunks } from "../rag/buildCandidateChunks";
 import { buildEvidencePack } from "../rag/buildEvidencePack";
 import { lexicalRetrieveEvidence } from "../rag/lexicalRetrieveEvidence";
+import type { Language } from "../schemas";
 import { scoreCandidateEvidence } from "../scoreCandidateEvidence";
 import type { CoverLetterContext } from "./types";
 
 export async function buildCoverLetterContext(
   jobDescription: string,
-  language: "en" | "de",
+  language: Language,
 ): Promise<CoverLetterContext> {
   const siteContent = await getSiteContent(language);
   const extractedKeywords = extractJobKeywords(jobDescription);

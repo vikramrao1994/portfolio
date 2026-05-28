@@ -5,17 +5,15 @@ import { verifyJWT } from "@/lib/auth";
 import { buildPromptMarkdown } from "@/lib/cover-letter/buildPromptMarkdown";
 import { buildCoverLetterContext } from "@/lib/cover-letter/context/buildCoverLetterContext";
 import { createPromptFilename } from "@/lib/cover-letter/createPromptFilename";
+import { CoverLetterRequestSchema } from "@/lib/cover-letter/schemas";
 
 export const dynamic = "force-dynamic";
 
-const CoverLetterPromptRequestSchema = z.object({
+const CoverLetterPromptRequestSchema = CoverLetterRequestSchema.extend({
   jobDescription: z.string().min(100).max(20_000),
-  language: z.enum(["en", "de"]),
   companyName: z.string().trim().max(120).optional(),
   jobTitle: z.string().trim().max(120).optional(),
   recruiterName: z.string().trim().max(120).optional(),
-  tone: z.enum(["professional", "warm", "direct", "modern"]).default("professional"),
-  includeFullCandidateData: z.boolean().default(true),
 });
 
 export async function POST(req: Request) {

@@ -2,7 +2,8 @@ import type { Site } from "@/lib/siteSchema";
 import type { EvidencePackItem } from "./rag/types";
 import { buildNarrativeGuidelines } from "./rhetoric/buildNarrativeGuidelines";
 import type { RhetoricalPlan } from "./rhetoric/types";
-import type { CoverLetterPromptRequest, EvidenceItem, ExtractedKeywords } from "./types";
+import type { CoverLetterRequest } from "./schemas";
+import type { EvidenceItem, ExtractedKeywords } from "./types";
 import { getLang } from "./utils";
 
 function section(title: string, body: string): string {
@@ -190,7 +191,7 @@ function buildRhetoricalPlanSection(plan: RhetoricalPlan): string {
 }
 
 export function buildPromptMarkdown(
-  req: CoverLetterPromptRequest,
+  req: CoverLetterRequest,
   site: Site,
   keywords: ExtractedKeywords,
   evidence: EvidenceItem[],

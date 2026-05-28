@@ -1,28 +1,9 @@
 import type { Site } from "@/lib/siteSchema";
 import type { CoverLetterContent } from "./coverLetterContentSchema";
+import type { CoverLetterPdfPayload } from "./schemas";
 import { getLang } from "./utils";
 
-export type CoverLetterPdfPayload = {
-  language: "en" | "de";
-  sender: {
-    name: string;
-    email?: string;
-    phone?: string;
-    address?: string;
-    website?: string;
-  };
-  recipient: {
-    companyName?: string;
-    contactName?: string;
-    addressLines?: string[];
-  };
-  date: string;
-  subject: string;
-  salutation: string;
-  paragraphs: string[];
-  closing: string;
-  signatureName: string;
-};
+export type { CoverLetterPdfPayload } from "./schemas";
 
 function formatDate(lang: "en" | "de"): string {
   const now = new Date();

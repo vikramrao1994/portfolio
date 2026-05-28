@@ -1,7 +1,9 @@
+import type { Language } from "../schemas";
+
 export type CandidateChunk = {
   id: string;
   type: "experience" | "skill" | "education" | "summary" | "project";
-  language: "en" | "de";
+  language: Language;
   title: string;
   text: string;
   metadata?: {

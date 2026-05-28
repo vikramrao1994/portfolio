@@ -3,7 +3,8 @@ import { COVER_LETTER_CONTENT_SCHEMA_DESCRIPTION } from "./coverLetterContentSch
 import type { EvidencePackItem } from "./rag/types";
 import { buildNarrativeGuidelines } from "./rhetoric/buildNarrativeGuidelines";
 import type { RhetoricalPlan } from "./rhetoric/types";
-import type { CoverLetterPromptRequest, EvidenceItem, ExtractedKeywords } from "./types";
+import type { CoverLetterRequest } from "./schemas";
+import type { EvidenceItem, ExtractedKeywords } from "./types";
 import { getLang } from "./utils";
 
 const TONE_INSTRUCTIONS: Record<string, string> = {
@@ -115,7 +116,7 @@ function buildRhetoricalPlanBlock(plan: RhetoricalPlan): string {
 }
 
 export function buildClaudeJsonPrompt(
-  req: CoverLetterPromptRequest,
+  req: CoverLetterRequest,
   site: Site,
   keywords: ExtractedKeywords,
   evidence: EvidenceItem[],
