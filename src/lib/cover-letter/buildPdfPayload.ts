@@ -15,6 +15,13 @@ function formatDate(lang: "en" | "de"): string {
   return now.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
 }
 
+function buildSignatureConfig(): CoverLetterPdfPayload["signature"] {
+  const enabled = process.env.ENABLE_VISUAL_SIGNATURE === "true";
+  const imageUrl = process.env.SIGNATURE_IMAGE_URL;
+  if (!enabled || !imageUrl) return undefined;
+  return { enabled: true, imageUrl };
+}
+
 export function buildPdfPayload({
   coverLetter,
   siteContent,
@@ -45,5 +52,6 @@ export function buildPdfPayload({
     paragraphs: coverLetter.paragraphs,
     closing: coverLetter.closing,
     signatureName: coverLetter.signatureName,
+    signature: buildSignatureConfig(),
   };
 }

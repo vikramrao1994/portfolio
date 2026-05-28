@@ -43,6 +43,13 @@ export const CoverLetterPdfPayloadSchema = z.object({
   paragraphs: z.array(z.string()),
   closing: z.string(),
   signatureName: z.string(),
+  // Server-controlled only — never accepted from Claude output, request body, or MCP input
+  signature: z
+    .object({
+      enabled: z.boolean(),
+      imageUrl: z.string().url(),
+    })
+    .optional(),
 });
 
 export type CoverLetterPdfPayload = z.infer<typeof CoverLetterPdfPayloadSchema>;

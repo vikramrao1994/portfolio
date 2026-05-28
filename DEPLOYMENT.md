@@ -38,6 +38,8 @@ Set all secrets via `fly secrets set` — never in `fly.toml`.
 | `ANTHROPIC_MODEL` | no | Defaults to `claude-haiku-4-5-20251001` |
 | `MCP_AUTH_TOKEN` | for remote MCP | `openssl rand -base64 32` |
 | `ENABLE_REMOTE_MCP` | for remote MCP | Must be `"true"` to activate — absent → 404 |
+| `ENABLE_VISUAL_SIGNATURE` | no | Set to `"true"` to embed visual signature in cover-letter PDFs |
+| `SIGNATURE_IMAGE_URL` | for visual signature | Full HTTPS URL to the PNG signature image in Firebase Storage |
 
 ```bash
 fly secrets set ADMIN_PASSWORD="your-secure-password"
@@ -46,6 +48,9 @@ fly secrets set ANTHROPIC_API_KEY="sk-ant-..."
 # Remote MCP (enable only when needed):
 fly secrets set MCP_AUTH_TOKEN="$(openssl rand -base64 32)"
 fly secrets set ENABLE_REMOTE_MCP="true"
+# Visual signature (optional):
+fly secrets set ENABLE_VISUAL_SIGNATURE="true"
+fly secrets set SIGNATURE_IMAGE_URL="https://firebasestorage.googleapis.com/v0/b/..."
 ```
 
 ## Deployment
@@ -96,6 +101,18 @@ Both CV and cover-letter PDFs are generated via Python ReportLab:
 - Both renderers write to a temp directory and clean up after returning the PDF
 - Temp JSON payloads are deleted immediately after each render
 - Rendering is deterministic — no AI-controlled layout
+
+### Visual Signature
+
+Cover-letter PDFs support an optional handwritten PNG signature fetched from Firebase Storage:
+
+- Controlled entirely by `ENABLE_VISUAL_SIGNATURE` and `SIGNATURE_IMAGE_URL` env vars
+- Claude output, request body, and MCP input **never** control the signature URL
+- Python fetches the image directly into memory (`BytesIO`) — no disk writes, no caching
+- Hostname allowlist enforced (`firebasestorage.googleapis.com` only)
+- HTTPS required, PNG content-type validated, size capped at 500 KB
+- If the image fetch fails for any reason, the PDF is still generated (signature omitted gracefully)
+- This is a **visual/cosmetic** signature only — not a cryptographic digital signature
 
 ## CI/CD
 
@@ -185,5 +202,7 @@ Note: SQLite is single-region. For multi-region, use LiteFS or migrate to Postgr
 | OOM crash | Increase `memory_mb` in `fly.toml` |
 | Volume not persisting | Verify `source` in `[mounts]` matches `fly volumes list` name |
 | PDF generation fails | Verify `python3` and ReportLab in container: `fly ssh console; python3 -c "import reportlab"` |
+| Signature missing from PDF | Verify `ENABLE_VISUAL_SIGNATURE=true` and `SIGNATURE_IMAGE_URL` are set; check `fly logs` for `[signature]` lines |
+| Signature fetch rejected | URL must be HTTPS and hosted on `firebasestorage.googleapis.com`; PNG only; max 500 KB |
 | MCP returns 404 | Check `ENABLE_REMOTE_MCP=true` is set via `fly secrets list` |
 | MCP returns 401 | Verify `MCP_AUTH_TOKEN` matches the Bearer token in the client config |

@@ -110,6 +110,18 @@ Missing `ENABLE_REMOTE_MCP=true` → 404. Missing/wrong `MCP_AUTH_TOKEN` → 401
 - **Deterministic orchestration**: tools call deterministic functions; `generate_cover_letter_pdf` calls Claude once with a pre-built prompt.
 - **No duplicated logic**: do not add evidence scoring, retrieval, or prompt-building inside `mcp/tools/`.
 
+## Visual Signature
+
+Cover-letter PDFs optionally include a handwritten PNG signature fetched from Firebase Storage:
+
+- Enabled by `ENABLE_VISUAL_SIGNATURE=true` + `SIGNATURE_IMAGE_URL=<firebase-url>` env vars
+- Claude output and MCP tool inputs **never** control the signature URL — it is server-sourced only
+- Python fetches directly into memory (`BytesIO`); no disk writes, no local caching
+- Hostname allowlist: `firebasestorage.googleapis.com` only
+- Validation: HTTPS required, PNG content-type, max 500 KB
+- Graceful degradation: PDF renders without signature if fetch fails
+- This is cosmetic only — **not** a cryptographic digital signature
+
 ## Security Constraints
 
 - No arbitrary SQL, filesystem traversal, or shell-string execution
@@ -118,6 +130,7 @@ Missing `ENABLE_REMOTE_MCP=true` → 404. Missing/wrong `MCP_AUTH_TOKEN` → 401
 - Temp JSON payload files deleted after each PDF render
 - Errors truncated before logging — no stack traces or secrets in responses
 - `MCP_AUTH_TOKEN` never appears in logs or responses
+- Signature URL is server-controlled only — never accepted from MCP tool input
 - Rate limiting: recommended 60 req/min per token (not yet implemented — see `src/app/api/mcp/route.ts`)
 - DB access is read-only — no admin write operations exposed via MCP
 

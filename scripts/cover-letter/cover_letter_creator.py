@@ -3,6 +3,9 @@ import re
 import sys
 from datetime import datetime
 from io import BytesIO
+from urllib.parse import urlparse
+
+import requests
 
 # Allow importing shared components from the cv scripts directory
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "cv"))
@@ -12,7 +15,7 @@ from reportlab.lib.colors import HexColor
 from reportlab.lib.enums import TA_JUSTIFY
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
-from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
+from reportlab.platypus import Image, Paragraph, SimpleDocTemplate, Spacer
 
 # ── Constants (mirror CV design system) ─────────────────────────────────────
 MARGIN_VERTICAL = 20
@@ -25,6 +28,10 @@ FOOTER_FONT_SIZE = 7
 
 PAGE_WIDTH = letter[0]
 CONTENT_WIDTH = PAGE_WIDTH - 2 * MARGIN_HORIZONTAL  # 552 pt
+
+ALLOWED_SIGNATURE_HOSTS = {"firebasestorage.googleapis.com"}
+MAX_SIGNATURE_BYTES = 500 * 1024  # 500 KB
+SIGNATURE_TARGET_WIDTH = 140  # points
 
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
@@ -63,6 +70,54 @@ def make_first_page_cb(date_str: str):
             canvas.drawRightString(PAGE_WIDTH - MARGIN_HORIZONTAL, y, date_str)
             canvas.restoreState()
     return first_page_cb
+
+
+def fetch_signature_image(url: str):
+    """Fetch signature PNG from an allowlisted Firebase URL into memory.
+
+    Returns (BytesIO, orig_width, orig_height) on success, or None on any
+    validation/fetch failure. Never writes to disk.
+    """
+    try:
+        parsed = urlparse(url)
+
+        if parsed.scheme != "https":
+            print("[signature] rejected: not HTTPS", file=sys.stderr)
+            return None
+
+        if parsed.hostname not in ALLOWED_SIGNATURE_HOSTS:
+            print("[signature] rejected: hostname not allowlisted (%s)" % parsed.hostname, file=sys.stderr)
+            return None
+
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+
+        content_type = response.headers.get("content-type", "")
+        if "image/png" not in content_type:
+            print("[signature] rejected: unexpected content-type %r" % content_type, file=sys.stderr)
+            return None
+
+        if len(response.content) > MAX_SIGNATURE_BYTES:
+            print(
+                "[signature] rejected: size %d bytes exceeds 500 KB limit" % len(response.content),
+                file=sys.stderr,
+            )
+            return None
+
+        from PIL import Image as PILImage
+
+        pil_img = PILImage.open(BytesIO(response.content))
+        orig_w, orig_h = pil_img.size
+
+        print(
+            "[signature] downloaded OK (%d bytes, %dx%d)" % (len(response.content), orig_w, orig_h),
+            file=sys.stderr,
+        )
+        return BytesIO(response.content), orig_w, orig_h
+
+    except Exception as exc:
+        print("[signature] fetch failed: %s" % exc, file=sys.stderr)
+        return None
 
 
 # ── Renderer ─────────────────────────────────────────────────────────────────
@@ -188,8 +243,24 @@ class CoverLetterCreator:
         self.data.append(
             Paragraph(sanitize(self.payload["closing"]), self.s_closing)
         )
-        # Vertical gap where a handwritten signature would go
-        self.data.append(Spacer(1, SPACER_VALUE * 4))
+
+        sig_cfg = self.payload.get("signature")
+        if sig_cfg and sig_cfg.get("enabled") and sig_cfg.get("imageUrl"):
+            result = fetch_signature_image(sig_cfg["imageUrl"])
+            if result is not None:
+                buf, orig_w, orig_h = result
+                target_w = SIGNATURE_TARGET_WIDTH
+                target_h = target_w * orig_h / orig_w
+                self.data.append(Spacer(1, SPACER_VALUE))
+                self.data.append(Image(buf, width=target_w, height=target_h))
+                self.data.append(Spacer(1, SPACER_VALUE))
+            else:
+                # Fetch failed — leave blank space where signature would appear
+                self.data.append(Spacer(1, SPACER_VALUE * 4))
+        else:
+            # Visual signature not configured — leave blank space
+            self.data.append(Spacer(1, SPACER_VALUE * 4))
+
         self.data.append(
             Paragraph("<b>%s</b>" % sanitize(self.payload["signatureName"]), self.s_closing)
         )
