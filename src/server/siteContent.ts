@@ -90,6 +90,7 @@ export const getSiteContent = async (language: Language) => {
       link: p.link,
       project: { [language]: p.project },
       summary: p.summary.map((s) => ({ [language]: s })),
+      skills: p.skills,
     })),
   };
 

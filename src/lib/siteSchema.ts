@@ -93,6 +93,7 @@ export const PersonalProjectSchema = z.object({
   link: z.string().nullable().optional(),
   project: LocalizedStringSchema,
   summary: z.array(LocalizedStringSchema),
+  skills: z.array(z.string()),
 });
 
 export const SiteSchema = z.object({

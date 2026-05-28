@@ -399,31 +399,64 @@ class Resume_Creator:
         projects = self.input.get("personal_projects") or []
         if not projects:
             return
-        self.generate_heading("<b>%s</b>" % self.section_title("projects"),"project.webp")
+        self.generate_heading("<b>%s</b>" % self.section_title("projects"), "project.webp")
         word_style = self.get_body_style("Normal", {
-        "fontSize":GENERAL_FONT_SIZE,
+        "fontSize": GENERAL_FONT_SIZE,
         })
         for project in projects:
             logo = [
                 [
-                HyperlinkedImage("public/images/" + project["logo"],project["link"], 20, 20)
+                HyperlinkedImage("public/images/" + (project.get("logo") or "project.webp"), project.get("link"), 20, 20)
+                ]
+            ]
+            link_display = ""
+            if project.get("link"):
+                link_display = '<a href="%s"><font color="blue"><u>View Project</u></font></a>' % project["link"]
+            heading = [
+                [
+                Paragraph("<b>%s</b>" % self.tr(project["project"]), word_style),
+                self.generate_alignment_style(link_display, TA_RIGHT, GENERAL_FONT_SIZE)
                 ]
             ]
             summary = [
                 [
-                    self.generate_bullet_points(GENERAL_FONT_SIZE, project["summary"],True)
+                    self.generate_bullet_points(GENERAL_FONT_SIZE, project["summary"], True)
                 ]
             ]
-            description = [[Paragraph("<b>%s</b>" % self.tr(project["project"]), word_style)],[Table(summary)]]
+            heading_table = Table(heading, [370, 145])
+            summary_table = Table(summary)
+            combined_table = [
+                [
+                    heading_table,
+                    summary_table
+                ]
+            ]
+            if project.get("skills"):
+                tech_stack = [
+                    [
+                        HyperlinkedImage("public/images/tech_stack.webp", None, 15, 15),
+                        self.generate_alignment_style("<b><i>%s</i></b>" % ', '.join(project["skills"]), TA_LEFT, GENERAL_FONT_SIZE)
+                    ]
+                ]
+                tech_stack_table = Table(tech_stack, [20, 530])
+                tech_stack_table.setStyle([('VALIGN', (0, 0), (-1, -1), "MIDDLE")])
+                combined_table = [
+                    [
+                        heading_table,
+                        tech_stack_table,
+                        summary_table
+                    ]
+                ]
+            logo_table = Table(logo)
             main = [
                 [
-                    Table(logo),
-                    Table(description)
+                logo_table,
+                combined_table
                 ]
             ]
-            main_table = Table(main, [30,530])
+            main_table = Table(main, [30, 530])
             main_table_style = [
-                ('VALIGN', (0, 0), (0, 0), "MIDDLE"),
+                ('VALIGN', (0, 0), (0, 0), "TOP"),
             ]
             main_table.setStyle(main_table_style)
             self.data.append(main_table)

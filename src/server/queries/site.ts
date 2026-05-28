@@ -184,13 +184,22 @@ export const getPersonalProjects = (lang: Lang) => {
      ORDER BY sort_order ASC`,
   );
 
+  const skillStmt = db.query(
+    `SELECT sort_order, name
+     FROM personal_project_skill
+     WHERE project_id = ?
+     ORDER BY sort_order ASC`,
+  );
+
   return projects.map((p) => {
     const summaryRows = summaryStmt.all(p.id) as any[];
+    const skillRows = skillStmt.all(p.id) as any[];
     return {
       logo: p.logo,
       link: p.link,
       project: pick(lang, p.project_en, p.project_de),
       summary: summaryRows.map((s) => pick(lang, s.en, s.de)),
+      skills: skillRows.map((s) => s.name),
     };
   });
 };
