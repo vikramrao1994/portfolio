@@ -75,6 +75,9 @@ export const ExperienceItemSchema = z
     link: z.string().nullable().optional(),
     certificate: z.string().nullable().optional(),
 
+    certificateUrl: z.string().nullable().optional(),
+    certificateLabel: z.string().nullable().optional(),
+
     summary: z.array(LocalizedStringSchema),
     tech_stack: z.array(z.string()),
     tech_stack_icons: z.array(TechIconSchema),

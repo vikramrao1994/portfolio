@@ -1,6 +1,7 @@
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from io import BytesIO
+from urllib.parse import urlparse
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, PageBreak, Spacer, Table
 from reportlab.lib.enums import TA_LEFT,TA_RIGHT
@@ -18,6 +19,15 @@ HEADING_FONT_SIZE = GENERAL_FONT_SIZE + 2
 NAME_FONT_SIZE = GENERAL_FONT_SIZE * 2
 SPACER_VALUE = 5
 FOOTER_FONT_SIZE = GENERAL_FONT_SIZE
+
+def _is_valid_cert_url(url) -> bool:
+    if not url or not isinstance(url, str):
+        return False
+    try:
+        parsed = urlparse(url.strip())
+        return parsed.scheme in ("http", "https") and bool(parsed.netloc)
+    except Exception:
+        return False
 
 def convert_differnce_to_string(difference, lang="en"):
     years = difference.years
@@ -218,9 +228,22 @@ class Resume_Creator:
             sub_title = ''
             if "sub_title" in experience and experience["sub_title"]:
                 sub_title = ' | %s' % self.tr(experience["sub_title"])
+            heading_title = (
+                "<b>%s</b>" % self.tr(experience["title"])
+                + " | <b>%s</b>" % self.tr(experience["type"])
+                + " | <b>%s</b>" % experience["company"]
+                + " , %s" % self.tr(experience["location"])
+            )
+            cert_url = experience.get("certificateUrl")
+            if _is_valid_cert_url(cert_url):
+                cert_label = (experience.get("certificateLabel") or "Reference").strip() or "Reference"
+                heading_title += (
+                    '  <a href="%s"><font color="#6969e5" size="%s"><u>%s</u></font></a>'
+                    % (cert_url, GENERAL_FONT_SIZE - 1, cert_label)
+                )
             heading = [
                 [
-                Paragraph("<b>%s</b>" % self.tr(experience["title"]) + " | <b>%s</b>" % self.tr(experience["type"]) + " | <b>%s</b>" % experience["company"] + ' , %s' % self.tr(experience["location"]) ,word_style),
+                Paragraph(heading_title, word_style),
                 self.generate_alignment_style("<b>%s</b>" % experience["duration"], TA_RIGHT, GENERAL_FONT_SIZE)
                 ]
             ]
