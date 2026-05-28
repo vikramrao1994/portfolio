@@ -1,65 +1,89 @@
 # Portfolio
 
-Multilingual (EN/DE) personal portfolio — Next.js 16, React 19, TypeScript, SQLite, Fly.io.
+Multilingual (EN/DE) personal portfolio with deterministic AI-assisted document generation.
 
 **Live:** https://vikram-portfolio.fly.dev
 
-## Quick Start
+## What This Is
 
-**Prerequisites:** Bun, Python 3
+- Public portfolio web app (EN/DE) served from SQLite via Next.js + tRPC
+- Deterministic AI document pipeline: evidence retrieval → rhetoric planning → Claude prose → PDF
+- MCP server: cover-letter pipeline as composable tools (local stdio + remote HTTP)
 
-```bash
-bun install
-cp .env.example .env   # fill in vars
-bun db:init            # create tables
-bun db:import          # load data
-bun run dev            # http://localhost:3000
+Architecture philosophy: scoring and retrieval are deterministic and authoritative. Claude handles prose only.
+
+## Core Features
+
+- Multilingual cover-letter generation (EN/DE, 4 tone profiles)
+- Phase 4A retrieval: deterministic evidence scoring + lexical chunk retrieval
+- Phase 5A rhetoric: company alignment inference + narrative planning (no Claude)
+- Structured Claude JSON generation from bounded, pre-selected evidence packs
+- Deterministic ReportLab PDF rendering (Python)
+- Local stdio MCP + remote HTTP MCP (Fly.io, Bearer auth, feature-flagged)
+- CV PDFs with optional verification/reference hyperlinks
+- Admin CRUD dashboard with JWT auth
+- 3D avatar (Three.js) with `prefers-reduced-motion` support
+
+## Architecture Summary
+
+```
+Deterministic                         Probabilistic
+──────────────────────────────        ─────────────────────────────
+extractJobKeywords()
+scoreCandidateEvidence()
+buildCandidateChunks()
+lexicalRetrieveEvidence()
+buildEvidencePack()
+buildCompanyAlignment()               generateCoverLetterWithClaude()
+buildRhetoricalPlan()
+runCoverLetterPdfRenderer()
 ```
 
-## Stack
+Evidence selection, scoring, and narrative structure are fully deterministic.
+Claude receives a pre-built prompt with a bounded evidence pack — it writes sentences, not strategy.
+
+## Tech Stack
 
 | Layer | Technology |
 |---|---|
 | Runtime | Bun |
-| Framework | Next.js 16 (App Router), React 19 |
-| Language | TypeScript strict |
-| Database | SQLite (bun:sqlite) |
-| API | tRPC v11 + TanStack Query |
-| Validation | Zod |
+| Framework | Next.js 16 (App Router), React 19, TypeScript strict |
+| Database | SQLite (`bun:sqlite`) |
+| API | tRPC v11 + TanStack Query + Zod |
 | UI | Kern React Kit |
 | i18n | next-intl (en/de) |
 | Auth | JWT (jose), httpOnly cookies |
 | 3D | Three.js + @react-three/drei |
+| AI | Anthropic Claude (structured JSON prose generation) |
+| PDF | Python ReportLab (deterministic) |
 | Lint | Biome |
 | Deploy | Fly.io + Docker + GitHub Actions |
 
-## Commands
+## Local Development
+
+**Prerequisites:** Bun, Python 3, ReportLab (`pip install reportlab`)
 
 ```bash
-bun run dev          # dev server
-bun run build        # production build
-bun run lint         # Biome linting
-bun db:init          # init database schema
-bun db:import        # import Firebase data
-bun db:clear         # clear all tables
+bun install
+cp .env.example .env        # fill in vars
+bun db:init && bun db:import
+bun run dev                 # http://localhost:3000
+bun run mcp:cover-letter    # local MCP stdio server
 ```
 
-## Project Structure
+## MCP Overview
 
-```
-src/
-  app/[locale]/     # Routes (en/de), admin, login
-  components/       # Reusable UI components
-  server/           # DB + siteContent.ts data aggregation
-  trpc/             # tRPC routers and client
-  lib/              # Zod schemas, auth utilities
-  context/          # SiteContentContext
-  hooks/            # useBreakpoints, useMutation
-  proxy.ts          # Middleware (i18n + admin auth)
-messages/           # en.json, de.json (UI labels)
-db/schema.sql       # SQLite schema
-scripts/cv/         # Python PDF generation
-```
+Five composable tools expose the cover-letter pipeline:
+
+| Tool | Type | Description |
+|---|---|---|
+| `generate_cover_letter_pdf` | one-shot | Full pipeline + PDF (requires `ANTHROPIC_API_KEY`) |
+| `analyze_job_description` | deterministic | Keyword extraction from job posting |
+| `match_candidate_evidence` | deterministic | Evidence scoring + ranking |
+| `generate_cover_letter_prompt` | deterministic | Prompt builder (no Claude call) |
+| `render_cover_letter_pdf` | deterministic | ReportLab PDF render |
+
+See [mcp/README.md](mcp/README.md) for transport setup, auth, and security details.
 
 ## Environment Variables
 
@@ -67,28 +91,24 @@ scripts/cv/         # Python PDF generation
 NODE_ENV=development
 PORT=3000
 DB_PATH=./data/portfolio.db
-BACKGROUND_PIC_URL=<firebase_url>
-PROFILE_PIC_URL=<firebase_url>
-DATA_JSON_URL=<firebase_realtime_db>
 ADMIN_PASSWORD=<secure_password>
 JWT_SECRET=<random_64+_char_secret>
+ANTHROPIC_API_KEY=<sk-ant-...>
 ```
 
-Production secrets (`ADMIN_PASSWORD`, `JWT_SECRET`) are set via `fly secrets set` — never in fly.toml.
+Production secrets are set via `fly secrets set` — never in `fly.toml`.
 
 ## Admin Dashboard
 
 - EN: `/admin` | DE: `/de/admin`
-- Login: `/login` — POST `{ password }` to `/api/auth/login`
+- Login: `/login` → POST `{ password }` to `/api/auth/login`
 - JWT cookie (httpOnly, 24h expiry) validated by middleware
 
-## CV Generation
+## Documentation Map
 
-```bash
-GET /api/cv?lang=en   # PDF (10min server cache)
-GET /api/cv?lang=de
-```
-
-## Deployment
-
-See [DEPLOYMENT.md](DEPLOYMENT.md) for Fly.io setup, secrets, CI/CD, and database management.
+| Doc | Content |
+|---|---|
+| [CLAUDE.md](CLAUDE.md) | Architecture rules, pipelines, decision tables, constraints |
+| [DEPLOYMENT.md](DEPLOYMENT.md) | Fly.io ops, secrets, CI/CD, database management |
+| [mcp/README.md](mcp/README.md) | MCP tools, transport modes, auth, security |
+| [.agents/skills/](.agents/skills/skills.md) | Reusable engineering workflows |

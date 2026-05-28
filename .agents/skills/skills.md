@@ -35,7 +35,15 @@ Each skill lives in its own folder as `SKILL.md` with YAML frontmatter.
 |---|---|
 | [add-admin-crud](add-admin-crud/SKILL.md) | Full CRUD admin dashboard page for an entity |
 | [add-portfolio-section](add-portfolio-section/SKILL.md) | New visible section on the main portfolio page |
-| [generate-cv](generate-cv/SKILL.md) | Modifying PDF CV generation (Python + API route) |
+| [generate-cv](generate-cv/SKILL.md) | Modifying CV PDF generation (Python + API route) |
+
+## AI Pipeline
+
+| Skill | When to use |
+|---|---|
+| [add-retrieval-pipeline](add-retrieval-pipeline/SKILL.md) | Adding or modifying evidence chunking, lexical retrieval, or evidence pack logic |
+| [add-rhetorical-planning](add-rhetorical-planning/SKILL.md) | Adding or modifying company alignment, narrative planning, or writing guidelines |
+| [add-pdf-verification-links](add-pdf-verification-links/SKILL.md) | Adding clickable verification/reference hyperlinks to CV PDFs |
 
 ## Infrastructure
 

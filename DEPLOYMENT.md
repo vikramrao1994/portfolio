@@ -1,10 +1,11 @@
 # Deployment — Fly.io Operations Reference
 
 ## Architecture
+
 - Platform: Fly.io, region: Frankfurt (fra)
 - App: `vikram-portfolio`
 - DB: SQLite on persistent volume at `/data/portfolio.db` (1GB)
-- Build: Multi-stage Docker (Bun + Python), Next.js standalone output
+- Build: Multi-stage Docker (Bun + Python 3), Next.js standalone output
 - CI/CD: GitHub Actions (`.github/workflows/`)
 
 ## Initial Setup
@@ -25,100 +26,100 @@ primary_region = 'fra'
   destination = '/data'
 ```
 
-## Secrets
+## Required Secrets
 
-Set runtime secrets (NOT in fly.toml):
+Set all secrets via `fly secrets set` — never in `fly.toml`.
+
+| Secret | Required | Notes |
+|---|---|---|
+| `ADMIN_PASSWORD` | yes | Admin dashboard password |
+| `JWT_SECRET` | yes | `openssl rand -base64 64` |
+| `ANTHROPIC_API_KEY` | for AI tools | Claude API key (`sk-ant-...`) |
+| `ANTHROPIC_MODEL` | no | Defaults to `claude-haiku-4-5-20251001` |
+| `MCP_AUTH_TOKEN` | for remote MCP | `openssl rand -base64 32` |
+| `ENABLE_REMOTE_MCP` | for remote MCP | Must be `"true"` to activate — absent → 404 |
+
 ```bash
 fly secrets set ADMIN_PASSWORD="your-secure-password"
 fly secrets set JWT_SECRET="$(openssl rand -base64 64)"
 fly secrets set ANTHROPIC_API_KEY="sk-ant-..."
-fly secrets set ANTHROPIC_MODEL="claude-haiku-4-5-20251001"   # optional, this is the default
-```
-
-## Remote MCP Endpoint
-
-The portfolio exposes a secure HTTP MCP endpoint at `/api/mcp` for use with Claude Desktop, Cursor, and other MCP clients over the internet.
-
-### Enable
-
-```bash
+# Remote MCP (enable only when needed):
 fly secrets set MCP_AUTH_TOKEN="$(openssl rand -base64 32)"
 fly secrets set ENABLE_REMOTE_MCP="true"
 ```
 
-The endpoint is **disabled by default** (`ENABLE_REMOTE_MCP` unset or not `"true"`) and returns 404.
+## Deployment
 
-### Disable
+```bash
+fly deploy                              # standard deploy
+fly deploy --remote-only --ha=false    # CI remote build
+```
 
+DB initialization: startup script copies DB to volume on first run; subsequent deploys preserve volume data.
+
+## Remote MCP
+
+The portfolio exposes a secure HTTP MCP endpoint at `/api/mcp`.
+
+- Disabled by default (`ENABLE_REMOTE_MCP` unset or not `"true"`) — returns 404
+- Auth: Bearer token (`MCP_AUTH_TOKEN`) checked with timing-safe comparison
+- Fallback: admin JWT cookie for browser-originated requests
+- Transport: MCP Streamable HTTP, SSE-formatted responses
+- No arbitrary SQL, filesystem traversal, or shell-string execution
+- Python invoked with `spawn` (args array, no shell interpolation)
+- PDF output restricted to `generated/cover-letters/`
+
+Disable without removing secret:
 ```bash
 fly secrets set ENABLE_REMOTE_MCP="false"
 ```
 
-### Connecting from Claude Desktop
-
+Claude Desktop remote config:
 ```json
 {
   "mcpServers": {
     "cover-letter-remote": {
       "url": "https://vikram-portfolio.fly.dev/api/mcp",
-      "headers": {
-        "Authorization": "Bearer YOUR_MCP_AUTH_TOKEN"
-      }
+      "headers": { "Authorization": "Bearer YOUR_MCP_AUTH_TOKEN" }
     }
   }
 }
 ```
 
-### Testing
+## PDF Rendering
 
-MCP Streamable HTTP requires `Accept: application/json, text/event-stream`. Responses are SSE-formatted.
+Both CV and cover-letter PDFs are generated via Python ReportLab:
 
-```bash
-# Unauthenticated → 401
-curl -s -X POST https://vikram-portfolio.fly.dev/api/mcp \
-  -H "Content-Type: application/json" \
-  -H "Accept: application/json, text/event-stream" \
-  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
+- Python 3 + ReportLab must be present in the Docker image (via `requirements.txt`)
+- CV: `POST /api/cv?lang=en|de` — accepts SiteSchema JSON body, spawns `scripts/cv/main.py`
+- Cover-letter: MCP `render_cover_letter_pdf` tool — spawns `scripts/cover-letter/main.py`
+- Both renderers write to a temp directory and clean up after returning the PDF
+- Temp JSON payloads are deleted immediately after each render
+- Rendering is deterministic — no AI-controlled layout
 
-# Authenticated → tool list
-curl -s -X POST https://vikram-portfolio.fly.dev/api/mcp \
-  -H "Authorization: Bearer YOUR_MCP_AUTH_TOKEN" \
-  -H "Content-Type: application/json" \
-  -H "Accept: application/json, text/event-stream" \
-  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
-```
-
-### Security checklist
-
-- [ ] `MCP_AUTH_TOKEN` set to a random 32+ byte value
-- [ ] `ENABLE_REMOTE_MCP=true` only when actively using remote MCP
-- [ ] No `MCP_AUTH_TOKEN` committed to git or fly.toml
-- [ ] Token rotated after any suspected exposure (`fly secrets set MCP_AUTH_TOKEN="..."`)
-- [ ] `fly logs` reviewed for unexpected `/api/mcp` hits
-- [ ] Rate limiting implemented before sharing token with untrusted parties (see `src/app/api/mcp/route.ts` TODO)
-
-## Deploy
-
-```bash
-fly deploy              # standard deploy
-fly deploy --remote-only --ha=false   # CI remote build
-```
-
-DB initialization: startup script copies DB to volume on first run; subsequent deploys preserve volume data.
-
-## CI/CD Workflows
+## CI/CD
 
 | Workflow | Trigger | Action |
 |---|---|---|
 | `pr-checks.yml` | PR open/update | Lint + build validation |
 | `deploy-production.yml` | Push to `main` | Deploy + smoke tests |
-| `pr-review-apps.yml.disabled` | (disabled) | Per-PR staging apps |
 
 **GitHub secret required:** `FLY_API_TOKEN`
 ```bash
 fly tokens create deploy --name "GitHub Actions" --app vikram-portfolio
 gh secret set FLY_API_TOKEN --body "<token>"
 ```
+
+## Security Checklist
+
+- [ ] `ADMIN_PASSWORD` is a strong unique value (not reused)
+- [ ] `JWT_SECRET` is 64+ random bytes
+- [ ] `MCP_AUTH_TOKEN` is set to a random 32+ byte value
+- [ ] `ENABLE_REMOTE_MCP=true` only when actively using remote MCP
+- [ ] No secrets committed to git or `fly.toml`
+- [ ] `MCP_AUTH_TOKEN` rotated after any suspected exposure
+- [ ] `fly logs` reviewed for unexpected `/api/mcp` hits
+- [ ] Rate limiting implemented before sharing MCP token with untrusted parties
 
 ## Monitoring
 
@@ -137,29 +138,24 @@ fly releases            # release history
 # SSH access
 fly ssh console
 
-# Inside container
-ls -lh /data/portfolio.db
+# Inside container — check DB
 bun --eval "import { Database } from 'bun:sqlite'; const db = new Database('/data/portfolio.db'); console.log(db.query('SELECT COUNT(*) FROM heading').get());"
 
 # Backup
 fly ssh sftp get /data/portfolio.db ./backup-$(date +%Y%m%d).db
 
 # Reset DB
-fly ssh console
-rm /data/portfolio.db
-exit
-fly apps restart
+fly ssh console && rm /data/portfolio.db && exit && fly apps restart
 
-# Restore from backup
-fly ssh sftp shell
-# In SFTP shell: put ./backup.db /data/portfolio.db
+# Restore from backup (in SFTP shell)
+fly ssh sftp shell    # then: put ./backup.db /data/portfolio.db
 fly apps restart
 ```
 
 ## Rollback
 
 ```bash
-fly releases            # list versions
+fly releases                    # list versions
 fly releases rollback <version>
 ```
 
@@ -179,16 +175,6 @@ fly releases rollback <version>
 
 Note: SQLite is single-region. For multi-region, use LiteFS or migrate to PostgreSQL.
 
-## Custom Domain
-
-```bash
-fly certs add yourdomain.com
-fly ips list             # get IPs for DNS records
-fly certs show yourdomain.com
-```
-
-DNS: `A @ <fly-ip>` and `AAAA @ <fly-ipv6>`
-
 ## Troubleshooting
 
 | Symptom | Check |
@@ -196,5 +182,8 @@ DNS: `A @ <fly-ip>` and `AAAA @ <fly-ipv6>`
 | DB not found | `fly ssh console; ls /data; echo $DB_PATH` |
 | Build failure | `docker build -t test .` locally; check `bun run prebuild` |
 | Health check fail | `fly ssh console; curl http://localhost:3000` |
-| OOM crash | Increase `memory_mb` in fly.toml |
+| OOM crash | Increase `memory_mb` in `fly.toml` |
 | Volume not persisting | Verify `source` in `[mounts]` matches `fly volumes list` name |
+| PDF generation fails | Verify `python3` and ReportLab in container: `fly ssh console; python3 -c "import reportlab"` |
+| MCP returns 404 | Check `ENABLE_REMOTE_MCP=true` is set via `fly secrets list` |
+| MCP returns 401 | Verify `MCP_AUTH_TOKEN` matches the Bearer token in the client config |

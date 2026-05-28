@@ -6,53 +6,73 @@ description: Use when modifying, debugging, or extending the PDF CV generation s
 # Generate CV
 
 ## How it works
-1. `GET /api/cv?lang=en|de` is called
-2. Route handler (`src/app/api/cv/route.ts`) fetches portfolio data
-3. Writes data to a temp JSON file
-4. Calls the appropriate Python script via child process
-5. Returns the PDF as a binary response
-6. Response is cached server-side for 10 minutes
+
+```
+POST /api/cv?lang=en|de  (body: SiteSchema JSON)
+→ Zod validate SiteSchema
+→ write temp JSON to OS temp dir
+→ spawn python3 scripts/cv/main.py --input <json> --lang <lang> --output <pdf>
+  └── main.py → Resume_Creator (resume_creator.py) → ReportLab PDF
+→ return PDF binary (Content-Type: application/pdf)
+→ cleanup temp files
+```
 
 ## Python scripts
-- `scripts/cv/generate_cv_en.py` — English PDF
-- `scripts/cv/generate_cv_de.py` — German PDF
-- Dependencies: `requirements.txt` (ReportLab)
+
+| File | Purpose |
+|---|---|
+| `scripts/cv/main.py` | Entry point — parses args, loads JSON, calls `Resume_Creator` |
+| `scripts/cv/resume_creator.py` | ReportLab layout engine |
+| `scripts/cv/image.py` | `HyperlinkedImage` — clickable image/logo support |
+| `scripts/cv/line_generator.py` | Custom line drawing primitives |
+| `requirements.txt` | Python dependencies (ReportLab, python-dateutil) |
+
+## Verification / Reference Hyperlinks
+
+CV PDFs support clickable verification links (e.g., certification URLs):
+
+- `resume_creator.py` checks each cert entry for a valid `url` field via `_is_valid_cert_url()`
+- Valid `http://` or `https://` URLs become clickable links in the rendered PDF via `HyperlinkedImage`
+- To add a verification link: include a `url` field in the relevant DB record and pass it through `siteContent`
+- Cover-letter PDFs must NOT include verification links
 
 ## Local testing
+
 ```bash
-# Via API
-curl "http://localhost:3000/api/cv?lang=en" --output cv_en.pdf
-curl "http://localhost:3000/api/cv?lang=de" --output cv_de.pdf
+# Via API (POST with site data)
+curl -s -X POST "http://localhost:3000/api/cv?lang=en" \
+  -H "Content-Type: application/json" \
+  -d @data/site-payload.json --output cv_en.pdf
 
 # Direct Python
-python scripts/cv/generate_cv_en.py
-python scripts/cv/generate_cv_de.py
+cd scripts/cv
+python3 main.py --input ../../data/site-payload.json --lang en --output /tmp/cv_en.pdf
+python3 main.py --input ../../data/site-payload.json --lang de --output /tmp/cv_de.pdf
 ```
 
 ## Adding content to the CV
-1. Update the Python script to include the new field
-2. Ensure the field is included in the data passed from the API route
-3. Match the JSON key names between the route handler and the Python script
+
+1. Add the field to the DB schema and siteContent aggregation
+2. Pass the field through in the API route body
+3. Read the field in `resume_creator.py` from the JSON payload
 4. Test both EN and DE variants
 
 ## Modifying layout/styling
-- CV layout is controlled entirely by ReportLab in the Python scripts
-- No CSS — use ReportLab's `Paragraph`, `Table`, `Spacer` primitives
-- Font, color, and spacing constants are defined at the top of each script
+
+- All layout is controlled by ReportLab in `resume_creator.py`
+- No CSS — use ReportLab `Paragraph`, `Table`, `Spacer` primitives
+- Font, color, and spacing constants are at the top of `resume_creator.py`
 
 ## Constraints
-- Both `generate_cv_en.py` and `generate_cv_de.py` must be kept in sync structurally
-- Python dependencies must be installed in the Docker image (via `requirements.txt`)
-- API route caches for 10min — clear cache by restarting the server for testing
-- Never hardcode personal data in the Python scripts — always read from the JSON input
 
-## Files
-- `src/app/api/cv/route.ts` — API handler + caching
-- `scripts/cv/generate_cv_en.py`
-- `scripts/cv/generate_cv_de.py`
-- `requirements.txt` — Python dependencies
+- Never hardcode personal data in Python scripts — always read from the JSON input
+- New Python dependencies must be added to `requirements.txt` (Docker image dependency)
+- API route has `dynamic = "force-dynamic"` — no server-side caching
+- No shell interpolation — Python is spawned with an args array via `spawn`
+- Both renderers (CV + cover-letter) follow the same temp-file pattern — keep in sync
 
 ## Anti-Patterns
-- Hardcoding CV content in Python scripts instead of reading from JSON
-- Modifying only one language script when making structural changes
-- Forgetting to add new Python dependencies to `requirements.txt`
+
+- Hardcoding CV content in Python instead of reading from JSON payload
+- Adding shell-interpolated strings to the `spawn` call in `route.ts`
+- Adding verification hyperlinks to cover-letter PDFs
