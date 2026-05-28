@@ -2,11 +2,25 @@ export type PhraseMap = { phrases: string[]; value: string };
 
 export const COMPANY_TRAIT_SIGNALS: PhraseMap[] = [
   {
-    phrases: ["ownership", "own your work", "take ownership", "owner mindset", "you own", "personal ownership"],
+    phrases: [
+      "ownership",
+      "own your work",
+      "take ownership",
+      "owner mindset",
+      "you own",
+      "personal ownership",
+    ],
     value: "ownership mindset",
   },
   {
-    phrases: ["autonomous", "self-directed", "independent", "autonomy", "self-starter", "self-managed"],
+    phrases: [
+      "autonomous",
+      "self-directed",
+      "independent",
+      "autonomy",
+      "self-starter",
+      "self-managed",
+    ],
     value: "autonomy",
   },
   {
@@ -75,7 +89,13 @@ export const COMPANY_TRAIT_SIGNALS: PhraseMap[] = [
     value: "product mindset",
   },
   {
-    phrases: ["core platform", "developer experience", "devex", "internal tools", "developer productivity"],
+    phrases: [
+      "core platform",
+      "developer experience",
+      "devex",
+      "internal tools",
+      "developer productivity",
+    ],
     value: "platform engineering",
   },
   {
@@ -91,11 +111,25 @@ export const COMPANY_TRAIT_SIGNALS: PhraseMap[] = [
     value: "scale-focused engineering",
   },
   {
-    phrases: ["accessibility", "a11y", "wcag", "inclusive design", "screen reader", "keyboard navigation"],
+    phrases: [
+      "accessibility",
+      "a11y",
+      "wcag",
+      "inclusive design",
+      "screen reader",
+      "keyboard navigation",
+    ],
     value: "accessibility focus",
   },
   {
-    phrases: ["performance", "optimization", "core web vitals", "lighthouse", "rendering performance", "bundle size"],
+    phrases: [
+      "performance",
+      "optimization",
+      "core web vitals",
+      "lighthouse",
+      "rendering performance",
+      "bundle size",
+    ],
     value: "performance engineering",
   },
   {
@@ -113,7 +147,14 @@ export const COMPANY_TRAIT_SIGNALS: PhraseMap[] = [
 
 export const ENGINEERING_CULTURE_SIGNALS: PhraseMap[] = [
   {
-    phrases: ["ci/cd", "continuous integration", "continuous deployment", "github actions", "jenkins", "pipelines"],
+    phrases: [
+      "ci/cd",
+      "continuous integration",
+      "continuous deployment",
+      "github actions",
+      "jenkins",
+      "pipelines",
+    ],
     value: "engineering maturity (CI/CD culture)",
   },
   {
@@ -121,7 +162,14 @@ export const ENGINEERING_CULTURE_SIGNALS: PhraseMap[] = [
     value: "collaborative code quality practices",
   },
   {
-    phrases: ["tdd", "test-driven", "testing culture", "well-tested", "test coverage", "automated testing"],
+    phrases: [
+      "tdd",
+      "test-driven",
+      "testing culture",
+      "well-tested",
+      "test coverage",
+      "automated testing",
+    ],
     value: "test-first engineering culture",
   },
   {
@@ -141,7 +189,16 @@ export const ENGINEERING_CULTURE_SIGNALS: PhraseMap[] = [
     value: "agile delivery process",
   },
   {
-    phrases: ["observability", "monitoring", "logging", "tracing", "alerting", "on-call", "sre", "site reliability"],
+    phrases: [
+      "observability",
+      "monitoring",
+      "logging",
+      "tracing",
+      "alerting",
+      "on-call",
+      "sre",
+      "site reliability",
+    ],
     value: "production excellence mindset",
   },
 ];
@@ -175,7 +232,13 @@ export const INFERRED_PRIORITY_SIGNALS: PhraseMap[] = [
     value: "backend engineering",
   },
   {
-    phrases: ["full-stack", "fullstack", "end-to-end engineering", "across the stack", "both frontend and backend"],
+    phrases: [
+      "full-stack",
+      "fullstack",
+      "end-to-end engineering",
+      "across the stack",
+      "both frontend and backend",
+    ],
     value: "full-stack delivery",
   },
   {
@@ -193,7 +256,14 @@ export const INFERRED_PRIORITY_SIGNALS: PhraseMap[] = [
     value: "AI/ML engineering",
   },
   {
-    phrases: ["mobile", "ios developer", "android developer", "react native", "flutter", "native app"],
+    phrases: [
+      "mobile",
+      "ios developer",
+      "android developer",
+      "react native",
+      "flutter",
+      "native app",
+    ],
     value: "mobile engineering",
   },
   {
@@ -222,7 +292,14 @@ export const INFERRED_PRIORITY_SIGNALS: PhraseMap[] = [
     value: "technical leadership",
   },
   {
-    phrases: ["product engineer", "growth engineering", "user acquisition", "conversion", "a/b testing", "retention"],
+    phrases: [
+      "product engineer",
+      "growth engineering",
+      "user acquisition",
+      "conversion",
+      "a/b testing",
+      "retention",
+    ],
     value: "product-focused delivery",
   },
 ];

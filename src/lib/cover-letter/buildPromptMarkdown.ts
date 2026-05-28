@@ -244,9 +244,7 @@ export function buildPromptMarkdown(
         )
       : section("Ranked Candidate Evidence", buildEvidenceSection(evidence)),
 
-    rhetoricalPlan
-      ? section("Rhetorical Plan", buildRhetoricalPlanSection(rhetoricalPlan))
-      : "",
+    rhetoricalPlan ? section("Rhetorical Plan", buildRhetoricalPlanSection(rhetoricalPlan)) : "",
 
     section("Candidate Profile", buildCandidateProfile(site, includeFullCandidateData, evidence)),
 

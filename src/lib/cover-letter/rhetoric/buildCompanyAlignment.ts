@@ -1,5 +1,9 @@
 import type { ExtractedKeywords } from "../types";
-import { COMPANY_TRAIT_SIGNALS, ENGINEERING_CULTURE_SIGNALS, INFERRED_PRIORITY_SIGNALS } from "./constants";
+import {
+  COMPANY_TRAIT_SIGNALS,
+  ENGINEERING_CULTURE_SIGNALS,
+  INFERRED_PRIORITY_SIGNALS,
+} from "./constants";
 import type { CompanyAlignment } from "./types";
 
 function matchesAny(text: string, phrases: string[]): boolean {

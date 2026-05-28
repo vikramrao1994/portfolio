@@ -5,6 +5,7 @@ import {
   getExecutiveSummary,
   getExperience,
   getHeading,
+  getPersonalProjects,
   getSkills,
 } from "@/server/queries/site";
 
@@ -17,6 +18,7 @@ export const getSiteContent = async (language: Language) => {
   const executiveSummary = getExecutiveSummary(language);
   const experience = getExperience(language);
   const skills = getSkills(language);
+  const personalProjects = getPersonalProjects(language);
   const undefIfNull = <T>(v: T | null | undefined) => (v === null ? undefined : v);
 
   const SITE = {
@@ -81,6 +83,13 @@ export const getSiteContent = async (language: Language) => {
       key: { [language]: g.key },
       most_used_skills: g.mostUsed,
       skills: g.other,
+    })),
+
+    personal_projects: personalProjects.map((p) => ({
+      logo: p.logo,
+      link: p.link,
+      project: { [language]: p.project },
+      summary: p.summary.map((s) => ({ [language]: s })),
     })),
   };
 

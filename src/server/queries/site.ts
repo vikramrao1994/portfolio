@@ -166,6 +166,35 @@ export const getExperience = (lang: Lang) => {
   });
 };
 
+export const getPersonalProjects = (lang: Lang) => {
+  const db = getDb();
+
+  const projects = db
+    .query(
+      `SELECT id, sort_order, link, logo, project_en, project_de
+       FROM personal_project
+       ORDER BY sort_order ASC`,
+    )
+    .all() as any[];
+
+  const summaryStmt = db.query(
+    `SELECT sort_order, en, de
+     FROM personal_project_summary
+     WHERE project_id = ?
+     ORDER BY sort_order ASC`,
+  );
+
+  return projects.map((p) => {
+    const summaryRows = summaryStmt.all(p.id) as any[];
+    return {
+      logo: p.logo,
+      link: p.link,
+      project: pick(lang, p.project_en, p.project_de),
+      summary: summaryRows.map((s) => pick(lang, s.en, s.de)),
+    };
+  });
+};
+
 export const getSkills = (lang: Lang) => {
   const db = getDb();
 

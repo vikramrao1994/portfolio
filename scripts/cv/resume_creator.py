@@ -396,11 +396,14 @@ class Resume_Creator:
         self.data.append(Spacer(1, SPACER_VALUE))
 
     def add_projects(self):
+        projects = self.input.get("personal_projects") or []
+        if not projects:
+            return
         self.generate_heading("<b>%s</b>" % self.section_title("projects"),"project.webp")
         word_style = self.get_body_style("Normal", {
         "fontSize":GENERAL_FONT_SIZE,
         })
-        for project in self.input["personal_projects"]:
+        for project in projects:
             logo = [
                 [
                 HyperlinkedImage("public/images/" + project["logo"],project["link"], 20, 20)

@@ -6,12 +6,16 @@ function deriveRoleLabel(topEvidence: EvidencePackItem[]): string {
   if (!exp) return "software engineer";
 
   const t = exp.title.toLowerCase();
-  if (t.includes("frontend") || t.includes("front-end") || t.includes("ui engineer")) return "frontend engineer";
-  if (t.includes("backend") || t.includes("back-end") || t.includes("server-side")) return "backend engineer";
+  if (t.includes("frontend") || t.includes("front-end") || t.includes("ui engineer"))
+    return "frontend engineer";
+  if (t.includes("backend") || t.includes("back-end") || t.includes("server-side"))
+    return "backend engineer";
   if (t.includes("full-stack") || t.includes("fullstack")) return "full-stack engineer";
   if (t.includes("mobile")) return "mobile engineer";
-  if (t.includes("devops") || t.includes("infrastructure") || t.includes("platform")) return "infrastructure engineer";
-  if (t.includes("lead") || t.includes("principal") || t.includes("staff")) return "senior engineer";
+  if (t.includes("devops") || t.includes("infrastructure") || t.includes("platform"))
+    return "infrastructure engineer";
+  if (t.includes("lead") || t.includes("principal") || t.includes("staff"))
+    return "senior engineer";
   return "software engineer";
 }
 
@@ -29,7 +33,10 @@ function deriveLeadingAdjective(alignment: CompanyAlignment): string {
   return "delivery-focused";
 }
 
-function deriveExperienceQualifier(topEvidence: EvidencePackItem[], alignment: CompanyAlignment): string {
+function deriveExperienceQualifier(
+  topEvidence: EvidencePackItem[],
+  alignment: CompanyAlignment,
+): string {
   const expKws = topEvidence
     .filter((e) => e.type === "experience")
     .flatMap((e) => e.matchedKeywords)
@@ -71,8 +78,10 @@ function deriveStrength(item: EvidencePackItem): string {
 
 function buildAlignmentSummary(alignment: CompanyAlignment): string {
   const parts: string[] = [];
-  if (alignment.companyTraits.length > 0) parts.push(alignment.companyTraits.slice(0, 2).join(" and "));
-  if (alignment.inferredPriorities.length > 0) parts.push(`focused on ${alignment.inferredPriorities[0]}`);
+  if (alignment.companyTraits.length > 0)
+    parts.push(alignment.companyTraits.slice(0, 2).join(" and "));
+  if (alignment.inferredPriorities.length > 0)
+    parts.push(`focused on ${alignment.inferredPriorities[0]}`);
   return parts.length > 0 ? parts.join(", ") : "engineering quality and delivery";
 }
 
@@ -116,7 +125,10 @@ function buildParagraphGoals(
     {
       paragraph: 2,
       goal: "Demonstrate technical depth and specific skills alignment",
-      emphasis: depthItems.length > 0 ? "technical capabilities and architecture" : "engineering principles",
+      emphasis:
+        depthItems.length > 0
+          ? "technical capabilities and architecture"
+          : "engineering principles",
       evidenceIds: depthItems.map((e) => e.title),
     },
     {
@@ -148,31 +160,47 @@ function buildWritingGuidelines(
   ];
 
   if (toneProfile.sentenceStyle === "concise") {
-    guidelines.push("Lead every paragraph with the strongest point — short, declarative sentences.");
+    guidelines.push(
+      "Lead every paragraph with the strongest point — short, declarative sentences.",
+    );
   } else if (toneProfile.sentenceStyle === "detailed") {
-    guidelines.push("Provide brief specifics for each claim — concrete detail beats vague generality.");
+    guidelines.push(
+      "Provide brief specifics for each claim — concrete detail beats vague generality.",
+    );
   }
 
   if (toneProfile.evidenceDensity === "medium") {
-    guidelines.push("Use at most 2 primary evidence examples per paragraph — prioritize the strongest.");
+    guidelines.push(
+      "Use at most 2 primary evidence examples per paragraph — prioritize the strongest.",
+    );
   } else if (toneProfile.evidenceDensity === "low") {
-    guidelines.push("Use at most 1 evidence example per paragraph — narrative clarity over coverage.");
+    guidelines.push(
+      "Use at most 1 evidence example per paragraph — narrative clarity over coverage.",
+    );
   }
 
   if (alignment.companyTraits.some((t) => t.includes("ownership"))) {
-    guidelines.push("Emphasize autonomous decision-making and end-to-end ownership in the narrative.");
+    guidelines.push(
+      "Emphasize autonomous decision-making and end-to-end ownership in the narrative.",
+    );
   }
   if (alignment.companyTraits.some((t) => t.includes("startup"))) {
-    guidelines.push("Highlight adaptability and breadth — the ability to contribute across domains.");
+    guidelines.push(
+      "Highlight adaptability and breadth — the ability to contribute across domains.",
+    );
   }
   if (alignment.companyTraits.some((t) => t.includes("accessibility"))) {
     guidelines.push("Treat accessibility as a quality criterion, not a compliance checkbox.");
   }
   if (alignment.engineeringCultureSignals.some((s) => s.includes("CI/CD"))) {
-    guidelines.push("Reference engineering practices (testing, deployment, code quality) where natural.");
+    guidelines.push(
+      "Reference engineering practices (testing, deployment, code quality) where natural.",
+    );
   }
   if (alignment.companyTraits.some((t) => t.includes("long-term"))) {
-    guidelines.push("Frame contributions in terms of lasting architectural decisions, not one-off fixes.");
+    guidelines.push(
+      "Frame contributions in terms of lasting architectural decisions, not one-off fixes.",
+    );
   }
 
   return guidelines;

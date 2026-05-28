@@ -88,6 +88,13 @@ export const SkillsGroupSchema = z.object({
   skills: z.array(z.string()),
 });
 
+export const PersonalProjectSchema = z.object({
+  logo: z.string().nullable().optional(),
+  link: z.string().nullable().optional(),
+  project: LocalizedStringSchema,
+  summary: z.array(LocalizedStringSchema),
+});
+
 export const SiteSchema = z.object({
   heading: HeadingSchema,
   about_me: z.array(AboutMeItemSchema),
@@ -95,6 +102,7 @@ export const SiteSchema = z.object({
   education: z.array(EducationItemSchema),
   experience: z.array(ExperienceItemSchema),
   skills: z.array(SkillsGroupSchema),
+  personal_projects: z.array(PersonalProjectSchema),
 });
 
 export type Site = z.infer<typeof SiteSchema>;
