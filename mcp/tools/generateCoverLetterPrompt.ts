@@ -1,5 +1,7 @@
 import { buildPromptMarkdown } from "@/lib/cover-letter/buildPromptMarkdown";
 import { buildCoverLetterContext } from "@/lib/cover-letter/context/buildCoverLetterContext";
+import { buildCompanyAlignment } from "@/lib/cover-letter/rhetoric/buildCompanyAlignment";
+import { buildRhetoricalPlan } from "@/lib/cover-letter/rhetoric/buildRhetoricalPlan";
 import type { CoverLetterPromptRequest } from "@/lib/cover-letter/types";
 import { GenerateCoverLetterPromptInputSchema } from "../schemas/toolSchemas";
 import { errorResponse, successResponse } from "../utils/responses";
@@ -17,6 +19,14 @@ export async function generateCoverLetterPrompt(args: unknown) {
     const context = await buildCoverLetterContext(jobDescription, language);
     const { siteContent, extractedKeywords, deterministicEvidence, evidencePack } = context;
 
+    const companyAlignment = buildCompanyAlignment({ jobDescription, extractedKeywords });
+    const rhetoricalPlan = buildRhetoricalPlan({
+      evidencePack,
+      companyAlignment,
+      jobDescription,
+      tone: "professional",
+    });
+
     const req: CoverLetterPromptRequest = {
       jobDescription,
       language,
@@ -26,7 +36,14 @@ export async function generateCoverLetterPrompt(args: unknown) {
       includeFullCandidateData: true,
     };
 
-    const markdown = buildPromptMarkdown(req, siteContent, extractedKeywords, deterministicEvidence, evidencePack);
+    const markdown = buildPromptMarkdown(
+      req,
+      siteContent,
+      extractedKeywords,
+      deterministicEvidence,
+      evidencePack,
+      rhetoricalPlan,
+    );
     console.error(`[generate_cover_letter_prompt] completed in ${Date.now() - start}ms`);
     return successResponse({ markdown });
   } catch (err) {

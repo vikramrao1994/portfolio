@@ -4,6 +4,9 @@ import { buildCoverLetterContext } from "./context/buildCoverLetterContext";
 import type { CoverLetterContent } from "./coverLetterContentSchema";
 import { generateCoverLetterWithClaude } from "./generateCoverLetterWithClaude";
 import type { EvidencePackItem } from "./rag/types";
+import { buildCompanyAlignment } from "./rhetoric/buildCompanyAlignment";
+import { buildRhetoricalPlan } from "./rhetoric/buildRhetoricalPlan";
+import type { RhetoricalPlan } from "./rhetoric/types";
 import type { EvidenceItem, ExtractedKeywords } from "./types";
 
 export interface OrchestrateCoverLetterInput {
@@ -22,6 +25,7 @@ export interface OrchestrateCoverLetterResult {
   extractedKeywords: ExtractedKeywords;
   evidence: EvidenceItem[];
   evidencePack: EvidencePackItem[];
+  rhetoricalPlan: RhetoricalPlan;
   prompt: string;
   model: string;
   usage: {
@@ -46,6 +50,18 @@ export async function orchestrateCoverLetterGeneration(
   const context = await buildCoverLetterContext(jobDescription, language);
   const { siteContent, extractedKeywords, deterministicEvidence: evidence, evidencePack } = context;
 
+  const companyAlignment = buildCompanyAlignment({
+    jobDescription,
+    extractedKeywords,
+  });
+
+  const rhetoricalPlan = buildRhetoricalPlan({
+    evidencePack,
+    companyAlignment,
+    jobDescription,
+    tone: tone ?? "professional",
+  });
+
   const prompt = buildClaudeJsonPrompt(
     {
       jobDescription,
@@ -60,6 +76,7 @@ export async function orchestrateCoverLetterGeneration(
     extractedKeywords,
     evidence,
     evidencePack,
+    rhetoricalPlan,
   );
 
   const { coverLetter, model, usage } = await generateCoverLetterWithClaude(prompt);
@@ -70,6 +87,7 @@ export async function orchestrateCoverLetterGeneration(
     extractedKeywords,
     evidence,
     evidencePack,
+    rhetoricalPlan,
     prompt,
     model,
     usage,

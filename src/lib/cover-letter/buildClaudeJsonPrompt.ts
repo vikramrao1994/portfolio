@@ -1,6 +1,8 @@
 import type { Site } from "@/lib/siteSchema";
 import { COVER_LETTER_CONTENT_SCHEMA_DESCRIPTION } from "./coverLetterContentSchema";
 import type { EvidencePackItem } from "./rag/types";
+import { buildNarrativeGuidelines } from "./rhetoric/buildNarrativeGuidelines";
+import type { RhetoricalPlan } from "./rhetoric/types";
 import type { CoverLetterPromptRequest, EvidenceItem, ExtractedKeywords } from "./types";
 import { getLang } from "./utils";
 
@@ -20,7 +22,6 @@ function trimJobDescription(jd: string, maxLength = 1800): string {
 function buildEvidenceBlock(evidence: EvidenceItem[]): string {
   if (evidence.length === 0) return "No strong evidence matches available.";
 
-  // Experience items carry narrative weight — sort them first within the scored order
   const sorted = [...evidence].sort((a, b) => {
     if (a.type === "experience" && b.type !== "experience") return -1;
     if (b.type === "experience" && a.type !== "experience") return 1;
@@ -43,7 +44,6 @@ function buildEvidenceBlock(evidence: EvidenceItem[]): string {
 function buildEvidencePackBlock(pack: EvidencePackItem[]): string {
   if (pack.length === 0) return "No evidence available.";
 
-  // Experience items first, then by score
   const sorted = [...pack].sort((a, b) => {
     if (a.type === "experience" && b.type !== "experience") return -1;
     if (b.type === "experience" && a.type !== "experience") return 1;
@@ -93,12 +93,34 @@ function buildCandidateSnapshot(site: Site): string {
     .join("\n");
 }
 
+function buildRhetoricalPlanBlock(plan: RhetoricalPlan): string {
+  const goalLines = plan.paragraphGoals
+    .map((pg) => {
+      const refs = pg.evidenceIds.length > 0 ? `; draw from: ${pg.evidenceIds.join(", ")}` : "";
+      return `  Para ${pg.paragraph}: ${pg.goal} (emphasis: ${pg.emphasis}${refs})`;
+    })
+    .join("\n");
+
+  const lines = [
+    `Core narrative: ${plan.coreNarrative}`,
+    `Primary strength: ${plan.primaryStrength}`,
+    plan.secondaryStrength ? `Secondary strength: ${plan.secondaryStrength}` : null,
+    `Company alignment: ${plan.companyAlignment}`,
+    "",
+    "Paragraph guidance:",
+    goalLines,
+  ];
+
+  return lines.filter((l) => l !== null).join("\n");
+}
+
 export function buildClaudeJsonPrompt(
   req: CoverLetterPromptRequest,
   site: Site,
   keywords: ExtractedKeywords,
   evidence: EvidenceItem[],
   evidencePack?: EvidencePackItem[],
+  rhetoricalPlan?: RhetoricalPlan,
 ): string {
   const { jobDescription, language, companyName, jobTitle, recruiterName, tone } = req;
   const outputLanguage = language === "de" ? "German (Deutsch)" : "English";
@@ -110,12 +132,16 @@ export function buildClaudeJsonPrompt(
     : new Set(evidence.flatMap((e) => e.matchedKeywords));
   const unmatchedSkills = keywords.hardSkills.filter((kw) => !allMatchedKeywords.has(kw));
 
+  const narrativeGuidelines = rhetoricalPlan ? buildNarrativeGuidelines(rhetoricalPlan) : null;
+
   const sections: string[] = [
     `=== TASK ===
 Write a cover letter. Output language: ${outputLanguage}
 Tone guidance: ${toneNote}
 Use retrieved candidate evidence as the primary factual basis for the cover letter.
-Do not invent unsupported technologies, employers, responsibilities, or achievements.`,
+Do not invent unsupported technologies, employers, responsibilities, or achievements.
+Prioritize narrative clarity over exhaustive technical detail. Use only the strongest supporting evidence.
+Avoid sounding keyword-optimized or AI-generated. Do not stack technologies unnaturally.`,
 
     `=== ROLE ===
 Company: ${companyName || "(not specified)"}
@@ -134,6 +160,16 @@ ${buildCandidateSnapshot(site)}`,
 Base the letter on these experiences. Do not reference experience not listed here.
 
 ${activeEvidence ? buildEvidencePackBlock(activeEvidence) : buildEvidenceBlock(evidence)}`,
+
+    rhetoricalPlan
+      ? `=== RHETORICAL PLAN ===
+${buildRhetoricalPlanBlock(rhetoricalPlan)}`
+      : "",
+
+    narrativeGuidelines
+      ? `=== WRITING GUIDELINES ===
+${narrativeGuidelines.map((g) => `- ${g}`).join("\n")}`
+      : "",
 
     unmatchedSkills.length > 0
       ? `=== SKILLS NOTE ===
@@ -156,6 +192,8 @@ Rules:
 - Language: ${outputLanguage}
 - Write 3 paragraphs. Use a 4th only if a genuine additional point adds real value. Never 5.
 - Each paragraph: 40–900 characters
+- Evidence density: do not reference more than 2 evidence examples per paragraph
+- Do not stack more than 3 technologies in a single sentence
 - Narrative arc:
     1. Show you understand what this role needs — a concrete observation, not a self-introduction
     2. Your strongest relevant outcome from the Strongest Fits section — lead with what changed, not what you did

@@ -1,5 +1,7 @@
 import type { Site } from "@/lib/siteSchema";
 import type { EvidencePackItem } from "./rag/types";
+import { buildNarrativeGuidelines } from "./rhetoric/buildNarrativeGuidelines";
+import type { RhetoricalPlan } from "./rhetoric/types";
 import type { CoverLetterPromptRequest, EvidenceItem, ExtractedKeywords } from "./types";
 import { getLang } from "./utils";
 
@@ -93,7 +95,6 @@ function buildCandidateProfile(
   const h = site.heading;
   const blocks: string[] = [];
 
-  // Always include heading
   blocks.push(
     [
       `**Name:** ${h.name}`,
@@ -114,13 +115,11 @@ function buildCandidateProfile(
     return blocks.join("\n\n");
   }
 
-  // Executive summary
   const execSummary = site.executive_summary.map((b) => getLang(b)).filter(Boolean);
   if (execSummary.length) {
     blocks.push(`### Executive Summary\n\n${execSummary.map((l) => `- ${l}`).join("\n")}`);
   }
 
-  // Experience
   if (site.experience.length) {
     const expLines = site.experience.map((exp) => {
       const title = getLang(exp.title);
@@ -140,7 +139,6 @@ function buildCandidateProfile(
     blocks.push(`### Experience\n\n${expLines.join("\n\n")}`);
   }
 
-  // Skills
   if (site.skills.length) {
     const skillLines = site.skills.map((g) => {
       const key = getLang(g.key);
@@ -150,7 +148,6 @@ function buildCandidateProfile(
     blocks.push(`### Skills\n\n${skillLines.join("\n")}`);
   }
 
-  // Education
   if (site.education.length) {
     const eduLines = site.education.map((e) => {
       const course = getLang(e.course);
@@ -163,12 +160,42 @@ function buildCandidateProfile(
   return blocks.join("\n\n");
 }
 
+function buildRhetoricalPlanSection(plan: RhetoricalPlan): string {
+  const guidelines = buildNarrativeGuidelines(plan);
+
+  const goalLines = plan.paragraphGoals
+    .map((pg) => {
+      const refs = pg.evidenceIds.length > 0 ? ` _(draws from: ${pg.evidenceIds.join(", ")})_` : "";
+      return `**Para ${pg.paragraph}:** ${pg.goal}\n  - Emphasis: ${pg.emphasis}${refs}`;
+    })
+    .join("\n\n");
+
+  return [
+    `**Core Narrative:** ${plan.coreNarrative}`,
+    `**Primary Strength:** ${plan.primaryStrength}`,
+    plan.secondaryStrength ? `**Secondary Strength:** ${plan.secondaryStrength}` : null,
+    `**Company Alignment:** ${plan.companyAlignment}`,
+    `**Tone Profile:** ${plan.toneProfile.style} | evidence density: ${plan.toneProfile.evidenceDensity} | sentence style: ${plan.toneProfile.sentenceStyle}`,
+    "",
+    "### Paragraph Goals",
+    "",
+    goalLines,
+    "",
+    "### Writing Guidelines",
+    "",
+    guidelines.map((g) => `- ${g}`).join("\n"),
+  ]
+    .filter((l) => l !== null)
+    .join("\n");
+}
+
 export function buildPromptMarkdown(
   req: CoverLetterPromptRequest,
   site: Site,
   keywords: ExtractedKeywords,
   evidence: EvidenceItem[],
   evidencePack?: EvidencePackItem[],
+  rhetoricalPlan?: RhetoricalPlan,
 ): string {
   const {
     jobDescription,
@@ -217,6 +244,10 @@ export function buildPromptMarkdown(
         )
       : section("Ranked Candidate Evidence", buildEvidenceSection(evidence)),
 
+    rhetoricalPlan
+      ? section("Rhetorical Plan", buildRhetoricalPlanSection(rhetoricalPlan))
+      : "",
+
     section("Candidate Profile", buildCandidateProfile(site, includeFullCandidateData, evidence)),
 
     section("Full Job Description", jobDescription),
@@ -233,6 +264,7 @@ export function buildPromptMarkdown(
         "- Keep the letter under one page (approximately 300–400 words).",
         "- Avoid generic AI phrasing (e.g. 'I am excited to apply', 'I am a passionate...').",
         "- Structure: opening hook → strongest evidence → why this company/role → closing call to action.",
+        "- Evidence density: maximum 2 examples per paragraph; do not stack more than 3 technologies per sentence.",
         "- Return **only** the final cover letter text — no preamble, no explanation.",
         ...(unmatchedSkills.length > 0
           ? [
@@ -257,5 +289,5 @@ export function buildPromptMarkdown(
     ),
   ];
 
-  return parts.join("\n");
+  return parts.filter(Boolean).join("\n");
 }
