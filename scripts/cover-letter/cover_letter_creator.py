@@ -251,8 +251,10 @@ class CoverLetterCreator:
                 buf, orig_w, orig_h = result
                 target_w = SIGNATURE_TARGET_WIDTH
                 target_h = target_w * orig_h / orig_w
+                sig_image = Image(buf, width=target_w, height=target_h)
+                sig_image.hAlign = "LEFT"
                 self.data.append(Spacer(1, SPACER_VALUE))
-                self.data.append(Image(buf, width=target_w, height=target_h))
+                self.data.append(sig_image)
                 self.data.append(Spacer(1, SPACER_VALUE))
             else:
                 # Fetch failed — leave blank space where signature would appear
