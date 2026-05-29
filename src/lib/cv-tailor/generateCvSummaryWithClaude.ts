@@ -4,6 +4,7 @@ import type { Language } from "@/lib/cover-letter/schemas";
 import type { Site } from "@/lib/siteSchema";
 import { buildCvSummaryPrompt } from "./buildCvSummaryPrompt";
 import { CV_EXECUTIVE_SUMMARY_MAX_LENGTH, type CvSummarySuggestion, CvSummarySuggestionSchema } from "./schema";
+import { truncateSummaryPreservingNarrative } from "./selectBestSummaryEnding";
 
 export interface GenerateCvSummaryInput {
   jobDescription: string;
@@ -38,33 +39,6 @@ Before returning JSON, silently verify:
 - Summary is grounded entirely in the provided evidence
 - No invented facts were introduced
 - Output language matches the requested language`;
-
-function truncateAtWordBoundary(text: string, max: number): string {
-  if (text.length <= max) return text;
-  const cut = text.slice(0, max);
-  const lastSpace = cut.lastIndexOf(" ");
-  return lastSpace > 0 ? cut.slice(0, lastSpace) : cut;
-}
-
-function truncateAtSentenceBoundary(text: string, maxLength: number): string {
-  const normalized = text.trim();
-  if (normalized.length <= maxLength) return normalized;
-
-  const truncated = normalized.slice(0, maxLength);
-  const lastSentenceEnd = Math.max(
-    truncated.lastIndexOf("."),
-    truncated.lastIndexOf("!"),
-    truncated.lastIndexOf("?"),
-  );
-
-  if (lastSentenceEnd >= Math.floor(maxLength * 0.6)) {
-    const result = truncated.slice(0, lastSentenceEnd + 1).trim();
-    if (result.length > maxLength) return truncateAtWordBoundary(result, maxLength);
-    return result;
-  }
-
-  return truncateAtWordBoundary(normalized, maxLength);
-}
 
 function stripCodeFences(text: string): string {
   const trimmed = text.trim();
@@ -133,7 +107,7 @@ export async function generateCvSummaryWithClaude(
   if (parsed !== null && typeof parsed === "object") {
     const p = parsed as Record<string, unknown>;
     if (typeof p.executiveSummary === "string") {
-      p.executiveSummary = truncateAtSentenceBoundary(p.executiveSummary, CV_EXECUTIVE_SUMMARY_MAX_LENGTH);
+      p.executiveSummary = truncateSummaryPreservingNarrative(p.executiveSummary, positioningPlan, CV_EXECUTIVE_SUMMARY_MAX_LENGTH);
     }
   }
 
