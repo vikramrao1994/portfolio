@@ -69,6 +69,9 @@ export default function CoverLetterPromptPage() {
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
   const [pdfError, setPdfError] = useState<string | null>(null);
 
+  const [isTailoredCvGenerating, setIsTailoredCvGenerating] = useState(false);
+  const [tailoredCvError, setTailoredCvError] = useState<string | null>(null);
+
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
     setGenerateError(null);
@@ -189,6 +192,58 @@ export default function CoverLetterPromptPage() {
     await navigator.clipboard.writeText(text);
     setCopied("text");
     setTimeout(() => setCopied(null), 2000);
+  }
+
+  async function handleGenerateTailoredCv() {
+    if (form.jobDescription.trim().length < 100) {
+      setTailoredCvError("Job description must be at least 100 characters.");
+      return;
+    }
+
+    setIsTailoredCvGenerating(true);
+    setTailoredCvError(null);
+
+    try {
+      const res = await fetch("/api/admin/application-documents/tailored-cv", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jobDescription: form.jobDescription,
+          language: form.language,
+          companyName: form.companyName || undefined,
+          jobTitle: form.jobTitle || undefined,
+        }),
+      });
+
+      if (res.status === 401) {
+        setTailoredCvError("Not authenticated. Please log in again.");
+        return;
+      }
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        const detail = data.detail ? ` — ${data.detail}` : "";
+        setTailoredCvError((data.error ?? "Tailored CV generation failed") + detail);
+        return;
+      }
+
+      const blob = await res.blob();
+      const disposition = res.headers.get("Content-Disposition") ?? "";
+      const filenameMatch = disposition.match(/filename="([^"]+)"/);
+      const filename = filenameMatch?.[1] ?? "tailored-cv.pdf";
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch {
+      setTailoredCvError("Network error. Please try again.");
+    } finally {
+      setIsTailoredCvGenerating(false);
+    }
   }
 
   const jobDescriptionValid = form.jobDescription.trim().length >= 100;
@@ -313,6 +368,43 @@ export default function CoverLetterPromptPage() {
         </Grid.Column>
       </Grid.Row>
 
+      {/* ── Tailored CV ── */}
+      <Grid.Row>
+        <Grid.Column>
+          <AdminCard id="tailored-cv" title="Tailored CV" ariaLabel="Tailored CV">
+            <Body style={{ color: "#666", marginBottom: spacing(2) }}>
+              Generates a CV PDF with a tailored headline and executive summary based on the job
+              description above. Work experience, education, skills, and all other data remain
+              unchanged. The canonical CV in the database is not modified.
+            </Body>
+
+            <div
+              style={{
+                display: "flex",
+                gap: spacing(2),
+                justifyContent: "flex-end",
+                marginBottom: spacing(2),
+                flexWrap: "wrap",
+              }}
+            >
+              <Button
+                type="button"
+                variant="primary"
+                text={isTailoredCvGenerating ? "Generating CV..." : "Generate Tailored CV"}
+                disabled={isTailoredCvGenerating || !jobDescriptionValid}
+                onClick={handleGenerateTailoredCv}
+              />
+            </div>
+
+            {tailoredCvError && (
+              <Body style={{ color: "red", marginTop: spacing(1) }}>
+                Tailored CV error: {tailoredCvError}
+              </Body>
+            )}
+          </AdminCard>
+        </Grid.Column>
+      </Grid.Row>
+
       {/* ── Generated Letter JSON Preview ── */}
       {generatedData && (
         <Grid.Row>
@@ -387,31 +479,6 @@ export default function CoverLetterPromptPage() {
                 />
                 <Body>{generatedData.coverLetter.signatureName}</Body>
               </div>
-
-              {/* Raw JSON */}
-              <div style={{ marginBottom: spacing(3) }}>
-                <Heading
-                  type="small"
-                  headerElement="h3"
-                  title="Raw JSON"
-                  style={{ marginBottom: spacing(1) }}
-                />
-                <pre
-                  style={{
-                    background: "#f4f4f4",
-                    border: "1px solid #ddd",
-                    borderRadius: 4,
-                    padding: spacing(2),
-                    fontSize: "0.8em",
-                    overflowX: "auto",
-                    whiteSpace: "pre-wrap",
-                    wordBreak: "break-word",
-                  }}
-                >
-                  {JSON.stringify(generatedData.coverLetter, null, 2)}
-                </pre>
-              </div>
-
               {/* Actions */}
               <div
                 style={{
