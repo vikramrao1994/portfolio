@@ -4,7 +4,7 @@ import { GenerateCoverLetterPdfInputSchema } from "@mcp/schemas/toolSchemas";
 import { spawnPdfRenderer } from "@mcp/utils/pdf";
 import { errorResponse, successResponse } from "@mcp/utils/responses";
 
-export async function generateCoverLetterPdf(args: unknown, outputMode: OutputMode) {
+export async function generateCoverLetterPdf(args: unknown, outputMode: OutputMode, appBaseUrl?: string) {
   const start = Date.now();
   const parsed = GenerateCoverLetterPdfInputSchema.safeParse(args);
   if (!parsed.success) {
@@ -28,7 +28,7 @@ export async function generateCoverLetterPdf(args: unknown, outputMode: OutputMo
       `[generate_cover_letter_pdf] Claude done (${model}, ${usage.input_tokens}in/${usage.output_tokens}out)`,
     );
 
-    const pdfResult = await spawnPdfRenderer(coverLetter, siteContent, outputMode);
+    const pdfResult = await spawnPdfRenderer(coverLetter, siteContent, outputMode, appBaseUrl);
 
     console.error(
       `[generate_cover_letter_pdf] PDF ready (${pdfResult.mode}, ${Date.now() - start}ms total)`,

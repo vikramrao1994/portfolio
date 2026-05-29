@@ -1,4 +1,4 @@
-export type OutputMode = "local-file" | "remote-base64";
+export type OutputMode = "local-file" | "remote-download";
 
 export type ApplicationDocumentMcpResponse =
   | {
@@ -10,5 +10,6 @@ export type ApplicationDocumentMcpResponse =
       mode: "remote";
       type: "application/pdf";
       filename: string;
-      content: string;
+      downloadUrl: string;
+      expiresAt: string;
     };

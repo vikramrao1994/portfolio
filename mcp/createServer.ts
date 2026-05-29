@@ -53,7 +53,7 @@ const TOOL_DEFINITIONS = [
   {
     name: "generate_cover_letter_pdf",
     description:
-      "One-shot: generate a complete cover letter PDF from a job description. Runs the full pipeline — keyword extraction, candidate evidence scoring, Claude generation, and ReportLab PDF rendering — in a single call. Requires ANTHROPIC_API_KEY. Local stdio: returns pdfPath (file saved to ~/Downloads). Remote HTTP: returns base64-encoded PDF content (no file written to disk).",
+      "One-shot: generate a complete cover letter PDF from a job description. Runs the full pipeline — keyword extraction, candidate evidence scoring, Claude generation, and ReportLab PDF rendering — in a single call. Requires ANTHROPIC_API_KEY. Local stdio: returns pdfPath (file saved to ~/Downloads). Remote HTTP: returns a short-lived downloadUrl (expires in 10 minutes, single-use).",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -74,7 +74,7 @@ const TOOL_DEFINITIONS = [
   {
     name: "generate_tailored_cv_pdf",
     description:
-      "Generate a tailored CV PDF from a job description by customizing only the CV headline and executive summary, using existing validated CV-tailor services and the ReportLab CV renderer. Work experience, education, skills, dates, job titles, and employer names are not modified. Canonical CV data in the database is not overwritten. Requires ANTHROPIC_API_KEY. Local stdio: returns pdfPath (file saved to ~/Downloads). Remote HTTP: returns base64-encoded PDF content (no file written to disk).",
+      "Generate a tailored CV PDF from a job description by customizing only the CV headline and executive summary, using existing validated CV-tailor services and the ReportLab CV renderer. Work experience, education, skills, dates, job titles, and employer names are not modified. Canonical CV data in the database is not overwritten. Requires ANTHROPIC_API_KEY. Local stdio: returns pdfPath (file saved to ~/Downloads). Remote HTTP: returns a short-lived downloadUrl (expires in 10 minutes, single-use).",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -94,7 +94,7 @@ const TOOL_DEFINITIONS = [
   {
     name: "render_cover_letter_pdf",
     description:
-      "Render a validated cover letter JSON to a PDF using the ReportLab renderer. Local stdio: returns pdfPath (file saved to ~/Downloads). Remote HTTP: returns base64-encoded PDF content (no file written to disk).",
+      "Render a validated cover letter JSON to a PDF using the ReportLab renderer. Local stdio: returns pdfPath (file saved to ~/Downloads). Remote HTTP: returns a short-lived downloadUrl (expires in 10 minutes, single-use).",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -140,7 +140,7 @@ const TOOL_DEFINITIONS = [
  *   "local-file"    → PDFs saved to ~/Downloads; response includes pdfPath
  *   "remote-base64" → PDFs returned as base64 content; no file written to disk
  */
-export function createMcpServer(outputMode: OutputMode): Server {
+export function createMcpServer(outputMode: OutputMode, appBaseUrl?: string): Server {
   const server = new Server(
     { name: "cover-letter", version: "1.0.0" },
     { capabilities: { tools: {} } },
@@ -160,11 +160,11 @@ export function createMcpServer(outputMode: OutputMode): Server {
       case "generate_cover_letter_prompt":
         return generateCoverLetterPrompt(args);
       case "generate_cover_letter_pdf":
-        return generateCoverLetterPdf(args, outputMode);
+        return generateCoverLetterPdf(args, outputMode, appBaseUrl);
       case "generate_tailored_cv_pdf":
-        return generateTailoredCvPdf(args, outputMode);
+        return generateTailoredCvPdf(args, outputMode, appBaseUrl);
       case "render_cover_letter_pdf":
-        return renderCoverLetterPdf(args, outputMode);
+        return renderCoverLetterPdf(args, outputMode, appBaseUrl);
       default:
         return {
           content: [{ type: "text" as const, text: JSON.stringify({ error: `Unknown tool: ${name}` }) }],

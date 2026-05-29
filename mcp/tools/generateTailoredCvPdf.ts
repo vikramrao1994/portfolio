@@ -5,7 +5,7 @@ import { GenerateTailoredCvPdfInputSchema } from "@mcp/schemas/toolSchemas";
 import { spawnTailoredCvPdf } from "@mcp/utils/pdf";
 import { errorResponse, successResponse } from "@mcp/utils/responses";
 
-export async function generateTailoredCvPdf(args: unknown, outputMode: OutputMode) {
+export async function generateTailoredCvPdf(args: unknown, outputMode: OutputMode, appBaseUrl?: string) {
   const start = Date.now();
   const parsed = GenerateTailoredCvPdfInputSchema.safeParse(args);
   if (!parsed.success) {
@@ -27,7 +27,7 @@ export async function generateTailoredCvPdf(args: unknown, outputMode: OutputMod
     );
 
     const tailoredPayload = buildTailoredCvPayload(siteContent, suggestion, language);
-    const pdfResult = await spawnTailoredCvPdf(tailoredPayload, language, companyName, outputMode);
+    const pdfResult = await spawnTailoredCvPdf(tailoredPayload, language, companyName, outputMode, appBaseUrl);
 
     console.error(
       `[generate_tailored_cv_pdf] PDF ready (${pdfResult.mode}, ${Date.now() - start}ms total)`,

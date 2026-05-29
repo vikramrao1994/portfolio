@@ -104,21 +104,28 @@ fly secrets set ENABLE_REMOTE_MCP="false"   # returns 404 when disabled
 
 ### Remote PDF Output
 
-The remote HTTP MCP endpoint is **stateless** — no PDF is written to disk on Fly.io.
+The remote HTTP MCP endpoint is **stateless** — no PDF is permanently stored on Fly.io.
 
-Generated PDFs are returned as base64-encoded content directly in the tool response:
+Generated PDFs are stored temporarily in `/tmp/application-documents-downloads/` with a
+10-minute TTL. The tool response contains a short-lived download URL:
 
 ```json
 {
   "mode": "remote",
   "type": "application/pdf",
   "filename": "Vikram_Rao_Eterno_EN_COVER_LETTER.pdf",
-  "content": "JVBERi0x..."
+  "downloadUrl": "https://www.vikramrao.me/api/mcp/download/<token>",
+  "expiresAt": "2026-05-29T12:10:00.000Z"
 }
 ```
 
-The client is responsible for decoding and saving the PDF. Temp files used during
-Python rendering are deleted immediately after the buffer is read.
+- URLs expire after **10 minutes** and are **single-use** (deleted on first download).
+- Tokens are 64-character hex strings generated with `crypto.randomBytes(32)`.
+- No base64 content is returned. No Fly volume is required.
+- After expiry or download, the token returns 410 Gone.
+
+**Requires:** `PUBLIC_APP_URL` set to the app's public origin (e.g. `https://www.vikramrao.me`)
+so the download URL can be constructed. Falls back to the request origin if the env var is absent.
 
 ## Authentication
 
@@ -186,7 +193,8 @@ Canonical CV data in the database is **not overwritten**.
   "mode": "remote",
   "type": "application/pdf",
   "filename": "Vikram_Rao_Eterno_Health_EN_CV.pdf",
-  "content": "JVBERi0x...",
+  "downloadUrl": "https://www.vikramrao.me/api/mcp/download/<token>",
+  "expiresAt": "2026-05-29T12:10:00.000Z",
   "suggestion": { ... }
 }
 ```
@@ -221,7 +229,7 @@ Cover-letter PDFs optionally include a handwritten PNG signature fetched from Fi
 - No arbitrary SQL, filesystem traversal, or shell-string execution
 - Python spawned with args array (`spawn`), never shell-interpolated strings
 - Local MCP: PDF output restricted to `~/Downloads` (fallback: `generated/application-documents/`) — no user-controlled paths
-- Remote MCP: PDFs returned as base64 content — no file written to disk on Fly.io
+- Remote MCP: PDFs stored in `/tmp` with a 10-minute TTL; response contains a short-lived `downloadUrl` (no base64, no Fly volume)
 - Custom filenames are not accepted as tool input — filename is derived from sanitized company/name fields only
 - Temp JSON payload files deleted after each PDF render
 - Errors truncated before logging — no stack traces or secrets in responses

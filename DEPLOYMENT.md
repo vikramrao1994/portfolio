@@ -40,6 +40,7 @@ Set all secrets via `fly secrets set` — never in `fly.toml`.
 | `ENABLE_REMOTE_MCP` | for remote MCP | Must be `"true"` to activate — absent → 404 |
 | `ENABLE_VISUAL_SIGNATURE` | no | Set to `"true"` to embed visual signature in cover-letter PDFs |
 | `SIGNATURE_IMAGE_URL` | for visual signature | Full HTTPS URL to the PNG signature image in Firebase Storage |
+| `PUBLIC_APP_URL` | for remote MCP PDFs | Public origin used to build download URLs (e.g. `https://www.vikramrao.me`) — falls back to request origin if absent |
 
 ```bash
 fly secrets set ADMIN_PASSWORD="your-secure-password"
@@ -48,6 +49,7 @@ fly secrets set ANTHROPIC_API_KEY="sk-ant-..."
 # Remote MCP (enable only when needed):
 fly secrets set MCP_AUTH_TOKEN="$(openssl rand -base64 32)"
 fly secrets set ENABLE_REMOTE_MCP="true"
+fly secrets set PUBLIC_APP_URL="https://www.vikramrao.me"
 # Visual signature (optional):
 fly secrets set ENABLE_VISUAL_SIGNATURE="true"
 fly secrets set SIGNATURE_IMAGE_URL="https://firebasestorage.googleapis.com/v0/b/..."
@@ -72,7 +74,7 @@ The portfolio exposes a secure HTTP MCP endpoint at `/api/mcp`.
 - Transport: MCP Streamable HTTP, SSE-formatted responses
 - No arbitrary SQL, filesystem traversal, or shell-string execution
 - Python invoked with `spawn` (args array, no shell interpolation)
-- Remote MCP is stateless — PDFs are returned as base64 content; no PDF files are written to disk on Fly.io
+- Remote MCP is stateless — PDFs are stored in `/tmp` with a 10-minute TTL; tool response contains a short-lived `downloadUrl` (no base64, no Fly volume needed)
 - Temp JSON/PDF files in `/tmp` are deleted immediately after each render
 
 Disable without removing secret:
@@ -102,7 +104,7 @@ Both CV and cover-letter PDFs are generated via Python ReportLab:
 - Both renderers write to a temp directory, read the buffer, then clean up — temp files never persist
 - Admin HTTP routes: buffer streamed directly to browser (`Content-Disposition: attachment`)
 - Local stdio MCP: buffer written to `~/Downloads/`; response includes `pdfPath`
-- Remote HTTP MCP: buffer returned as base64 in tool response; no file stored on Fly.io
+- Remote HTTP MCP: buffer stored in `/tmp` with 10-minute TTL; response contains a short-lived `downloadUrl` (single-use, no base64)
 - Rendering is deterministic — no AI-controlled layout
 
 ### Visual Signature
