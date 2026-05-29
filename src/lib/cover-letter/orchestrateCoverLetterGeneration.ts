@@ -68,7 +68,7 @@ export async function orchestrateCoverLetterGeneration(
       jobTitle,
       recruiterName,
       tone: tone ?? "professional",
-      includeFullCandidateData: includeFullCandidateData ?? true,
+      includeFullCandidateData: includeFullCandidateData ?? false,
     },
     siteContent,
     extractedKeywords,

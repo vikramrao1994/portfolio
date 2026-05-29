@@ -17,7 +17,7 @@ export const CoverLetterRequestSchema = z.object({
   jobTitle: z.string().max(120).optional(),
   recruiterName: z.string().max(120).optional(),
   tone: ToneSchema.default("professional"),
-  includeFullCandidateData: z.boolean().default(true),
+  includeFullCandidateData: z.boolean().default(false),
 });
 
 export type CoverLetterRequest = z.infer<typeof CoverLetterRequestSchema>;

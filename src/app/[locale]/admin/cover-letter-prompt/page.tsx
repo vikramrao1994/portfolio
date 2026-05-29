@@ -44,7 +44,7 @@ const DEFAULT: FormState = {
   jobTitle: "",
   recruiterName: "",
   tone: "professional",
-  includeFullCandidateData: true,
+  includeFullCandidateData: false,
 };
 
 const TONE_OPTIONS = [

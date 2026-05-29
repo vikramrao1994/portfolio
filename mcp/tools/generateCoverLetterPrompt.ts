@@ -30,7 +30,7 @@ export async function generateCoverLetterPrompt(args: unknown) {
       companyName,
       jobTitle,
       tone: "professional",
-      includeFullCandidateData: true,
+      includeFullCandidateData: false,
     };
 
     const markdown = buildPromptMarkdown(
