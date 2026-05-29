@@ -30,7 +30,6 @@ interface FormState {
 
 interface GenerateResult {
   coverLetter: CoverLetterContent;
-  promptMarkdown: string;
   model: string;
   usage: {
     input_tokens: number | undefined;
@@ -62,10 +61,6 @@ const LANGUAGE_OPTIONS = [
 
 export default function CoverLetterPromptPage() {
   const [form, setForm] = useState<FormState>(DEFAULT);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
-
   const [isGenerating, setIsGenerating] = useState(false);
   const [generateError, setGenerateError] = useState<string | null>(null);
   const [generatedData, setGeneratedData] = useState<GenerateResult | null>(null);
@@ -76,8 +71,6 @@ export default function CoverLetterPromptPage() {
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
-    setError(null);
-    setSuccess(false);
     setGenerateError(null);
   }
 
@@ -91,55 +84,6 @@ export default function CoverLetterPromptPage() {
       tone: form.tone,
       includeFullCandidateData: form.includeFullCandidateData,
     };
-  }
-
-  async function handleDownload() {
-    if (form.jobDescription.trim().length < 100) {
-      setError("Job description must be at least 100 characters.");
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
-    setSuccess(false);
-
-    try {
-      const res = await fetch("/api/admin/cover-letter-prompt", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(buildRequestBody()),
-      });
-
-      if (res.status === 401) {
-        setError("Not authenticated. Please log in again.");
-        return;
-      }
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        setError(data.error ?? "Generation failed. Please try again.");
-        return;
-      }
-
-      const blob = await res.blob();
-      const disposition = res.headers.get("Content-Disposition") ?? "";
-      const filenameMatch = disposition.match(/filename="([^"]+)"/);
-      const filename = filenameMatch?.[1] ?? "cover-letter-prompt.md";
-
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-
-      setSuccess(true);
-    } catch {
-      setError("Network error. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
   }
 
   async function handleGenerate() {
@@ -353,30 +297,13 @@ export default function CoverLetterPromptPage() {
             >
               <Button
                 type="button"
-                variant="secondary"
-                text={isLoading ? "Generating..." : "Download Prompt (.md)"}
-                disabled={isLoading || isGenerating || !jobDescriptionValid}
-                onClick={handleDownload}
-              />
-              <Button
-                type="button"
                 variant="primary"
                 text={isGenerating ? "Generating..." : "Generate Letter JSON"}
-                disabled={isLoading || isGenerating || !jobDescriptionValid}
+                disabled={isGenerating || !jobDescriptionValid}
                 onClick={handleGenerate}
               />
             </div>
 
-            {success && (
-              <Body style={{ color: "green", marginTop: spacing(2), marginBottom: spacing(2) }}>
-                Prompt downloaded successfully.
-              </Body>
-            )}
-            {error && (
-              <Body style={{ color: "red", marginTop: spacing(2), marginBottom: spacing(2) }}>
-                Error: {error}
-              </Body>
-            )}
             {generateError && (
               <Body style={{ color: "red", marginTop: spacing(2), marginBottom: spacing(2) }}>
                 Claude generation failed: {generateError}
