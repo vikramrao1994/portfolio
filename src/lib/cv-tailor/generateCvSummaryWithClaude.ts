@@ -39,6 +39,13 @@ Before returning JSON, silently verify:
 - No invented facts were introduced
 - Output language matches the requested language`;
 
+function truncateAtWordBoundary(text: string, max: number): string {
+  if (text.length <= max) return text;
+  const cut = text.slice(0, max);
+  const lastSpace = cut.lastIndexOf(" ");
+  return lastSpace > 0 ? cut.slice(0, lastSpace) : cut;
+}
+
 function stripCodeFences(text: string): string {
   const trimmed = text.trim();
   if (trimmed.startsWith("```")) {
@@ -101,6 +108,13 @@ export async function generateCvSummaryWithClaude(
     parsed = JSON.parse(rawText);
   } catch {
     throw new Error("Claude returned invalid JSON");
+  }
+
+  if (parsed !== null && typeof parsed === "object") {
+    const p = parsed as Record<string, unknown>;
+    if (typeof p.executiveSummary === "string") {
+      p.executiveSummary = truncateAtWordBoundary(p.executiveSummary, 700);
+    }
   }
 
   const result = CvSummarySuggestionSchema.safeParse(parsed);
