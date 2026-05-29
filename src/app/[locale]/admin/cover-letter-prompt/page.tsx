@@ -374,7 +374,11 @@ export default function CoverLetterPromptPage() {
       {/* ── Tailored CV ── */}
       <Grid.Row>
         <Grid.Column>
-          <AdminCard id="generate-tailored-cv" title="Generate Tailored CV" ariaLabel="Generate Tailored CV">
+          <AdminCard
+            id="generate-tailored-cv"
+            title="Generate Tailored CV"
+            ariaLabel="Generate Tailored CV"
+          >
             <Body style={{ color: "#666", marginBottom: spacing(2) }}>
               Generates a CV PDF with a tailored headline and executive summary based on the job
               description above. Work experience, education, skills, and all other data remain

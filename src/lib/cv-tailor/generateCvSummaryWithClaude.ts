@@ -3,7 +3,7 @@ import { buildCoverLetterContext } from "@/lib/cover-letter/context/buildCoverLe
 import type { Language } from "@/lib/cover-letter/schemas";
 import type { Site } from "@/lib/siteSchema";
 import { buildCvSummaryPrompt } from "./buildCvSummaryPrompt";
-import { CvSummarySuggestionSchema, type CvSummarySuggestion } from "./schema";
+import { type CvSummarySuggestion, CvSummarySuggestionSchema } from "./schema";
 
 export interface GenerateCvSummaryInput {
   jobDescription: string;

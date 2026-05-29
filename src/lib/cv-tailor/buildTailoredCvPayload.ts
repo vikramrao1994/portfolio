@@ -1,3 +1,4 @@
+import { appendLanguageProficiency } from "@/lib/application-documents/shared/profileConstants";
 import type { Language } from "@/lib/cover-letter/schemas";
 import type { Site } from "@/lib/siteSchema";
 import type { CvSummarySuggestion } from "./schema";
@@ -19,14 +20,18 @@ export function buildTailoredCvPayload(
   const tailoredSummary =
     summaryLines.length > 0
       ? summaryLines.map((line) => (language === "de" ? { de: line } : { en: line }))
-      : [language === "de" ? { de: suggestion.executiveSummary } : { en: suggestion.executiveSummary }];
+      : [
+          language === "de"
+            ? { de: suggestion.executiveSummary }
+            : { en: suggestion.executiveSummary },
+        ];
 
-  return {
+  return appendLanguageProficiency({
     ...siteContent,
     heading: {
       ...siteContent.heading,
       headline: tailoredHeadline,
     },
     executive_summary: tailoredSummary,
-  };
+  });
 }

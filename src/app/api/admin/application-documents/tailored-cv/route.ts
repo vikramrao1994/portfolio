@@ -22,7 +22,8 @@ export async function POST(req: Request) {
   if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const authPayload = await verifyJWT(token);
-  if (!authPayload?.authenticated) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!authPayload?.authenticated)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   if (!process.env.ANTHROPIC_API_KEY) {
     return NextResponse.json({ error: "Claude API key is not configured" }, { status: 500 });
@@ -65,7 +66,10 @@ export async function POST(req: Request) {
     ) {
       return NextResponse.json({ error: msg }, { status: 502 });
     }
-    return NextResponse.json({ error: "CV summary generation failed", detail: msg }, { status: 500 });
+    return NextResponse.json(
+      { error: "CV summary generation failed", detail: msg },
+      { status: 500 },
+    );
   }
 
   const { suggestion, siteContent } = generated;

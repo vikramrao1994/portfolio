@@ -86,8 +86,7 @@ async function handleMcpRequest(req: Request): Promise<Response> {
   // Suggested limit: 60 requests/minute per token.
 
   try {
-    const appBaseUrl =
-      process.env.PUBLIC_APP_URL ?? new URL(req.url).origin;
+    const appBaseUrl = process.env.PUBLIC_APP_URL ?? new URL(req.url).origin;
     const server = createMcpServer("remote-download", appBaseUrl);
     // Stateless mode: no sessionIdGenerator → no session tracking between requests.
     // enableJsonResponse: false → SSE stream (allows streaming tool results and
