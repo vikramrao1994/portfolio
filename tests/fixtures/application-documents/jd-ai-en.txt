@@ -1,0 +1,13 @@
+We are building the next generation of AI-powered developer tools.
+
+Requirements:
+- Experience with LLMs, MCP, and agent-based workflow systems
+- Strong Python and TypeScript skills
+- Familiarity with automation and retrieval systems (RAG, embeddings)
+- Developer tooling experience: CLIs, IDE extensions, or SDK design
+- Machine learning or NLP background is a plus
+
+Our stack includes Claude, vector databases, and serverless infrastructure.
+We are a fast-growing startup. You will own your projects end-to-end in an autonomous environment.
+
+Full-time, fully remote.

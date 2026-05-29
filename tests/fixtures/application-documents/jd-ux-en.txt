@@ -1,0 +1,13 @@
+Join our startup as a product engineer who ships fast and takes full ownership.
+
+We need a generalist who can handle frontend, some backend work, and tooling. You will work cross-functional with design, product, and data teams. Product mindset and end-to-end ownership are essential.
+
+Startup environment, early stage, lean team (series B). We move fast and value self-starters.
+
+Requirements:
+- React, TypeScript (frontend-first but full-stack awareness needed)
+- Some Node.js or backend API experience
+- Excellent communication and collaboration skills
+- Self-directed, proactive, adaptable
+
+Full-time position, hybrid.

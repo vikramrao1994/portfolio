@@ -1,0 +1,13 @@
+Wir bauen die nächste Generation von KI-gestützten Entwicklertools.
+
+Anforderungen:
+- Erfahrung mit LLMs, MCP und agentenbasierten Workflow-Systemen
+- Starke Python- und TypeScript-Kenntnisse
+- Kenntnisse in Automatisierung und Retrieval-Systemen
+- Erfahrung mit Entwickler-Tools: CLIs, IDE-Erweiterungen oder SDK-Design
+- Maschinelles Lernen oder NLP-Kenntnisse sind ein Plus
+
+Künstliche Intelligenz und Sprachmodelle sind Kern unserer Plattform.
+Wir sind ein wachsendes Start-up. Du übernimmst Projekte eigenverantwortlich von Anfang bis Ende.
+
+Vollzeit, Homeoffice möglich.

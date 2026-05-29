@@ -1,0 +1,14 @@
+Wir suchen einen erfahrenen Frontend-Entwickler für unser Produktteam.
+
+Anforderungen:
+- Fundierte React- und TypeScript-Kenntnisse
+- Erfahrung mit Komponentenarchitektur und Designsystemen
+- Barrierefreiheit gemäß WCAG 2.1 und nutzerzentriertes Design
+- Informationsarchitektur und benutzerorientierte Oberflächengestaltung
+- Qualitätssicherung und Testautomatisierung
+- Kenntnisse in Figma und Storybook
+- Homeoffice / Hybrid möglich
+
+Wir schätzen Eigenverantwortung und bereichsübergreifende Zusammenarbeit. Nutzerzentrierte Entwicklung ist Teil unserer Kultur.
+
+Festanstellung in einem agilen Umfeld.

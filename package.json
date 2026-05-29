@@ -17,7 +17,8 @@
     "db:import": " FORCE_DB_IMPORT=true bun scripts/db/import.ts",
     "db:reimport": "FORCE_DB_IMPORT=true bun scripts/db/import.ts",
     "db:reset": "FORCE_DB_IMPORT=true bun run prebuild",
-    "mcp:cover-letter": "bun run mcp/server.ts"
+    "mcp:cover-letter": "bun run mcp/server.ts",
+    "test": "bun test tests/"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.98.0",

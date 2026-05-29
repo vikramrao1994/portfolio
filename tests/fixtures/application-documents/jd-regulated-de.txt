@@ -1,0 +1,14 @@
+Wir suchen einen Frontend-Entwickler für regulierte Umgebungen im öffentlichen Sektor (Behörde).
+
+Anforderungen:
+- Fundierte React- und TypeScript-Kenntnisse
+- Barrierefreiheit und WCAG-konforme Oberflächen (barrierefrei gemäß BITV)
+- BundID-Integration und DSGVO-konforme Entwicklung
+- Komponentenarchitektur für wiederverwendbare Designsysteme
+- Qualitätssicherung und automatisierte Tests
+- Eigenverantwortliches Arbeiten im agilen Umfeld
+
+Die Stelle ist eine Festanstellung in einer öffentlichen Behörde in Berlin (vor Ort / hybrid).
+Bereichsübergreifende Zusammenarbeit mit Produktmanagement und UX-Design.
+Nutzerzentrierte, barrierefreie Oberflächen gemäß BundID-Richtlinien.
+DSGVO-konforme Datenhaltung ist Pflicht. Code-Reviews und Qualitätssicherung durch Tests.

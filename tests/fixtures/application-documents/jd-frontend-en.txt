@@ -1,0 +1,14 @@
+We are looking for a Senior Frontend Engineer to join our product team.
+
+Requirements:
+- Strong React and TypeScript expertise
+- Experience with component architecture and design systems
+- Accessibility knowledge: WCAG 2.1, inclusive design, screen reader support
+- Information architecture and user-centered interface design
+- Quality assurance and automated testing practices
+- Familiarity with Figma and Storybook
+- Remote / hybrid work available
+
+We value ownership and cross-functional collaboration. Our team works closely with product and design. User-centric development is at our core.
+
+We offer a full-time position in an agile environment.
