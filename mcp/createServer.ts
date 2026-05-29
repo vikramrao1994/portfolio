@@ -12,7 +12,7 @@ const TOOL_DEFINITIONS = [
   {
     name: "analyze_job_description",
     description:
-      "Extract and categorize hard skills, soft skills, domains, seniority, work mode, and language signals from a job description using deterministic keyword analysis.",
+      "Analyze a job description and extract hiring signals, technologies, responsibilities, priorities, and keywords used throughout the Application Documents workflow.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -25,7 +25,7 @@ const TOOL_DEFINITIONS = [
   {
     name: "match_candidate_evidence",
     description:
-      "Score and rank candidate portfolio evidence (experience, skills, education, executive summary) against a job description using deterministic keyword matching.",
+      "Match candidate experience, projects, education, and skills against a job description using deterministic evidence scoring and retrieval.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -38,7 +38,7 @@ const TOOL_DEFINITIONS = [
   {
     name: "generate_cover_letter_prompt",
     description:
-      "Generate a human-readable Markdown context document for reviewing cover letter generation inputs. Includes keyword analysis, ranked candidate evidence, and full candidate profile. Useful for inspecting what data would be sent before committing to a full generation. Does NOT call Claude. Note: this is NOT the internal prompt Claude receives during generation — that is a structured =SECTION= format built separately inside generate_cover_letter_pdf.",
+      "Generate the structured prompt and evidence context used for tailored cover-letter generation. Returns keyword analysis, ranked candidate evidence, and full candidate profile as a Markdown document. Useful for inspecting inputs before committing to a full generation. Does NOT call Claude.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -53,7 +53,7 @@ const TOOL_DEFINITIONS = [
   {
     name: "generate_cover_letter_pdf",
     description:
-      "One-shot: generate a complete cover letter PDF from a job description. Runs the full pipeline — keyword extraction, candidate evidence scoring, Claude generation, and ReportLab PDF rendering — in a single call. Requires ANTHROPIC_API_KEY. Local stdio: returns pdfPath (file saved to ~/Downloads). Remote HTTP: returns a short-lived downloadUrl (expires in 10 minutes, single-use).",
+      "Generate a tailored cover-letter PDF from a job description using evidence retrieval, rhetorical planning, and structured document generation. Runs the full pipeline: keyword extraction → evidence scoring → retrieval → rhetoric → Claude → ReportLab PDF. Requires ANTHROPIC_API_KEY. Local stdio: returns pdfPath (file saved to ~/Downloads). Remote HTTP: returns a short-lived downloadUrl (expires in 10 minutes, single-use).",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -74,7 +74,7 @@ const TOOL_DEFINITIONS = [
   {
     name: "generate_tailored_cv_pdf",
     description:
-      "Generate a tailored CV PDF from a job description by customizing only the CV headline and executive summary, using existing validated CV-tailor services and the ReportLab CV renderer. Work experience, education, skills, dates, job titles, and employer names are not modified. Canonical CV data in the database is not overwritten. Requires ANTHROPIC_API_KEY. Local stdio: returns pdfPath (file saved to ~/Downloads). Remote HTTP: returns a short-lived downloadUrl (expires in 10 minutes, single-use).",
+      "Generate a tailored CV PDF by customizing the professional headline and executive summary while preserving factual experience, education, and skills. Work experience, education, skills, dates, job titles, and employer names are not modified. Canonical CV data in the database is not overwritten. Requires ANTHROPIC_API_KEY. Local stdio: returns pdfPath (file saved to ~/Downloads). Remote HTTP: returns a short-lived downloadUrl (expires in 10 minutes, single-use).",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -94,7 +94,7 @@ const TOOL_DEFINITIONS = [
   {
     name: "render_cover_letter_pdf",
     description:
-      "Render a validated cover letter JSON to a PDF using the ReportLab renderer. Local stdio: returns pdfPath (file saved to ~/Downloads). Remote HTTP: returns a short-lived downloadUrl (expires in 10 minutes, single-use).",
+      "Render a structured cover-letter payload into a professionally formatted PDF. Local stdio: returns pdfPath (file saved to ~/Downloads). Remote HTTP: returns a short-lived downloadUrl (expires in 10 minutes, single-use).",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -142,7 +142,7 @@ const TOOL_DEFINITIONS = [
  */
 export function createMcpServer(outputMode: OutputMode, appBaseUrl?: string): Server {
   const server = new Server(
-    { name: "cover-letter", version: "1.0.0" },
+    { name: "application-documents", version: "1.0.0" },
     { capabilities: { tools: {} } },
   );
 
@@ -150,7 +150,7 @@ export function createMcpServer(outputMode: OutputMode, appBaseUrl?: string): Se
 
   server.setRequestHandler(CallToolRequestSchema, async (request) => {
     const { name, arguments: args } = request.params;
-    console.error(`[cover-letter MCP] tool called: ${name}`);
+    console.error(`[application-documents MCP] tool called: ${name}`);
 
     switch (name) {
       case "analyze_job_description":

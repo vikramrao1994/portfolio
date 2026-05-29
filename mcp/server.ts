@@ -5,10 +5,10 @@ async function main() {
   const server = createMcpServer("local-file");
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error("[cover-letter MCP] Server running on stdio");
+  console.error("[application-documents MCP] Server running on stdio");
 }
 
 main().catch((err) => {
-  console.error("[cover-letter MCP] Fatal error:", err);
+  console.error("[application-documents MCP] Fatal error:", err);
   process.exit(1);
 });

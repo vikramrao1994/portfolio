@@ -1,7 +1,9 @@
 # Application Documents MCP Server
 
-Exposes the portfolio's cover-letter and CV pipeline as composable MCP tools.
+Application Documents is an MCP server for generating tailored job application materials from job descriptions using deterministic evidence retrieval, candidate matching, AI-assisted document generation, and PDF rendering.
 Two transport modes: local stdio (Claude Desktop / Cursor) and remote HTTP (Fly.io).
+
+Supported outputs: job description analysis · candidate evidence matching · cover-letter generation · cover-letter PDF · tailored CV PDF
 
 ## Architecture
 
@@ -43,7 +45,7 @@ Claude Desktop config (`claude_desktop_config.json`):
 ```json
 {
   "mcpServers": {
-    "cover-letter": {
+    "application-documents": {
       "command": "bun",
       "args": ["run", "mcp/server.ts"],
       "cwd": "/absolute/path/to/portfolio"
@@ -77,7 +79,7 @@ Claude Desktop remote config:
 ```json
 {
   "mcpServers": {
-    "cover-letter-remote": {
+    "application-documents-remote": {
       "url": "https://vikram-portfolio.fly.dev/api/mcp",
       "headers": { "Authorization": "Bearer YOUR_MCP_AUTH_TOKEN" }
     }
