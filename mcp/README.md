@@ -22,12 +22,13 @@ Service Layer  src/lib/cover-letter/  (all pipeline logic lives here)
 | Tool | Type | Description |
 |---|---|---|
 | `generate_cover_letter_pdf` | one-shot | Full pipeline: extraction → scoring → retrieval → rhetoric → Claude → PDF |
+| `generate_tailored_cv_pdf` | one-shot | Tailored CV PDF: extracts evidence, calls Claude to customize headline + summary only, renders PDF via Python ReportLab |
 | `analyze_job_description` | deterministic | Keyword extraction (hard skills, soft skills, domains, seniority, work mode) |
 | `match_candidate_evidence` | deterministic | Evidence scoring + ranking against job description |
 | `generate_cover_letter_prompt` | deterministic | Builds the Claude prompt — no API call made |
 | `render_cover_letter_pdf` | deterministic | Renders a cover letter JSON to PDF via Python ReportLab |
 
-`generate_cover_letter_pdf` requires `ANTHROPIC_API_KEY`. All other tools are deterministic.
+`generate_cover_letter_pdf` and `generate_tailored_cv_pdf` require `ANTHROPIC_API_KEY`. All other tools are deterministic.
 
 ## Local Mode (stdio)
 
@@ -103,6 +104,45 @@ fly secrets set ENABLE_REMOTE_MCP="false"   # returns 404 when disabled
 
 Missing `ENABLE_REMOTE_MCP=true` → 404. Missing/wrong `MCP_AUTH_TOKEN` → 401.
 
+## generate_tailored_cv_pdf
+
+Generates a job-specific CV PDF by customising only the CV headline and executive summary.
+Work experience, education, skills, dates, employers, and job titles are **never modified**.
+Canonical CV data in the database is **not overwritten**.
+
+**Example prompt:**
+> "Generate a tailored English CV PDF for this Frontend Engineer job description."
+
+**Input:**
+```json
+{
+  "jobDescription": "We are looking for a Frontend Engineer to join our Innovation Team...",
+  "language": "en",
+  "companyName": "Eterno Health",
+  "jobTitle": "Frontend Engineer Innovation Team"
+}
+```
+
+**Output:**
+```json
+{
+  "pdfPath": "/absolute/path/to/generated/cvs/tailored-cv-eterno-health-frontend-engineer-innovation-team-en.pdf",
+  "suggestion": {
+    "language": "en",
+    "headline": "Frontend Engineer — React, TypeScript & Healthcare Systems",
+    "executiveSummary": "Pragmatic frontend engineer with 6+ years building production React apps...\nDeep experience in component architecture, performance, and cross-team delivery.",
+    "emphasis": ["React", "TypeScript", "frontend architecture", "healthcare tech"],
+    "matchedEvidence": [
+      { "title": "Senior Frontend at Publicplan", "type": "experience", "reason": "Strong React/TypeScript match for the role" }
+    ]
+  }
+}
+```
+
+**Security:** No DB writes occur. Claude receives pre-selected evidence, not raw DB content. Output is restricted to `generated/cvs/`. Filenames are sanitized; path traversal is not possible.
+
+---
+
 ## Tooling Philosophy
 
 - **Thin transport layer**: MCP tools are adapters. All business logic lives in `src/lib/cover-letter/`.
@@ -126,7 +166,7 @@ Cover-letter PDFs optionally include a handwritten PNG signature fetched from Fi
 
 - No arbitrary SQL, filesystem traversal, or shell-string execution
 - Python spawned with args array (`spawn`), never shell-interpolated strings
-- PDF output restricted to `generated/cover-letters/` — no user-controlled paths
+- PDF output restricted to `generated/cover-letters/` and `generated/cvs/` — no user-controlled paths
 - Temp JSON payload files deleted after each PDF render
 - Errors truncated before logging — no stack traces or secrets in responses
 - `MCP_AUTH_TOKEN` never appears in logs or responses
@@ -141,7 +181,8 @@ mcp/
 ├── createServer.ts                 Shared server factory (stdio + HTTP)
 ├── server.ts                       stdio entry point
 ├── tools/
-│   ├── generateCoverLetterPdf.ts   one-shot pipeline (Claude + PDF)
+│   ├── generateCoverLetterPdf.ts   one-shot cover letter pipeline (Claude + PDF)
+│   ├── generateTailoredCvPdf.ts    one-shot tailored CV pipeline (Claude + PDF)
 │   ├── analyzeJobDescription.ts    deterministic keyword extraction
 │   ├── matchCandidateEvidence.ts   deterministic evidence scoring
 │   ├── generateCoverLetterPrompt.ts  prompt builder (no Claude call)
@@ -152,5 +193,6 @@ mcp/
     └── responses.ts                MCP response helpers
 
 src/app/api/mcp/route.ts            Remote HTTP endpoint (Fly.io)
-src/lib/cover-letter/               All business logic (not in mcp/)
+src/lib/cover-letter/               Cover letter pipeline logic
+src/lib/cv-tailor/                  CV tailoring pipeline logic
 ```

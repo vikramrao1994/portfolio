@@ -29,3 +29,12 @@ export const GenerateCoverLetterPdfInputSchema = z.object({
   recruiterName: z.string().max(100).optional(),
   tone: ToneSchema.optional(),
 });
+
+export const GenerateTailoredCvPdfInputSchema = z.object({
+  jobDescription: z.string().min(100).max(20_000),
+  language: LanguageSchema,
+  companyName: z.string().max(120).optional(),
+  jobTitle: z.string().max(120).optional(),
+  tone: ToneSchema.optional(),
+  filename: z.string().max(120).optional(),
+});

@@ -3,6 +3,7 @@ import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprot
 import { analyzeJobDescription } from "@mcp/tools/analyzeJobDescription";
 import { generateCoverLetterPdf } from "@mcp/tools/generateCoverLetterPdf";
 import { generateCoverLetterPrompt } from "@mcp/tools/generateCoverLetterPrompt";
+import { generateTailoredCvPdf } from "@mcp/tools/generateTailoredCvPdf";
 import { matchCandidateEvidence } from "@mcp/tools/matchCandidateEvidence";
 import { renderCoverLetterPdf } from "@mcp/tools/renderCoverLetterPdf";
 
@@ -65,6 +66,27 @@ const TOOL_DEFINITIONS = [
           enum: ["professional", "warm", "direct", "modern"],
           description: "Writing tone — defaults to professional",
         },
+      },
+      required: ["jobDescription", "language"],
+    },
+  },
+  {
+    name: "generate_tailored_cv_pdf",
+    description:
+      "Generate a tailored CV PDF from a job description by customizing only the CV headline and executive summary, using existing validated CV-tailor services and the ReportLab CV renderer. Work experience, education, skills, dates, job titles, and employer names are not modified. Canonical CV data in the database is not overwritten. Requires ANTHROPIC_API_KEY. Returns pdfPath (absolute path on server filesystem) and suggestion (validated tailored headline + summary).",
+    inputSchema: {
+      type: "object" as const,
+      properties: {
+        jobDescription: { type: "string", description: "The full job description text (100–20000 chars)" },
+        language: { type: "string", enum: ["en", "de"], description: "Language for the tailored CV" },
+        companyName: { type: "string", description: "Optional company name for the role" },
+        jobTitle: { type: "string", description: "Optional job title for the role" },
+        tone: {
+          type: "string",
+          enum: ["professional", "warm", "direct", "modern"],
+          description: "Writing tone — defaults to professional",
+        },
+        filename: { type: "string", description: "Optional custom output filename (sanitized, .pdf forced)" },
       },
       required: ["jobDescription", "language"],
     },
@@ -135,6 +157,8 @@ export function createMcpServer(): Server {
         return generateCoverLetterPrompt(args);
       case "generate_cover_letter_pdf":
         return generateCoverLetterPdf(args);
+      case "generate_tailored_cv_pdf":
+        return generateTailoredCvPdf(args);
       case "render_cover_letter_pdf":
         return renderCoverLetterPdf(args);
       default:

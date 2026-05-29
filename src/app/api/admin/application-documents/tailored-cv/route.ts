@@ -1,13 +1,13 @@
-import { spawn } from "node:child_process";
-import fs from "node:fs/promises";
-import os from "node:os";
-import path from "node:path";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { verifyJWT } from "@/lib/auth";
 import { buildTailoredCvPayload } from "@/lib/cv-tailor/buildTailoredCvPayload";
 import { generateCvSummaryWithClaude } from "@/lib/cv-tailor/generateCvSummaryWithClaude";
+import {
+  buildTailoredCvFilename,
+  renderTailoredCvPdfToBuffer,
+} from "@/lib/cv-tailor/renderTailoredCvPdf";
 
 export const dynamic = "force-dynamic";
 
@@ -17,34 +17,6 @@ const RequestSchema = z.object({
   companyName: z.string().trim().max(120).optional(),
   jobTitle: z.string().trim().max(120).optional(),
 });
-
-function slugify(s: string | undefined): string {
-  if (!s) return "";
-  return s
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "")
-    .slice(0, 40);
-}
-
-function runPython(args: string[], cwd: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const child = spawn("python3", args, {
-      cwd,
-      stdio: ["ignore", "pipe", "pipe"],
-      env: process.env,
-    });
-    let stderr = "";
-    child.stderr.on("data", (d: Buffer) => {
-      stderr += d.toString();
-    });
-    child.on("error", (err) => reject(err));
-    child.on("close", (code) => {
-      if (code === 0) return resolve();
-      reject(new Error(`Python exited with code ${code}\n${stderr}`));
-    });
-  });
-}
 
 export async function POST(req: Request) {
   const cookieStore = await cookies();
@@ -100,40 +72,24 @@ export async function POST(req: Request) {
 
   const { suggestion, siteContent } = generated;
   const tailoredPayload = buildTailoredCvPayload(siteContent, suggestion, language);
-
-  const companySlug = slugify(companyName);
-  const jobSlug = slugify(jobTitle);
-  const filenameParts = ["tailored-cv", companySlug, jobSlug, language].filter(Boolean);
-  const filename = `${filenameParts.join("-")}.pdf`;
-
-  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "cv-tailor-"));
-  const payloadPath = path.join(tmpDir, "payload.json");
-  const outPdfPath = path.join(tmpDir, filename);
+  const filename = buildTailoredCvFilename(companyName, jobTitle, language);
 
   try {
-    await fs.writeFile(payloadPath, JSON.stringify(tailoredPayload, null, 2), "utf8");
-    const scriptPath = path.join(process.cwd(), "scripts", "cv", "main.py");
-    await runPython(
-      [scriptPath, "--input", payloadPath, "--lang", language, "--output", outPdfPath],
-      process.cwd(),
+    const { bytes, filename: resolvedFilename } = await renderTailoredCvPdfToBuffer(
+      tailoredPayload,
+      language,
+      filename,
     );
-    const pdf = await fs.readFile(outPdfPath);
-    return new NextResponse(pdf, {
+    return new NextResponse(bytes, {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="${filename}"`,
+        "Content-Disposition": `attachment; filename="${resolvedFilename}"`,
         "Cache-Control": "no-store",
       },
     });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error: "CV PDF generation failed", detail: msg }, { status: 500 });
-  } finally {
-    try {
-      await fs.rm(tmpDir, { recursive: true, force: true });
-    } catch {
-      // ignore cleanup errors
-    }
   }
 }
