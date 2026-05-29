@@ -107,7 +107,12 @@ export async function generateCvSummaryWithClaude(
   if (parsed !== null && typeof parsed === "object") {
     const p = parsed as Record<string, unknown>;
     if (typeof p.executiveSummary === "string") {
-      p.executiveSummary = truncateSummaryPreservingNarrative(p.executiveSummary, positioningPlan, CV_EXECUTIVE_SUMMARY_MAX_LENGTH);
+      p.executiveSummary = truncateSummaryPreservingNarrative({
+          summary: p.executiveSummary,
+          positioningPlan,
+          language,
+          maxLength: CV_EXECUTIVE_SUMMARY_MAX_LENGTH,
+        });
     }
   }
 
