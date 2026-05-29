@@ -234,8 +234,7 @@ export function scoreSummarySentence({
     if (lower.includes(word)) score += 1;
   }
 
-  const archetypeMap =
-    language === "de" ? GERMAN_ARCHETYPE_SIGNALS : ENGLISH_ARCHETYPE_SIGNALS;
+  const archetypeMap = language === "de" ? GERMAN_ARCHETYPE_SIGNALS : ENGLISH_ARCHETYPE_SIGNALS;
   const archetypeSignals = archetypeMap[positioningPlan.archetype] ?? [];
   for (const signal of archetypeSignals) {
     if (lower.includes(signal)) score += 2;

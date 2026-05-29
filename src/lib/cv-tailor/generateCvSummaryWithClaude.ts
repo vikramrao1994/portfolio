@@ -1,9 +1,17 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { buildApplicationContext } from "@/lib/application-documents/context/buildApplicationContext";
+import {
+  computeProjectEvidenceReport,
+  type PersonalProjectReport,
+} from "@/lib/application-documents/observability/projectEvidenceReport";
 import type { Language } from "@/lib/cover-letter/schemas";
 import type { Site } from "@/lib/siteSchema";
 import { buildCvSummaryPrompt } from "./buildCvSummaryPrompt";
-import { CV_EXECUTIVE_SUMMARY_MAX_LENGTH, type CvSummarySuggestion, CvSummarySuggestionSchema } from "./schema";
+import {
+  CV_EXECUTIVE_SUMMARY_MAX_LENGTH,
+  type CvSummarySuggestion,
+  CvSummarySuggestionSchema,
+} from "./schema";
 import { truncateSummaryPreservingNarrative } from "./selectBestSummaryEnding";
 
 export interface GenerateCvSummaryInput {
@@ -16,6 +24,7 @@ export interface GenerateCvSummaryInput {
 export interface GenerateCvSummaryResult {
   suggestion: CvSummarySuggestion;
   siteContent: Site;
+  projectEvidenceReport: PersonalProjectReport;
   model: string;
   usage: {
     input_tokens: number | undefined;
@@ -60,7 +69,16 @@ export async function generateCvSummaryWithClaude(
   const { jobDescription, language, companyName, jobTitle } = input;
 
   const context = await buildApplicationContext(jobDescription, language);
-  const { siteContent, extractedKeywords, evidencePack, positioningPlan } = context;
+  const {
+    siteContent,
+    extractedKeywords,
+    deterministicEvidence,
+    candidateChunks,
+    retrievedChunks,
+    evidencePack,
+    positioningPlan,
+    rhetoricalPlan,
+  } = context;
 
   const prompt = buildCvSummaryPrompt({
     jobDescription,
@@ -108,11 +126,11 @@ export async function generateCvSummaryWithClaude(
     const p = parsed as Record<string, unknown>;
     if (typeof p.executiveSummary === "string") {
       p.executiveSummary = truncateSummaryPreservingNarrative({
-          summary: p.executiveSummary,
-          positioningPlan,
-          language,
-          maxLength: CV_EXECUTIVE_SUMMARY_MAX_LENGTH,
-        });
+        summary: p.executiveSummary,
+        positioningPlan,
+        language,
+        maxLength: CV_EXECUTIVE_SUMMARY_MAX_LENGTH,
+      });
     }
   }
 
@@ -125,9 +143,24 @@ export async function generateCvSummaryWithClaude(
     throw new Error(`Claude response failed validation: ${issues}`);
   }
 
-  return {
-    suggestion: result.data,
+  const suggestion = result.data;
+  const citedTitles = suggestion.matchedEvidence.map((e) => e.title);
+
+  const projectEvidenceReport = computeProjectEvidenceReport({
     siteContent,
+    deterministicEvidence,
+    candidateChunks,
+    retrievedChunks,
+    evidencePack,
+    rhetoricalPlan,
+    positioningPlan,
+    citedTitles,
+  });
+
+  return {
+    suggestion,
+    siteContent,
+    projectEvidenceReport,
     model: message.model,
     usage: {
       input_tokens: message.usage?.input_tokens,

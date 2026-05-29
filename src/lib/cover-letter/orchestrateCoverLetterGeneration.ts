@@ -1,4 +1,5 @@
 import { buildApplicationContext } from "@/lib/application-documents/context/buildApplicationContext";
+import type { PersonalProjectReport } from "@/lib/application-documents/observability/projectEvidenceReport";
 import type { PositioningPlan } from "@/lib/application-documents/positioning/types";
 import type { EvidencePackItem } from "@/lib/cover-letter/rag/types";
 import type { RhetoricalPlan } from "@/lib/cover-letter/rhetoric/types";
@@ -29,6 +30,7 @@ export interface OrchestrateCoverLetterResult {
   evidencePack: EvidencePackItem[];
   rhetoricalPlan: RhetoricalPlan;
   positioningPlan: PositioningPlan;
+  projectEvidenceReport: PersonalProjectReport;
   prompt: string;
   model: string;
   usage: {
@@ -58,6 +60,7 @@ export async function orchestrateCoverLetterGeneration(
     evidencePack,
     rhetoricalPlan,
     positioningPlan,
+    projectEvidenceReport,
   } = context;
 
   const prompt = buildClaudeJsonPrompt(
@@ -88,6 +91,7 @@ export async function orchestrateCoverLetterGeneration(
     evidencePack,
     rhetoricalPlan,
     positioningPlan,
+    projectEvidenceReport,
     prompt,
     model,
     usage,

@@ -95,5 +95,31 @@ export function buildCandidateChunks(site: Site, language: Language): CandidateC
     });
   }
 
+  // Personal projects — one chunk per project
+  for (const project of site.personal_projects) {
+    const title = normalizeText(getLang(project.project));
+    if (!title) continue;
+
+    const summaryLines = project.summary.map((s) => normalizeText(getLang(s))).filter(Boolean);
+
+    const lines = [
+      title,
+      ...summaryLines,
+      project.skills.length > 0 ? `Technologies: ${project.skills.join(", ")}` : "",
+    ].filter(Boolean);
+
+    add({
+      id: slugifyChunkId(`project-${title}`),
+      type: "project",
+      language,
+      title,
+      text: lines.join("\n"),
+      metadata: {
+        skills: uniqueStrings(project.skills),
+        tags: ["project"],
+      },
+    });
+  }
+
   return chunks;
 }

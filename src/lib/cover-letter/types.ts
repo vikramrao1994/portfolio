@@ -9,7 +9,7 @@ export interface ExtractedKeywords {
 
 export interface EvidenceItem {
   title: string;
-  type: "experience" | "skill" | "education" | "executive_summary";
+  type: "experience" | "skill" | "education" | "executive_summary" | "project";
   score: number;
   matchedKeywords: string[];
   reason: string;

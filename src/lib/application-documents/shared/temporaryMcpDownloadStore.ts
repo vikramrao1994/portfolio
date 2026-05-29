@@ -100,9 +100,11 @@ export async function consumeTemporaryMcpDownload(
   return { filename: meta.filename, mimeType: meta.mimeType, buffer };
 }
 
-export async function cleanupExpiredMcpDownloads(
-  { _baseDir = TMP_DIR }: { _baseDir?: string } = {},
-): Promise<void> {
+export async function cleanupExpiredMcpDownloads({
+  _baseDir = TMP_DIR,
+}: {
+  _baseDir?: string;
+} = {}): Promise<void> {
   let entries: string[];
   try {
     entries = await fs.readdir(_baseDir);

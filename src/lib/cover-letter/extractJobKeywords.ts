@@ -227,7 +227,7 @@ const DOMAINS: Record<string, string> = {
   gesundheitswesen: "Healthcare",
   finanztechnologie: "FinTech",
   logistik: "Logistics",
-  "bildungstechnologie": "EdTech",
+  bildungstechnologie: "EdTech",
   sicherheit: "Cybersecurity",
 };
 
@@ -249,8 +249,8 @@ const SENIORITY: Record<string, string> = {
   "mid-level": "Mid-Level",
   // German seniority aliases (→ English canonical)
   leitender: "Lead",
-  "leitende": "Lead",
-  "leitend": "Lead",
+  leitende: "Lead",
+  leitend: "Lead",
   architekt: "Architect",
   "senior-entwickler": "Senior",
   "leitender ingenieur": "Lead",

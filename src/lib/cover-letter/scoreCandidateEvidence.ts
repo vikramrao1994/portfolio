@@ -143,5 +143,57 @@ export function scoreCandidateEvidence(site: Site, keywords: ExtractedKeywords):
     });
   }
 
+  // Score personal projects
+  for (const project of site.personal_projects) {
+    const title = getLang(project.project);
+    if (!title) continue;
+
+    let score = 0;
+    const matchedKws = new Set<string>();
+
+    // Skills exact match: +5 each (equivalent to tech_stack)
+    for (const skill of project.skills) {
+      const skillLower = skill.toLowerCase();
+      for (const kw of keywords.hardSkills) {
+        if (textContains(skillLower, kw)) {
+          score += 5;
+          matchedKws.add(kw);
+        }
+      }
+    }
+
+    // Summary bullets: hard +3, soft/domain +2
+    const summaryTexts = project.summary.map((s) => getLang(s)).filter(Boolean);
+    for (const s of summaryTexts) {
+      const hardMatches = matchKeywords(s, keywords.hardSkills);
+      const softMatches = matchKeywords(s, [...keywords.softSkills, ...keywords.domains]);
+      for (const m of hardMatches) {
+        score += 3;
+        matchedKws.add(m);
+      }
+      for (const m of softMatches) {
+        score += 2;
+        matchedKws.add(m);
+      }
+    }
+
+    if (score === 0) continue;
+
+    items.push({
+      title,
+      type: "project",
+      score,
+      matchedKeywords: Array.from(matchedKws).sort(),
+      reason: `Matches ${matchedKws.size} keyword(s) in skills and description`,
+      content: [
+        title,
+        ...summaryTexts.slice(0, 3),
+        project.skills.length > 0 ? `Technologies: ${project.skills.slice(0, 5).join(", ")}` : "",
+      ]
+        .filter(Boolean)
+        .join("\n"),
+    });
+  }
+
   return items.sort((a, b) => b.score - a.score).slice(0, MAX_EVIDENCE);
 }
