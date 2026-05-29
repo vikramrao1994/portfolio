@@ -106,6 +106,47 @@ const HARD_SKILLS: Record<string, string> = {
   "test-driven": "TDD",
   ddd: "DDD",
   "domain-driven": "DDD",
+  // Design systems / accessibility (EN)
+  "design systems": "Design Systems",
+  "design system": "Design Systems",
+  accessibility: "Accessibility",
+  a11y: "Accessibility",
+  wcag: "WCAG",
+  "component architecture": "Component Architecture",
+  "information architecture": "Information Architecture",
+  "quality assurance": "Quality Assurance",
+  automation: "Automation",
+  "developer tooling": "Developer Tooling",
+  "developer experience": "Developer Experience",
+  devex: "Developer Experience",
+  // Regulatory
+  gdpr: "GDPR",
+  dsgvo: "GDPR",
+  bundid: "BundID",
+  // German hard skill aliases (→ English canonical)
+  barrierefreiheit: "Accessibility",
+  barrierefrei: "Accessibility",
+  barrierefreies: "Accessibility",
+  komponentenarchitektur: "Component Architecture",
+  komponentenbibliothek: "Component Library",
+  informationsarchitektur: "Information Architecture",
+  designsystem: "Design Systems",
+  designsysteme: "Design Systems",
+  ki: "AI",
+  "künstliche intelligenz": "AI",
+  "maschinelles lernen": "Machine Learning",
+  automatisierung: "Automation",
+  testautomatisierung: "Automated Testing",
+  qualitätssicherung: "Quality Assurance",
+  softwarearchitektur: "Software Architecture",
+  datenschutz: "Data Privacy",
+  "api-entwicklung": "REST API",
+  webentwicklung: "Web Development",
+  webanwendungen: "Web Development",
+  "frontend-entwicklung": "Frontend",
+  "backend-entwicklung": "Backend",
+  "kontinuierliche integration": "CI/CD",
+  "kontinuierliche auslieferung": "CI/CD",
 };
 
 const SOFT_SKILLS: Record<string, string> = {
@@ -136,6 +177,24 @@ const SOFT_SKILLS: Record<string, string> = {
   "cross-functional": "Cross-Functional Collaboration",
   stakeholders: "Stakeholder Management",
   "stakeholder management": "Stakeholder Management",
+  // German soft skill aliases (→ English canonical)
+  eigenverantwortung: "Ownership",
+  eigenverantwortlich: "Ownership",
+  verantwortungsbewusstsein: "Ownership",
+  zusammenarbeit: "Collaboration",
+  kommunikation: "Communication",
+  teamarbeit: "Teamwork",
+  eigeninitiative: "Initiative",
+  anpassungsfähigkeit: "Adaptability",
+  anpassungsfähig: "Adaptability",
+  problemlösung: "Problem Solving",
+  lösungsorientiert: "Problem Solving",
+  bereichsübergreifend: "Cross-Functional Collaboration",
+  fachübergreifend: "Cross-Functional Collaboration",
+  "stakeholder-management": "Stakeholder Management",
+  "analytisches denken": "Analytical Thinking",
+  selbstständig: "Self-Motivated",
+  proaktiv: "Proactive",
 };
 
 const DOMAINS: Record<string, string> = {
@@ -159,6 +218,17 @@ const DOMAINS: Record<string, string> = {
   enterprise: "Enterprise",
   cybersecurity: "Cybersecurity",
   security: "Security",
+  // German domain aliases (→ English canonical)
+  "öffentlicher sektor": "Public Sector",
+  "öffentliche verwaltung": "Public Sector",
+  behörden: "Public Sector",
+  behörde: "Public Sector",
+  "e-government": "Public Sector",
+  gesundheitswesen: "Healthcare",
+  finanztechnologie: "FinTech",
+  logistik: "Logistics",
+  "bildungstechnologie": "EdTech",
+  sicherheit: "Cybersecurity",
 };
 
 const SENIORITY: Record<string, string> = {
@@ -177,6 +247,16 @@ const SENIORITY: Record<string, string> = {
   "vice president": "VP Engineering",
   mid: "Mid-Level",
   "mid-level": "Mid-Level",
+  // German seniority aliases (→ English canonical)
+  leitender: "Lead",
+  "leitende": "Lead",
+  "leitend": "Lead",
+  architekt: "Architect",
+  "senior-entwickler": "Senior",
+  "leitender ingenieur": "Lead",
+  "leitender entwickler": "Lead",
+  abteilungsleiter: "Engineering Manager",
+  "head of engineering": "Head of Engineering",
 };
 
 const WORK_MODE: Record<string, string> = {
@@ -190,6 +270,15 @@ const WORK_MODE: Record<string, string> = {
   "full-time": "Full-Time",
   contract: "Contract",
   freelance: "Freelance",
+  // German work mode aliases (→ English canonical)
+  homeoffice: "Remote",
+  fernarbeit: "Remote",
+  vollzeit: "Full-Time",
+  teilzeit: "Part-Time",
+  festanstellung: "Full-Time",
+  "vor ort": "On-Site",
+  freiberuflich: "Freelance",
+  werkvertrag: "Contract",
 };
 
 const LANGUAGES: Record<string, string> = {
