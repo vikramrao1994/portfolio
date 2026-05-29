@@ -1,17 +1,18 @@
+import type { OutputMode } from "@/lib/application-documents/shared/applicationDocumentMcpOutput";
 import { buildTailoredCvPayload } from "@/lib/cv-tailor/buildTailoredCvPayload";
 import { generateCvSummaryWithClaude } from "@/lib/cv-tailor/generateCvSummaryWithClaude";
 import { GenerateTailoredCvPdfInputSchema } from "@mcp/schemas/toolSchemas";
 import { spawnTailoredCvPdf } from "@mcp/utils/pdf";
 import { errorResponse, successResponse } from "@mcp/utils/responses";
 
-export async function generateTailoredCvPdf(args: unknown) {
+export async function generateTailoredCvPdf(args: unknown, outputMode: OutputMode) {
   const start = Date.now();
   const parsed = GenerateTailoredCvPdfInputSchema.safeParse(args);
   if (!parsed.success) {
     return errorResponse(`Invalid input: ${parsed.error.message}`);
   }
 
-  const { jobDescription, language, companyName, jobTitle, filename } = parsed.data;
+  const { jobDescription, language, companyName, jobTitle } = parsed.data;
 
   try {
     const { suggestion, siteContent, model, usage } = await generateCvSummaryWithClaude({
@@ -26,18 +27,13 @@ export async function generateTailoredCvPdf(args: unknown) {
     );
 
     const tailoredPayload = buildTailoredCvPayload(siteContent, suggestion, language);
+    const pdfResult = await spawnTailoredCvPdf(tailoredPayload, language, companyName, outputMode);
 
-    const pdfPath = await spawnTailoredCvPdf(
-      tailoredPayload,
-      language,
-      companyName,
-      jobTitle,
-      filename,
+    console.error(
+      `[generate_tailored_cv_pdf] PDF ready (${pdfResult.mode}, ${Date.now() - start}ms total)`,
     );
 
-    console.error(`[generate_tailored_cv_pdf] PDF at ${pdfPath} (${Date.now() - start}ms total)`);
-
-    return successResponse({ pdfPath, suggestion });
+    return successResponse({ ...pdfResult, suggestion });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error(`[generate_tailored_cv_pdf] error: ${msg}`);

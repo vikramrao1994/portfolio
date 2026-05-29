@@ -1,55 +1,78 @@
+import fs from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
+import type { ApplicationDocumentMcpResponse, OutputMode } from "@/lib/application-documents/shared/applicationDocumentMcpOutput";
+import { buildApplicationDocumentFilename } from "@/lib/application-documents/shared/buildApplicationDocumentFilename";
 import type { CoverLetterContent } from "@/lib/cover-letter/coverLetterContentSchema";
-import { renderCoverLetterPdfToPath } from "@/lib/cover-letter/pdf/runCoverLetterPdfRenderer";
+import { renderCoverLetterPdfToBuffer } from "@/lib/cover-letter/pdf/runCoverLetterPdfRenderer";
 import type { Language } from "@/lib/cover-letter/schemas";
-import {
-  buildTailoredCvFilename,
-  renderTailoredCvPdfToPath,
-} from "@/lib/cv-tailor/renderTailoredCvPdf";
+import { renderTailoredCvPdfToBuffer } from "@/lib/cv-tailor/renderTailoredCvPdf";
 import type { Site } from "@/lib/siteSchema";
 
+async function resolveLocalOutputPath(filename: string): Promise<string> {
+  const downloadsDir = path.join(os.homedir(), "Downloads");
+  try {
+    await fs.mkdir(downloadsDir, { recursive: true });
+    return path.join(downloadsDir, filename);
+  } catch {
+    const fallbackDir = path.join(process.cwd(), "generated", "application-documents");
+    await fs.mkdir(fallbackDir, { recursive: true });
+    return path.join(fallbackDir, filename);
+  }
+}
+
 /**
- * Render a cover letter PDF to the persistent output directory and return the
- * absolute file path. Used by the local stdio MCP server tools.
+ * Render a cover letter PDF.
  *
- * Note: on a remote deployment (e.g. Fly.io) this path is local to the server
- * container. See renderCoverLetterPdfToPath for details.
+ * local-file:   writes to ~/Downloads, returns { mode: "local", filename, pdfPath }
+ * remote-base64: encodes in memory, returns { mode: "remote", type, filename, content }
+ *                no file is written to disk.
  */
 export async function spawnPdfRenderer(
   coverLetter: CoverLetterContent,
   siteContent: Site,
-): Promise<string> {
-  const outputDir = path.join(process.cwd(), "generated", "cover-letters");
-  return renderCoverLetterPdfToPath(coverLetter, siteContent, outputDir);
+  outputMode: OutputMode,
+): Promise<ApplicationDocumentMcpResponse> {
+  const { bytes, filename } = await renderCoverLetterPdfToBuffer(coverLetter, siteContent);
+  const buffer = Buffer.from(bytes);
+
+  if (outputMode === "local-file") {
+    const pdfPath = await resolveLocalOutputPath(filename);
+    await fs.writeFile(pdfPath, buffer);
+    return { mode: "local", filename, pdfPath };
+  }
+
+  return { mode: "remote", type: "application/pdf", filename, content: buffer.toString("base64") };
 }
 
 /**
- * Render a tailored CV PDF to the persistent output directory and return the
- * absolute file path. Used by the local stdio MCP server tools.
+ * Render a tailored CV PDF.
  *
- * Note: on a remote deployment (e.g. Fly.io) this path is local to the server
- * container.
+ * local-file:   writes to ~/Downloads, returns { mode: "local", filename, pdfPath }
+ * remote-base64: encodes in memory, returns { mode: "remote", type, filename, content }
+ *                no file is written to disk.
  */
 export async function spawnTailoredCvPdf(
   tailoredPayload: Site,
   language: Language,
   companyName: string | undefined,
-  jobTitle: string | undefined,
-  customFilename?: string,
-): Promise<string> {
-  const outputDir = path.join(process.cwd(), "generated", "cvs");
-  const filename = sanitizeTailoredCvFilename(customFilename) ??
-    buildTailoredCvFilename(companyName, jobTitle, language);
-  return renderTailoredCvPdfToPath(tailoredPayload, language, outputDir, filename);
-}
+  outputMode: OutputMode,
+): Promise<ApplicationDocumentMcpResponse> {
+  const filename = buildApplicationDocumentFilename({
+    candidateName: tailoredPayload.heading?.name ?? "",
+    companyName,
+    language,
+    documentType: "cv",
+  });
 
-function sanitizeTailoredCvFilename(name: string | undefined): string | null {
-  if (!name) return null;
-  const safe = name
-    .replace(/[/\\]/g, "")
-    .replace(/\.\./g, "")
-    .replace(/[^a-zA-Z0-9._-]/g, "-")
-    .slice(0, 120);
-  if (!safe) return null;
-  return safe.endsWith(".pdf") ? safe : `${safe}.pdf`;
+  const { bytes } = await renderTailoredCvPdfToBuffer(tailoredPayload, language, filename);
+  const buffer = Buffer.from(bytes);
+
+  if (outputMode === "local-file") {
+    const pdfPath = await resolveLocalOutputPath(filename);
+    await fs.writeFile(pdfPath, buffer);
+    return { mode: "local", filename, pdfPath };
+  }
+
+  return { mode: "remote", type: "application/pdf", filename, content: buffer.toString("base64") };
 }

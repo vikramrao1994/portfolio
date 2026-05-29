@@ -1,9 +1,10 @@
+import type { OutputMode } from "@/lib/application-documents/shared/applicationDocumentMcpOutput";
 import { orchestrateCoverLetterGeneration } from "@/lib/cover-letter/orchestrateCoverLetterGeneration";
 import { GenerateCoverLetterPdfInputSchema } from "@mcp/schemas/toolSchemas";
-import { errorResponse, successResponse } from "@mcp/utils/responses";
 import { spawnPdfRenderer } from "@mcp/utils/pdf";
+import { errorResponse, successResponse } from "@mcp/utils/responses";
 
-export async function generateCoverLetterPdf(args: unknown) {
+export async function generateCoverLetterPdf(args: unknown, outputMode: OutputMode) {
   const start = Date.now();
   const parsed = GenerateCoverLetterPdfInputSchema.safeParse(args);
   if (!parsed.success) {
@@ -27,13 +28,15 @@ export async function generateCoverLetterPdf(args: unknown) {
       `[generate_cover_letter_pdf] Claude done (${model}, ${usage.input_tokens}in/${usage.output_tokens}out)`,
     );
 
-    const pdfPath = await spawnPdfRenderer(coverLetter, siteContent);
+    const pdfResult = await spawnPdfRenderer(coverLetter, siteContent, outputMode);
 
-    console.error(`[generate_cover_letter_pdf] PDF at ${pdfPath} (${Date.now() - start}ms total)`);
+    console.error(
+      `[generate_cover_letter_pdf] PDF ready (${pdfResult.mode}, ${Date.now() - start}ms total)`,
+    );
 
     return successResponse({
       coverLetter,
-      pdfPath,
+      ...pdfResult,
       matchedEvidence: evidence.map(({ title, score, matchedKeywords, reason }) => ({
         title,
         score,

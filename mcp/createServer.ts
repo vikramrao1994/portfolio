@@ -1,5 +1,6 @@
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
+import type { OutputMode } from "@/lib/application-documents/shared/applicationDocumentMcpOutput";
 import { analyzeJobDescription } from "@mcp/tools/analyzeJobDescription";
 import { generateCoverLetterPdf } from "@mcp/tools/generateCoverLetterPdf";
 import { generateCoverLetterPrompt } from "@mcp/tools/generateCoverLetterPrompt";
@@ -52,7 +53,7 @@ const TOOL_DEFINITIONS = [
   {
     name: "generate_cover_letter_pdf",
     description:
-      "One-shot: generate a complete cover letter PDF from a job description. Runs the full pipeline — keyword extraction, candidate evidence scoring, Claude generation, and ReportLab PDF rendering — in a single call. Requires ANTHROPIC_API_KEY. Returns pdfPath: the absolute path on the server's filesystem. When using the local stdio server this path is directly accessible; when calling via the remote HTTP endpoint on a cloud host (e.g. Fly.io) the path is local to the container.",
+      "One-shot: generate a complete cover letter PDF from a job description. Runs the full pipeline — keyword extraction, candidate evidence scoring, Claude generation, and ReportLab PDF rendering — in a single call. Requires ANTHROPIC_API_KEY. Local stdio: returns pdfPath (file saved to ~/Downloads). Remote HTTP: returns base64-encoded PDF content (no file written to disk).",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -73,7 +74,7 @@ const TOOL_DEFINITIONS = [
   {
     name: "generate_tailored_cv_pdf",
     description:
-      "Generate a tailored CV PDF from a job description by customizing only the CV headline and executive summary, using existing validated CV-tailor services and the ReportLab CV renderer. Work experience, education, skills, dates, job titles, and employer names are not modified. Canonical CV data in the database is not overwritten. Requires ANTHROPIC_API_KEY. Returns pdfPath (absolute path on server filesystem) and suggestion (validated tailored headline + summary).",
+      "Generate a tailored CV PDF from a job description by customizing only the CV headline and executive summary, using existing validated CV-tailor services and the ReportLab CV renderer. Work experience, education, skills, dates, job titles, and employer names are not modified. Canonical CV data in the database is not overwritten. Requires ANTHROPIC_API_KEY. Local stdio: returns pdfPath (file saved to ~/Downloads). Remote HTTP: returns base64-encoded PDF content (no file written to disk).",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -86,7 +87,6 @@ const TOOL_DEFINITIONS = [
           enum: ["professional", "warm", "direct", "modern"],
           description: "Writing tone — defaults to professional",
         },
-        filename: { type: "string", description: "Optional custom output filename (sanitized, .pdf forced)" },
       },
       required: ["jobDescription", "language"],
     },
@@ -94,7 +94,7 @@ const TOOL_DEFINITIONS = [
   {
     name: "render_cover_letter_pdf",
     description:
-      "Render a validated cover letter JSON to a PDF using the ReportLab renderer. Returns pdfPath: the absolute path on the server's filesystem. When using the local stdio server this path is directly accessible; when calling via the remote HTTP endpoint on a cloud host (e.g. Fly.io) the path is local to the container and may not be accessible from the calling client.",
+      "Render a validated cover letter JSON to a PDF using the ReportLab renderer. Local stdio: returns pdfPath (file saved to ~/Downloads). Remote HTTP: returns base64-encoded PDF content (no file written to disk).",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -131,12 +131,16 @@ const TOOL_DEFINITIONS = [
 ];
 
 /**
- * Creates a fully-configured MCP Server with all cover-letter tools registered.
+ * Creates a fully-configured MCP Server with all tools registered.
  * Does not connect to any transport — the caller is responsible for that.
  * Used by both the local stdio server (mcp/server.ts) and the remote HTTP endpoint
  * (src/app/api/mcp/route.ts).
+ *
+ * outputMode controls PDF delivery:
+ *   "local-file"    → PDFs saved to ~/Downloads; response includes pdfPath
+ *   "remote-base64" → PDFs returned as base64 content; no file written to disk
  */
-export function createMcpServer(): Server {
+export function createMcpServer(outputMode: OutputMode): Server {
   const server = new Server(
     { name: "cover-letter", version: "1.0.0" },
     { capabilities: { tools: {} } },
@@ -156,11 +160,11 @@ export function createMcpServer(): Server {
       case "generate_cover_letter_prompt":
         return generateCoverLetterPrompt(args);
       case "generate_cover_letter_pdf":
-        return generateCoverLetterPdf(args);
+        return generateCoverLetterPdf(args, outputMode);
       case "generate_tailored_cv_pdf":
-        return generateTailoredCvPdf(args);
+        return generateTailoredCvPdf(args, outputMode);
       case "render_cover_letter_pdf":
-        return renderCoverLetterPdf(args);
+        return renderCoverLetterPdf(args, outputMode);
       default:
         return {
           content: [{ type: "text" as const, text: JSON.stringify({ error: `Unknown tool: ${name}` }) }],

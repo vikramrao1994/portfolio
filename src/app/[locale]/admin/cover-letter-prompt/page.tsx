@@ -253,10 +253,13 @@ export default function CoverLetterPromptPage() {
       <Grid.Row>
         <Grid.Column>
           <AdminCard
-            id="cover-letter-prompt"
-            title="Cover Letter Prompt Generator"
-            ariaLabel="Cover Letter Prompt Generator"
+            id="application-documents"
+            title="Application Documents"
+            ariaLabel="Application Documents"
           >
+            <Body style={{ color: "#666", marginBottom: spacing(2) }}>
+              Generate tailored CVs and cover letters from job descriptions.
+            </Body>
             {/* ── Job Details ── */}
             <div style={{ marginBottom: spacing(3) }}>
               <Heading
@@ -371,7 +374,7 @@ export default function CoverLetterPromptPage() {
       {/* ── Tailored CV ── */}
       <Grid.Row>
         <Grid.Column>
-          <AdminCard id="tailored-cv" title="Tailored CV" ariaLabel="Tailored CV">
+          <AdminCard id="generate-tailored-cv" title="Generate Tailored CV" ariaLabel="Generate Tailored CV">
             <Body style={{ color: "#666", marginBottom: spacing(2) }}>
               Generates a CV PDF with a tailored headline and executive summary based on the job
               description above. Work experience, education, skills, and all other data remain
@@ -390,7 +393,7 @@ export default function CoverLetterPromptPage() {
               <Button
                 type="button"
                 variant="primary"
-                text={isTailoredCvGenerating ? "Generating CV..." : "Generate Tailored CV"}
+                text={isTailoredCvGenerating ? "Generating CV..." : "Generate Tailored CV PDF"}
                 disabled={isTailoredCvGenerating || !jobDescriptionValid}
                 onClick={handleGenerateTailoredCv}
               />
@@ -491,7 +494,7 @@ export default function CoverLetterPromptPage() {
                 <Button
                   type="button"
                   variant="primary"
-                  text={isDownloadingPdf ? "Generating PDF..." : "Download PDF"}
+                  text={isDownloadingPdf ? "Generating PDF..." : "Generate Cover Letter PDF"}
                   disabled={isDownloadingPdf}
                   onClick={handleDownloadPdf}
                 />

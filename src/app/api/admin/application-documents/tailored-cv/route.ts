@@ -1,13 +1,11 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { buildApplicationDocumentFilename } from "@/lib/application-documents/shared/buildApplicationDocumentFilename";
 import { verifyJWT } from "@/lib/auth";
 import { buildTailoredCvPayload } from "@/lib/cv-tailor/buildTailoredCvPayload";
 import { generateCvSummaryWithClaude } from "@/lib/cv-tailor/generateCvSummaryWithClaude";
-import {
-  buildTailoredCvFilename,
-  renderTailoredCvPdfToBuffer,
-} from "@/lib/cv-tailor/renderTailoredCvPdf";
+import { renderTailoredCvPdfToBuffer } from "@/lib/cv-tailor/renderTailoredCvPdf";
 
 export const dynamic = "force-dynamic";
 
@@ -72,7 +70,12 @@ export async function POST(req: Request) {
 
   const { suggestion, siteContent } = generated;
   const tailoredPayload = buildTailoredCvPayload(siteContent, suggestion, language);
-  const filename = buildTailoredCvFilename(companyName, jobTitle, language);
+  const filename = buildApplicationDocumentFilename({
+    candidateName: siteContent.heading?.name ?? "",
+    companyName,
+    language,
+    documentType: "cv",
+  });
 
   try {
     const { bytes, filename: resolvedFilename } = await renderTailoredCvPdfToBuffer(

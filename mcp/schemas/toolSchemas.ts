@@ -36,5 +36,4 @@ export const GenerateTailoredCvPdfInputSchema = z.object({
   companyName: z.string().max(120).optional(),
   jobTitle: z.string().max(120).optional(),
   tone: ToneSchema.optional(),
-  filename: z.string().max(120).optional(),
 });

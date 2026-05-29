@@ -86,7 +86,7 @@ async function handleMcpRequest(req: Request): Promise<Response> {
   // Suggested limit: 60 requests/minute per token.
 
   try {
-    const server = createMcpServer();
+    const server = createMcpServer("remote-base64");
     // Stateless mode: no sessionIdGenerator → no session tracking between requests.
     // enableJsonResponse: false → SSE stream (allows streaming tool results and
     // future notifications). Set to true for simpler JSON-only clients.

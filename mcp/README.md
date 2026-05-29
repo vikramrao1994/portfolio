@@ -1,6 +1,6 @@
-# Cover Letter MCP Server
+# Application Documents MCP Server
 
-Exposes the portfolio's cover-letter pipeline as composable MCP tools.
+Exposes the portfolio's cover-letter and CV pipeline as composable MCP tools.
 Two transport modes: local stdio (Claude Desktop / Cursor) and remote HTTP (Fly.io).
 
 ## Architecture
@@ -14,7 +14,7 @@ Server Factory  mcp/createServer.ts  (shared, no duplication)
   ↓
 Tool Handlers  mcp/tools/  (thin adapters only — no business logic)
   ↓
-Service Layer  src/lib/cover-letter/  (all pipeline logic lives here)
+Service Layer  src/lib/cover-letter/  |  src/lib/cv-tailor/  (all pipeline logic lives here)
 ```
 
 ## Exposed Tools
@@ -53,6 +53,14 @@ Claude Desktop config (`claude_desktop_config.json`):
 ```
 
 **Prerequisites:** Bun, Python 3 + ReportLab, portfolio DB initialized (`bun db:init && bun db:import`)
+
+### Local PDF Output
+
+Generated PDFs are written to the OS Downloads folder (`~/Downloads/` on macOS/Linux,
+`C:\Users\<user>\Downloads\` on Windows). If the Downloads folder is inaccessible,
+the fallback is `generated/application-documents/` within the project directory.
+
+Responses include `pdfPath` (the absolute path to the saved file) and `filename`.
 
 ## Remote HTTP Mode (Fly.io)
 
@@ -94,6 +102,24 @@ Disable:
 fly secrets set ENABLE_REMOTE_MCP="false"   # returns 404 when disabled
 ```
 
+### Remote PDF Output
+
+The remote HTTP MCP endpoint is **stateless** — no PDF is written to disk on Fly.io.
+
+Generated PDFs are returned as base64-encoded content directly in the tool response:
+
+```json
+{
+  "mode": "remote",
+  "type": "application/pdf",
+  "filename": "Vikram_Rao_Eterno_EN_COVER_LETTER.pdf",
+  "content": "JVBERi0x..."
+}
+```
+
+The client is responsible for decoding and saving the PDF. Temp files used during
+Python rendering are deleted immediately after the buffer is read.
+
 ## Authentication
 
 | Mode | Auth |
@@ -103,6 +129,27 @@ fly secrets set ENABLE_REMOTE_MCP="false"   # returns 404 when disabled
 | Remote HTTP fallback | Existing admin JWT cookie (browser-originated requests) |
 
 Missing `ENABLE_REMOTE_MCP=true` → 404. Missing/wrong `MCP_AUTH_TOKEN` → 401.
+
+## Filename Convention
+
+All generated PDFs use the format:
+
+```
+NAME_COMPANY_LANGUAGE_CV.pdf
+NAME_COMPANY_LANGUAGE_COVER_LETTER.pdf
+```
+
+Examples:
+```
+Vikram_Rao_Eterno_EN_CV.pdf
+Vikram_Rao_Eterno_EN_COVER_LETTER.pdf
+Vikram_Rao_Coding_Partners_DE_COVER_LETTER.pdf
+```
+
+- Underscores, not hyphens
+- Company falls back to `Application` if not provided
+- Language is uppercased (`EN` / `DE`)
+- Unsafe characters are sanitized; path traversal is not possible
 
 ## generate_tailored_cv_pdf
 
@@ -123,29 +170,36 @@ Canonical CV data in the database is **not overwritten**.
 }
 ```
 
-**Output:**
+**Local output:**
 ```json
 {
-  "pdfPath": "/absolute/path/to/generated/cvs/tailored-cv-eterno-health-frontend-engineer-innovation-team-en.pdf",
-  "suggestion": {
-    "language": "en",
-    "headline": "Frontend Engineer — React, TypeScript & Healthcare Systems",
-    "executiveSummary": "Pragmatic frontend engineer with 6+ years building production React apps...\nDeep experience in component architecture, performance, and cross-team delivery.",
-    "emphasis": ["React", "TypeScript", "frontend architecture", "healthcare tech"],
-    "matchedEvidence": [
-      { "title": "Senior Frontend at Publicplan", "type": "experience", "reason": "Strong React/TypeScript match for the role" }
-    ]
-  }
+  "mode": "local",
+  "filename": "Vikram_Rao_Eterno_Health_EN_CV.pdf",
+  "pdfPath": "/Users/<user>/Downloads/Vikram_Rao_Eterno_Health_EN_CV.pdf",
+  "suggestion": { ... }
 }
 ```
 
-**Security:** No DB writes occur. Claude receives pre-selected evidence, not raw DB content. Output is restricted to `generated/cvs/`. Filenames are sanitized; path traversal is not possible.
+**Remote output:**
+```json
+{
+  "mode": "remote",
+  "type": "application/pdf",
+  "filename": "Vikram_Rao_Eterno_Health_EN_CV.pdf",
+  "content": "JVBERi0x...",
+  "suggestion": { ... }
+}
+```
+
+**Security:** No DB writes occur. Claude receives pre-selected evidence, not raw DB content.
+Local: file written to `~/Downloads`. Remote: in-memory only — no file persisted on Fly.io.
+Filenames are sanitized; path traversal is not possible. Custom filenames are not accepted as input.
 
 ---
 
 ## Tooling Philosophy
 
-- **Thin transport layer**: MCP tools are adapters. All business logic lives in `src/lib/cover-letter/`.
+- **Thin transport layer**: MCP tools are adapters. All business logic lives in `src/lib/cover-letter/` and `src/lib/cv-tailor/`.
 - **Shared services**: `mcp/createServer.ts` is used by both stdio and HTTP transports — no duplication.
 - **Deterministic orchestration**: tools call deterministic functions; `generate_cover_letter_pdf` calls Claude once with a pre-built prompt.
 - **No duplicated logic**: do not add evidence scoring, retrieval, or prompt-building inside `mcp/tools/`.
@@ -166,7 +220,9 @@ Cover-letter PDFs optionally include a handwritten PNG signature fetched from Fi
 
 - No arbitrary SQL, filesystem traversal, or shell-string execution
 - Python spawned with args array (`spawn`), never shell-interpolated strings
-- PDF output restricted to `generated/cover-letters/` and `generated/cvs/` — no user-controlled paths
+- Local MCP: PDF output restricted to `~/Downloads` (fallback: `generated/application-documents/`) — no user-controlled paths
+- Remote MCP: PDFs returned as base64 content — no file written to disk on Fly.io
+- Custom filenames are not accepted as tool input — filename is derived from sanitized company/name fields only
 - Temp JSON payload files deleted after each PDF render
 - Errors truncated before logging — no stack traces or secrets in responses
 - `MCP_AUTH_TOKEN` never appears in logs or responses
@@ -189,10 +245,14 @@ mcp/
 │   └── renderCoverLetterPdf.ts     Python PDF renderer adapter
 ├── schemas/toolSchemas.ts          Zod input schemas for all tools
 └── utils/
-    ├── pdf.ts                      Shared PDF rendering helpers
+    ├── pdf.ts                      Shared PDF rendering helpers (Downloads / server output)
     └── responses.ts                MCP response helpers
 
 src/app/api/mcp/route.ts            Remote HTTP endpoint (Fly.io)
 src/lib/cover-letter/               Cover letter pipeline logic
 src/lib/cv-tailor/                  CV tailoring pipeline logic
+src/lib/application-documents/
+└── shared/
+    ├── buildApplicationDocumentFilename.ts   Standardized PDF filename helper
+    └── resolveApplicationDocumentOutputPath.ts  Output dir resolver (local vs remote)
 ```

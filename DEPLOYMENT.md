@@ -72,7 +72,8 @@ The portfolio exposes a secure HTTP MCP endpoint at `/api/mcp`.
 - Transport: MCP Streamable HTTP, SSE-formatted responses
 - No arbitrary SQL, filesystem traversal, or shell-string execution
 - Python invoked with `spawn` (args array, no shell interpolation)
-- PDF output restricted to `generated/cover-letters/`
+- Remote MCP is stateless — PDFs are returned as base64 content; no PDF files are written to disk on Fly.io
+- Temp JSON/PDF files in `/tmp` are deleted immediately after each render
 
 Disable without removing secret:
 ```bash
@@ -98,8 +99,10 @@ Both CV and cover-letter PDFs are generated via Python ReportLab:
 - Python 3 + ReportLab must be present in the Docker image (via `requirements.txt`)
 - CV: `POST /api/cv?lang=en|de` — accepts SiteSchema JSON body, spawns `scripts/cv/main.py`
 - Cover-letter: MCP `render_cover_letter_pdf` tool — spawns `scripts/cover-letter/main.py`
-- Both renderers write to a temp directory and clean up after returning the PDF
-- Temp JSON payloads are deleted immediately after each render
+- Both renderers write to a temp directory, read the buffer, then clean up — temp files never persist
+- Admin HTTP routes: buffer streamed directly to browser (`Content-Disposition: attachment`)
+- Local stdio MCP: buffer written to `~/Downloads/`; response includes `pdfPath`
+- Remote HTTP MCP: buffer returned as base64 in tool response; no file stored on Fly.io
 - Rendering is deterministic — no AI-controlled layout
 
 ### Visual Signature

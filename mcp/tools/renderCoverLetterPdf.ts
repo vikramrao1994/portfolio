@@ -1,9 +1,10 @@
+import type { OutputMode } from "@/lib/application-documents/shared/applicationDocumentMcpOutput";
 import { getSiteContent } from "@/server/siteContent";
+import { spawnPdfRenderer } from "@mcp/utils/pdf";
 import { RenderCoverLetterPdfInputSchema } from "@mcp/schemas/toolSchemas";
 import { errorResponse, successResponse } from "@mcp/utils/responses";
-import { spawnPdfRenderer } from "@mcp/utils/pdf";
 
-export async function renderCoverLetterPdf(args: unknown) {
+export async function renderCoverLetterPdf(args: unknown, outputMode: OutputMode) {
   const start = Date.now();
   const parsed = RenderCoverLetterPdfInputSchema.safeParse(args);
   if (!parsed.success) {
@@ -14,9 +15,11 @@ export async function renderCoverLetterPdf(args: unknown) {
 
   try {
     const siteContent = await getSiteContent(coverLetter.language);
-    const pdfPath = await spawnPdfRenderer(coverLetter, siteContent);
-    console.error(`[render_cover_letter_pdf] PDF at ${pdfPath} (${Date.now() - start}ms)`);
-    return successResponse({ pdfPath });
+    const pdfResult = await spawnPdfRenderer(coverLetter, siteContent, outputMode);
+    console.error(
+      `[render_cover_letter_pdf] PDF ready (${pdfResult.mode}, ${Date.now() - start}ms)`,
+    );
+    return successResponse(pdfResult);
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error(`[render_cover_letter_pdf] error: ${msg}`);

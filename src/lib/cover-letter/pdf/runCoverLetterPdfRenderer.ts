@@ -2,19 +2,18 @@ import { spawn } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { buildApplicationDocumentFilename } from "@/lib/application-documents/shared/buildApplicationDocumentFilename";
 import { buildPdfPayload } from "@/lib/cover-letter/buildPdfPayload";
 import type { CoverLetterContent } from "@/lib/cover-letter/coverLetterContentSchema";
 import type { Site } from "@/lib/siteSchema";
 
-export function buildCoverLetterPdfFilename(companyName: string | undefined, lang: string): string {
-  const slug = companyName
-    ? companyName
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-|-$/g, "")
-        .slice(0, 40)
-    : "cover-letter";
-  return `cover-letter-${slug}-${lang}.pdf`;
+function buildFilename(coverLetter: CoverLetterContent, siteContent: Site): string {
+  return buildApplicationDocumentFilename({
+    candidateName: siteContent.heading?.name ?? "",
+    companyName: coverLetter.recipient?.companyName,
+    language: coverLetter.language as "en" | "de",
+    documentType: "cover-letter",
+  });
 }
 
 function spawnPython(args: string[], cwd: string): Promise<void> {
@@ -42,9 +41,8 @@ function spawnPython(args: string[], cwd: string): Promise<void> {
  * file path. Used by the local stdio MCP server where the caller can access
  * the filesystem directly.
  *
- * Note: on a cloud deployment (e.g. Fly.io) this path is local to the container.
- * The caller is responsible for ensuring the outputDir is on a mounted volume if
- * persistence across restarts is required.
+ * On a remote deployment (e.g. Fly.io) this path is local to the container.
+ * The caller is responsible for passing the correct outputDir for the runtime.
  */
 export async function renderCoverLetterPdfToPath(
   coverLetter: CoverLetterContent,
@@ -57,10 +55,7 @@ export async function renderCoverLetterPdfToPath(
   try {
     await fs.mkdir(outputDir, { recursive: true });
 
-    const filename = buildCoverLetterPdfFilename(
-      coverLetter.recipient?.companyName,
-      coverLetter.language,
-    );
+    const filename = buildFilename(coverLetter, siteContent);
     const outPdfPath = path.join(outputDir, filename);
 
     const pdfPayload = buildPdfPayload({ coverLetter, siteContent });
@@ -90,10 +85,7 @@ export async function renderCoverLetterPdfToBuffer(
   coverLetter: CoverLetterContent,
   siteContent: Site,
 ): Promise<{ bytes: ArrayBuffer; filename: string }> {
-  const filename = buildCoverLetterPdfFilename(
-    coverLetter.recipient?.companyName,
-    coverLetter.language,
-  );
+  const filename = buildFilename(coverLetter, siteContent);
   const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "cl-pdf-"));
   const payloadPath = path.join(tmpDir, "payload.json");
   const outPdfPath = path.join(tmpDir, filename);

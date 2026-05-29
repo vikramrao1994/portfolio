@@ -24,25 +24,6 @@ function spawnPython(args: string[], cwd: string): Promise<void> {
   });
 }
 
-export function buildTailoredCvFilename(
-  companyName: string | undefined,
-  jobTitle: string | undefined,
-  language: Language,
-): string {
-  const slugify = (s: string) =>
-    s
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-|-$/g, "")
-      .slice(0, 40);
-
-  const parts: string[] = ["tailored-cv"];
-  if (companyName) parts.push(slugify(companyName));
-  if (jobTitle) parts.push(slugify(jobTitle));
-  parts.push(language);
-  return `${parts.join("-")}.pdf`;
-}
-
 /**
  * Render a tailored CV to a persistent output directory and return the file path.
  * Used by the MCP server (local stdio) where callers can access the filesystem.
