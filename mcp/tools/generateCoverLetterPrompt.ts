@@ -1,7 +1,5 @@
+import { buildApplicationContext } from "@/lib/application-documents/context/buildApplicationContext";
 import { buildPromptMarkdown } from "@/lib/cover-letter/buildPromptMarkdown";
-import { buildCoverLetterContext } from "@/lib/cover-letter/context/buildCoverLetterContext";
-import { buildCompanyAlignment } from "@/lib/cover-letter/rhetoric/buildCompanyAlignment";
-import { buildRhetoricalPlan } from "@/lib/cover-letter/rhetoric/buildRhetoricalPlan";
 import type { CoverLetterRequest } from "@/lib/cover-letter/schemas";
 import { GenerateCoverLetterPromptInputSchema } from "@mcp/schemas/toolSchemas";
 import { errorResponse, successResponse } from "@mcp/utils/responses";
@@ -16,16 +14,15 @@ export async function generateCoverLetterPrompt(args: unknown) {
   try {
     const { jobDescription, language, companyName, jobTitle } = parsed.data;
 
-    const context = await buildCoverLetterContext(jobDescription, language);
-    const { siteContent, extractedKeywords, deterministicEvidence, evidencePack } = context;
-
-    const companyAlignment = buildCompanyAlignment({ jobDescription, extractedKeywords });
-    const rhetoricalPlan = buildRhetoricalPlan({
+    const context = await buildApplicationContext(jobDescription, language, "professional");
+    const {
+      siteContent,
+      extractedKeywords,
+      deterministicEvidence,
       evidencePack,
-      companyAlignment,
-      jobDescription,
-      tone: "professional",
-    });
+      rhetoricalPlan,
+      positioningPlan,
+    } = context;
 
     const req: CoverLetterRequest = {
       jobDescription,
@@ -43,6 +40,7 @@ export async function generateCoverLetterPrompt(args: unknown) {
       deterministicEvidence,
       evidencePack,
       rhetoricalPlan,
+      positioningPlan,
     );
     console.error(`[generate_cover_letter_prompt] completed in ${Date.now() - start}ms`);
     return successResponse({ markdown });

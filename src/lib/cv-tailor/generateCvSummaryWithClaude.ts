@@ -1,5 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { buildCoverLetterContext } from "@/lib/cover-letter/context/buildCoverLetterContext";
+import { buildApplicationContext } from "@/lib/application-documents/context/buildApplicationContext";
 import type { Language } from "@/lib/cover-letter/schemas";
 import type { Site } from "@/lib/siteSchema";
 import { buildCvSummaryPrompt } from "./buildCvSummaryPrompt";
@@ -58,8 +58,8 @@ export async function generateCvSummaryWithClaude(
 
   const { jobDescription, language, companyName, jobTitle } = input;
 
-  const context = await buildCoverLetterContext(jobDescription, language);
-  const { siteContent, extractedKeywords, evidencePack } = context;
+  const context = await buildApplicationContext(jobDescription, language);
+  const { siteContent, extractedKeywords, evidencePack, positioningPlan } = context;
 
   const prompt = buildCvSummaryPrompt({
     jobDescription,
@@ -69,6 +69,7 @@ export async function generateCvSummaryWithClaude(
     siteContent,
     extractedKeywords,
     evidencePack,
+    positioningPlan,
   });
 
   const model = process.env.ANTHROPIC_MODEL ?? "claude-haiku-4-5-20251001";

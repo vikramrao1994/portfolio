@@ -1,3 +1,5 @@
+import { buildPositioningGuidelines } from "@/lib/application-documents/positioning/buildPositioningGuidelines";
+import type { PositioningPlan } from "@/lib/application-documents/positioning/types";
 import type { EvidencePackItem } from "@/lib/cover-letter/rag/types";
 import { buildNarrativeGuidelines } from "@/lib/cover-letter/rhetoric/buildNarrativeGuidelines";
 import type { RhetoricalPlan } from "@/lib/cover-letter/rhetoric/types";
@@ -161,6 +163,11 @@ function buildCandidateProfile(
   return blocks.join("\n\n");
 }
 
+function buildPositioningPlanSection(plan: PositioningPlan): string {
+  const guidelines = buildPositioningGuidelines(plan);
+  return guidelines;
+}
+
 function buildRhetoricalPlanSection(plan: RhetoricalPlan): string {
   const guidelines = buildNarrativeGuidelines(plan);
 
@@ -197,6 +204,7 @@ export function buildPromptMarkdown(
   evidence: EvidenceItem[],
   evidencePack?: EvidencePackItem[],
   rhetoricalPlan?: RhetoricalPlan,
+  positioningPlan?: PositioningPlan,
 ): string {
   const {
     jobDescription,
@@ -246,6 +254,10 @@ export function buildPromptMarkdown(
       : section("Ranked Candidate Evidence", buildEvidenceSection(evidence)),
 
     rhetoricalPlan ? section("Rhetorical Plan", buildRhetoricalPlanSection(rhetoricalPlan)) : "",
+
+    positioningPlan
+      ? section("Positioning Plan", buildPositioningPlanSection(positioningPlan))
+      : "",
 
     section("Candidate Profile", buildCandidateProfile(site, includeFullCandidateData, evidence)),
 

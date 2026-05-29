@@ -1,7 +1,6 @@
-import { buildCoverLetterContext } from "@/lib/cover-letter/context/buildCoverLetterContext";
+import { buildApplicationContext } from "@/lib/application-documents/context/buildApplicationContext";
+import type { PositioningPlan } from "@/lib/application-documents/positioning/types";
 import type { EvidencePackItem } from "@/lib/cover-letter/rag/types";
-import { buildCompanyAlignment } from "@/lib/cover-letter/rhetoric/buildCompanyAlignment";
-import { buildRhetoricalPlan } from "@/lib/cover-letter/rhetoric/buildRhetoricalPlan";
 import type { RhetoricalPlan } from "@/lib/cover-letter/rhetoric/types";
 import type { Site } from "@/lib/siteSchema";
 import { buildClaudeJsonPrompt } from "./buildClaudeJsonPrompt";
@@ -29,6 +28,7 @@ export interface OrchestrateCoverLetterResult {
   evidence: EvidenceItem[];
   evidencePack: EvidencePackItem[];
   rhetoricalPlan: RhetoricalPlan;
+  positioningPlan: PositioningPlan;
   prompt: string;
   model: string;
   usage: {
@@ -50,20 +50,15 @@ export async function orchestrateCoverLetterGeneration(
     includeFullCandidateData,
   } = input;
 
-  const context = await buildCoverLetterContext(jobDescription, language);
-  const { siteContent, extractedKeywords, deterministicEvidence: evidence, evidencePack } = context;
-
-  const companyAlignment = buildCompanyAlignment({
-    jobDescription,
+  const context = await buildApplicationContext(jobDescription, language, tone ?? "professional");
+  const {
+    siteContent,
     extractedKeywords,
-  });
-
-  const rhetoricalPlan = buildRhetoricalPlan({
+    deterministicEvidence: evidence,
     evidencePack,
-    companyAlignment,
-    jobDescription,
-    tone: tone ?? "professional",
-  });
+    rhetoricalPlan,
+    positioningPlan,
+  } = context;
 
   const prompt = buildClaudeJsonPrompt(
     {
@@ -80,6 +75,7 @@ export async function orchestrateCoverLetterGeneration(
     evidence,
     evidencePack,
     rhetoricalPlan,
+    positioningPlan,
   );
 
   const { coverLetter, model, usage } = await generateCoverLetterWithClaude(prompt);
@@ -91,6 +87,7 @@ export async function orchestrateCoverLetterGeneration(
     evidence,
     evidencePack,
     rhetoricalPlan,
+    positioningPlan,
     prompt,
     model,
     usage,

@@ -1,3 +1,5 @@
+import { buildPositioningGuidelines } from "@/lib/application-documents/positioning/buildPositioningGuidelines";
+import type { PositioningPlan } from "@/lib/application-documents/positioning/types";
 import type { EvidencePackItem } from "@/lib/cover-letter/rag/types";
 import { buildNarrativeGuidelines } from "@/lib/cover-letter/rhetoric/buildNarrativeGuidelines";
 import type { RhetoricalPlan } from "@/lib/cover-letter/rhetoric/types";
@@ -122,6 +124,7 @@ export function buildClaudeJsonPrompt(
   evidence: EvidenceItem[],
   evidencePack?: EvidencePackItem[],
   rhetoricalPlan?: RhetoricalPlan,
+  positioningPlan?: PositioningPlan,
 ): string {
   const { jobDescription, language, companyName, jobTitle, recruiterName, tone } = req;
   const outputLanguage = language === "de" ? "German (Deutsch)" : "English";
@@ -134,6 +137,9 @@ export function buildClaudeJsonPrompt(
   const unmatchedSkills = keywords.hardSkills.filter((kw) => !allMatchedKeywords.has(kw));
 
   const narrativeGuidelines = rhetoricalPlan ? buildNarrativeGuidelines(rhetoricalPlan) : null;
+  const positioningGuidelines = positioningPlan
+    ? buildPositioningGuidelines(positioningPlan)
+    : null;
 
   const sections: string[] = [
     `=== TASK ===
@@ -165,6 +171,17 @@ ${activeEvidence ? buildEvidencePackBlock(activeEvidence) : buildEvidenceBlock(e
     rhetoricalPlan
       ? `=== RHETORICAL PLAN ===
 ${buildRhetoricalPlanBlock(rhetoricalPlan)}`
+      : "",
+
+    positioningGuidelines
+      ? `=== POSITIONING PLAN ===
+${positioningGuidelines}
+
+Instructions:
+- Maintain archetype consistency throughout the letter.
+- Lead with the primary narrative above.
+- Use differentiators as supporting evidence.
+- Avoid the suppressed narratives listed above.`
       : "",
 
     narrativeGuidelines

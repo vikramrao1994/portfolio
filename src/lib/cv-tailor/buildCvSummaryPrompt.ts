@@ -1,3 +1,5 @@
+import { buildPositioningGuidelines } from "@/lib/application-documents/positioning/buildPositioningGuidelines";
+import type { PositioningPlan } from "@/lib/application-documents/positioning/types";
 import type { EvidencePackItem } from "@/lib/cover-letter/rag/types";
 import type { ExtractedKeywords } from "@/lib/cover-letter/types";
 import { getLang } from "@/lib/cover-letter/utils";
@@ -40,10 +42,19 @@ export interface BuildCvSummaryPromptInput {
   siteContent: Site;
   extractedKeywords: ExtractedKeywords;
   evidencePack: EvidencePackItem[];
+  positioningPlan?: PositioningPlan;
 }
 
 export function buildCvSummaryPrompt(input: BuildCvSummaryPromptInput): string {
-  const { jobDescription, language, companyName, jobTitle, siteContent, evidencePack } = input;
+  const {
+    jobDescription,
+    language,
+    companyName,
+    jobTitle,
+    siteContent,
+    evidencePack,
+    positioningPlan,
+  } = input;
 
   const outputLanguage = language === "de" ? "German (Deutsch)" : "English";
   const h = siteContent.heading;
@@ -78,6 +89,16 @@ ${currentSummary || "(none)"}`,
 Base the tailored output on these experiences only. Do not reference experience not listed here.
 
 ${buildEvidencePackBlock(evidencePack)}`,
+
+    positioningPlan
+      ? `=== POSITIONING PLAN ===
+${buildPositioningGuidelines(positioningPlan)}
+
+Instructions:
+- Lead with the positioning narrative in the headline.
+- Use differentiators to guide the executive summary.
+- Avoid suppressed narratives.`
+      : "",
 
     `=== OUTPUT ===
 Return ONLY a single valid JSON object. The entire response must be parseable by JSON.parse().
