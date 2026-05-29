@@ -3,7 +3,7 @@ import { buildApplicationContext } from "@/lib/application-documents/context/bui
 import type { Language } from "@/lib/cover-letter/schemas";
 import type { Site } from "@/lib/siteSchema";
 import { buildCvSummaryPrompt } from "./buildCvSummaryPrompt";
-import { type CvSummarySuggestion, CvSummarySuggestionSchema } from "./schema";
+import { CV_EXECUTIVE_SUMMARY_MAX_LENGTH, type CvSummarySuggestion, CvSummarySuggestionSchema } from "./schema";
 
 export interface GenerateCvSummaryInput {
   jobDescription: string;
@@ -44,6 +44,26 @@ function truncateAtWordBoundary(text: string, max: number): string {
   const cut = text.slice(0, max);
   const lastSpace = cut.lastIndexOf(" ");
   return lastSpace > 0 ? cut.slice(0, lastSpace) : cut;
+}
+
+function truncateAtSentenceBoundary(text: string, maxLength: number): string {
+  const normalized = text.trim();
+  if (normalized.length <= maxLength) return normalized;
+
+  const truncated = normalized.slice(0, maxLength);
+  const lastSentenceEnd = Math.max(
+    truncated.lastIndexOf("."),
+    truncated.lastIndexOf("!"),
+    truncated.lastIndexOf("?"),
+  );
+
+  if (lastSentenceEnd >= Math.floor(maxLength * 0.6)) {
+    const result = truncated.slice(0, lastSentenceEnd + 1).trim();
+    if (result.length > maxLength) return truncateAtWordBoundary(result, maxLength);
+    return result;
+  }
+
+  return truncateAtWordBoundary(normalized, maxLength);
 }
 
 function stripCodeFences(text: string): string {
@@ -113,7 +133,7 @@ export async function generateCvSummaryWithClaude(
   if (parsed !== null && typeof parsed === "object") {
     const p = parsed as Record<string, unknown>;
     if (typeof p.executiveSummary === "string") {
-      p.executiveSummary = truncateAtWordBoundary(p.executiveSummary, 700);
+      p.executiveSummary = truncateAtSentenceBoundary(p.executiveSummary, CV_EXECUTIVE_SUMMARY_MAX_LENGTH);
     }
   }
 

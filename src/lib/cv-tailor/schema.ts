@@ -1,11 +1,13 @@
 import { z } from "zod";
 
+export const CV_EXECUTIVE_SUMMARY_MAX_LENGTH = 700;
+
 export const CvSummarySuggestionSchema = z.object({
   language: z.enum(["en", "de"]),
 
   headline: z.string().min(20).max(180),
 
-  executiveSummary: z.string().min(120).max(700),
+  executiveSummary: z.string().min(120).max(CV_EXECUTIVE_SUMMARY_MAX_LENGTH),
 
   emphasis: z.array(z.string()).min(1).max(6),
 
