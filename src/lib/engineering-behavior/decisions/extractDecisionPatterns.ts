@@ -1,0 +1,175 @@
+import type { EngineeringDecision } from "./schema";
+
+export function suggestDecisionPatterns(): EngineeringDecision[] {
+  return [
+    {
+      title: "Zod Validation Across API Boundaries",
+      category: "architecture",
+      situation:
+        "Multiple API endpoints and DB queries needed consistent validation with compile-time type safety.",
+      optionsConsidered: ["Manual runtime checks", "TypeScript-only types", "Zod"],
+      chosenOption: "Zod",
+      rationale: [
+        "Explicit contracts enforced at runtime, not just compile time",
+        "Type inference via z.infer eliminates manual type definitions",
+        "Shared validation between client and server",
+        "Parse-don't-validate pattern prevents invalid state from propagating",
+      ],
+      tradeoffs: [
+        "Additional schema files to maintain per boundary",
+        "Initial setup cost for each new data shape",
+      ],
+      relatedTraits: ["engineering_quality", "structured_problem_solving"],
+      relatedTendencies: ["prefers_structured_solutions", "prioritizes_maintainability"],
+      evidenceSource:
+        "Portfolio codebase — consistent Zod usage across all DB reads and API routes",
+    },
+    {
+      title: "Shared Component Library (kern-components)",
+      category: "frontend",
+      situation:
+        "Multiple products needed consistent UI with built-in accessibility and design system compliance.",
+      optionsConsidered: [
+        "Inline components per project",
+        "Tailwind utility classes",
+        "Shared component library",
+      ],
+      chosenOption: "kern-components (Kern React Kit)",
+      rationale: [
+        "Accessibility built in at the component level — not per-project",
+        "Design consistency without cross-team coordination overhead",
+        "Component reuse across multiple products reduces duplication",
+      ],
+      tradeoffs: [
+        "Governance overhead for the library itself",
+        "External dependency on an internally maintained package",
+        "Slower adoption of new design patterns while library lags",
+      ],
+      relatedTraits: ["engineering_quality", "collaboration"],
+      relatedTendencies: ["prioritizes_maintainability", "values_cross_functional_collaboration"],
+      evidenceSource: "Portfolio codebase — kern-react-kit used exclusively for all UI primitives",
+    },
+    {
+      title: "Deterministic MCP Workflow for Document Generation",
+      category: "architecture",
+      situation:
+        "Cover letter and CV generation required predictable, auditable outputs without hallucination risk.",
+      optionsConsidered: [
+        "Pure AI generation — LLM orchestrates everything",
+        "Template-based generation with no AI",
+        "Deterministic retrieval + rhetoric planning + Claude prose only",
+      ],
+      chosenOption: "Deterministic retrieval → rhetoric planning → Claude prose generation",
+      rationale: [
+        "Reliability — deterministic pipeline cannot hallucinate evidence",
+        "Observability — each stage can be inspected independently",
+        "Debuggability — failures isolate to a specific pipeline stage",
+        "Claude handles only prose, never evidence selection or structure",
+      ],
+      tradeoffs: [
+        "Less flexibility — Claude cannot reshape or reorder evidence",
+        "More upfront design required per pipeline stage",
+      ],
+      relatedTraits: ["structured_problem_solving", "engineering_quality"],
+      relatedTendencies: ["prefers_structured_solutions", "prioritizes_maintainability"],
+      evidenceSource: "Portfolio codebase — buildCoverLetterContext.ts pipeline architecture",
+    },
+    {
+      title: "Bun as Runtime and Package Manager",
+      category: "tooling",
+      situation:
+        "Next.js project needed a fast runtime and package manager with native SQLite support to avoid ORM overhead.",
+      optionsConsidered: ["Node.js + npm", "Node.js + pnpm", "Bun"],
+      chosenOption: "Bun",
+      rationale: [
+        "Native SQLite via bun:sqlite — no additional ORM or driver dependency",
+        "Faster install and startup than Node.js equivalents",
+        "Single runtime for server, scripts, and package management",
+      ],
+      tradeoffs: [
+        "Smaller ecosystem than Node.js — occasional compatibility edge cases",
+        "Less community documentation for edge cases",
+      ],
+      relatedTraits: ["structured_problem_solving", "continuous_learning"],
+      relatedTendencies: ["prefers_structured_solutions", "embraces_continuous_learning"],
+      evidenceSource: "Portfolio codebase — bun.lockb, bun:sqlite imports throughout",
+    },
+    {
+      title: "tRPC + TanStack Query for Admin API Layer",
+      category: "backend",
+      situation:
+        "Admin CRUD operations needed end-to-end type safety without a separate API spec or code generation step.",
+      optionsConsidered: ["REST + SWR", "GraphQL + Apollo", "tRPC + TanStack Query"],
+      chosenOption: "tRPC + TanStack Query",
+      rationale: [
+        "End-to-end type safety without code generation or schema files",
+        "Shared types between client and server derived from router definition",
+        "TanStack Query handles caching, invalidation, and loading states",
+      ],
+      tradeoffs: [
+        "tRPC-specific paradigm — less portable than REST",
+        "Requires TypeScript on both client and server",
+      ],
+      relatedTraits: ["structured_problem_solving", "engineering_quality"],
+      relatedTendencies: ["prefers_structured_solutions", "prioritizes_maintainability"],
+      evidenceSource: "Portfolio codebase — src/trpc/ directory",
+    },
+    {
+      title: "Docker + Fly.io for Deployment",
+      category: "delivery",
+      situation:
+        "Portfolio app needed consistent, reproducible deployment without cloud infrastructure complexity.",
+      optionsConsidered: ["Vercel", "AWS EC2", "Docker + Fly.io"],
+      chosenOption: "Docker + Fly.io",
+      rationale: [
+        "Reproducible builds across environments via Docker",
+        "SQLite persistence via mounted Fly volume — no external DB needed",
+        "Simple deployment with Fly.io without managing infrastructure",
+      ],
+      tradeoffs: [
+        "More setup than Vercel for a Next.js app",
+        "Requires Docker knowledge to debug build issues",
+      ],
+      relatedTraits: ["ownership", "execution_under_pressure"],
+      relatedTendencies: ["comfortable_with_autonomy", "prefers_structured_solutions"],
+      evidenceSource: "Portfolio codebase — Dockerfile and fly.toml",
+    },
+    {
+      title: "Python ReportLab for PDF Generation",
+      category: "backend",
+      situation:
+        "CV and cover letter PDFs required pixel-precise layout control beyond what HTML-to-PDF tools reliably provide.",
+      optionsConsidered: ["HTML-to-PDF via Puppeteer", "LaTeX", "Python ReportLab"],
+      chosenOption: "Python ReportLab",
+      rationale: [
+        "Pixel-precise layout control without browser rendering quirks",
+        "No browser dependency — no Chromium to install or maintain",
+        "Deterministic output — same input always produces same PDF binary",
+      ],
+      tradeoffs: [
+        "Python subprocess from Node — cross-runtime coordination required",
+        "ReportLab has a steep API learning curve",
+      ],
+      relatedTraits: ["structured_problem_solving", "quality_focus"],
+      relatedTendencies: ["prefers_structured_solutions", "prioritizes_maintainability"],
+      evidenceSource: "Portfolio codebase — scripts/cv/ and scripts/cover-letter/",
+    },
+    {
+      title: "next-intl for Bilingual Localization",
+      category: "frontend",
+      situation:
+        "Portfolio needed EN/DE support with locale-aware routing and type-safe message keys throughout the app.",
+      optionsConsidered: ["Manual locale switching with context", "i18next", "next-intl"],
+      chosenOption: "next-intl",
+      rationale: [
+        "Native integration with Next.js App Router — no adapter layer",
+        "Type-safe message keys via generated types",
+        "Locale-aware routing built in without custom middleware",
+      ],
+      tradeoffs: ["next-intl-specific API — not portable to non-Next.js applications"],
+      relatedTraits: ["stakeholder_focus", "quality_focus"],
+      relatedTendencies: ["prioritizes_maintainability", "values_cross_functional_collaboration"],
+      evidenceSource: "Portfolio codebase — messages/ directory and next-intl config",
+    },
+  ];
+}

@@ -1,5 +1,5 @@
 import type { BehaviorTrait } from "../schema";
-import { CORE_TRAITS, TRAIT_TO_CORE_TRAIT, type CoreTraitName } from "./constants";
+import { CORE_TRAITS, type CoreTraitName, TRAIT_TO_CORE_TRAIT } from "./constants";
 import type { CoreTrait } from "./schema";
 
 type Acc = {

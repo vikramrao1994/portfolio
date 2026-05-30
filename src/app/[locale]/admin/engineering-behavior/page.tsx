@@ -12,16 +12,26 @@ import {
   TextInput,
 } from "@publicplan/kern-react-kit";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import AdminCard from "@/components/Admin/Card/AdminCard";
-import type { CoreTrait, EngineeringProfile, EngineeringTendency } from "@/lib/engineering-behavior/profile/schema";
+import { DECISION_CATEGORIES } from "@/lib/engineering-behavior/decisions/constants";
+import type {
+  EngineeringDecision,
+  StoredDecision,
+} from "@/lib/engineering-behavior/decisions/schema";
+import type {
+  CoreTrait,
+  EngineeringProfile,
+  EngineeringTendency,
+} from "@/lib/engineering-behavior/profile/schema";
 import {
   type BehaviorTrait,
   type EngineeringBehaviorProfile,
   type LinkedInRecommendation,
   RELATIONSHIP_OPTIONS,
 } from "@/lib/engineering-behavior/schema";
-import { adminDelete, adminGet, adminPost } from "@/utils/adminFetch";
+import { adminDelete, adminGet, adminPost, adminPut } from "@/utils/adminFetch";
 import { spacing } from "@/utils/utils";
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -43,6 +53,14 @@ interface RecommendationsResponse {
   recommendations: LinkedInRecommendation[];
 }
 
+interface DecisionsResponse {
+  decisions: StoredDecision[];
+}
+
+interface SuggestionsResponse {
+  suggestions: EngineeringDecision[];
+}
+
 interface RecForm {
   authorName: string;
   authorRole: string;
@@ -51,10 +69,41 @@ interface RecForm {
   recommendationText: string;
 }
 
+interface DecisionForm {
+  title: string;
+  category: string;
+  situation: string;
+  optionsConsidered: string;
+  chosenOption: string;
+  rationale: string;
+  tradeoffs: string;
+  relatedTraits: string;
+  relatedTendencies: string;
+  evidenceSource: string;
+}
+
 const RELATIONSHIP_SELECT_OPTIONS = [
   { value: "", label: "— select —" },
   ...RELATIONSHIP_OPTIONS.map((r) => ({ value: r, label: r })),
 ];
+
+const CATEGORY_SELECT_OPTIONS = [
+  { value: "", label: "— select category —" },
+  ...DECISION_CATEGORIES.map((c) => ({ value: c, label: c })),
+];
+
+const EMPTY_DECISION_FORM: DecisionForm = {
+  title: "",
+  category: "",
+  situation: "",
+  optionsConsidered: "",
+  chosenOption: "",
+  rationale: "",
+  tradeoffs: "",
+  relatedTraits: "",
+  relatedTendencies: "",
+  evidenceSource: "",
+};
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -79,6 +128,43 @@ function recLabel(rec: LinkedInRecommendation): string {
     : "";
   const rel = rec.relationship ? ` [${rec.relationship}]` : "";
   return `${rec.authorName}${role}${rel}`;
+}
+
+function parseLines(text: string): string[] {
+  return text
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean);
+}
+
+function decisionToForm(d: EngineeringDecision): DecisionForm {
+  return {
+    title: (d as StoredDecision).title ?? "",
+    category: d.category,
+    situation: d.situation,
+    optionsConsidered: d.optionsConsidered.join("\n"),
+    chosenOption: d.chosenOption,
+    rationale: d.rationale.join("\n"),
+    tradeoffs: d.tradeoffs.join("\n"),
+    relatedTraits: d.relatedTraits.join("\n"),
+    relatedTendencies: d.relatedTendencies.join("\n"),
+    evidenceSource: d.evidenceSource ?? "",
+  };
+}
+
+function formToDecision(form: DecisionForm): EngineeringDecision {
+  return {
+    title: form.title.trim(),
+    category: form.category as EngineeringDecision["category"],
+    situation: form.situation.trim(),
+    optionsConsidered: parseLines(form.optionsConsidered),
+    chosenOption: form.chosenOption.trim(),
+    rationale: parseLines(form.rationale),
+    tradeoffs: parseLines(form.tradeoffs),
+    relatedTraits: parseLines(form.relatedTraits),
+    relatedTendencies: parseLines(form.relatedTendencies),
+    evidenceSource: form.evidenceSource.trim() || undefined,
+  };
 }
 
 // ── Sub-components ────────────────────────────────────────────────────────────
@@ -204,6 +290,357 @@ function RecommendationList({
   );
 }
 
+function DecisionFormFields({
+  control,
+  errors,
+}: {
+  control: ReturnType<typeof useForm<DecisionForm>>["control"];
+  errors: ReturnType<typeof useForm<DecisionForm>>["formState"]["errors"];
+}) {
+  return (
+    <>
+      <Controller
+        name="title"
+        control={control}
+        rules={{ validate: (v) => v.trim().length >= 1 || "Title is required." }}
+        render={({ field }) => (
+          <TextInput
+            id="decision-title"
+            label="Decision Title"
+            value={field.value}
+            onChange={field.onChange}
+            style={{ marginBottom: spacing(2) }}
+          />
+        )}
+      />
+      {errors.title && (
+        <Body style={{ color: "red", marginBottom: spacing(1) }}>{errors.title.message}</Body>
+      )}
+
+      <Controller
+        name="category"
+        control={control}
+        rules={{ validate: (v) => v.length > 0 || "Category is required." }}
+        render={({ field }) => (
+          <SelectInput
+            id="decision-category"
+            label="Category"
+            value={field.value}
+            options={CATEGORY_SELECT_OPTIONS}
+            onChange={field.onChange}
+          />
+        )}
+      />
+      {errors.category && (
+        <Body style={{ color: "red", marginBottom: spacing(1) }}>{errors.category.message}</Body>
+      )}
+
+      <Controller
+        name="situation"
+        control={control}
+        rules={{ validate: (v) => v.trim().length >= 1 || "Situation is required." }}
+        render={({ field }) => (
+          <TextareaInput
+            id="decision-situation"
+            label="Situation"
+            value={field.value}
+            onChange={field.onChange}
+            rows={3}
+            style={{ marginBottom: spacing(2) }}
+          />
+        )}
+      />
+      {errors.situation && (
+        <Body style={{ color: "red", marginBottom: spacing(1) }}>{errors.situation.message}</Body>
+      )}
+
+      <Controller
+        name="optionsConsidered"
+        control={control}
+        rules={{ validate: (v) => parseLines(v).length >= 1 || "At least one option required." }}
+        render={({ field }) => (
+          <TextareaInput
+            id="decision-options"
+            label="Options Considered (one per line)"
+            value={field.value}
+            onChange={field.onChange}
+            rows={3}
+            style={{ marginBottom: spacing(2) }}
+          />
+        )}
+      />
+      {errors.optionsConsidered && (
+        <Body style={{ color: "red", marginBottom: spacing(1) }}>
+          {errors.optionsConsidered.message}
+        </Body>
+      )}
+
+      <Controller
+        name="chosenOption"
+        control={control}
+        rules={{ validate: (v) => v.trim().length >= 1 || "Chosen option is required." }}
+        render={({ field }) => (
+          <TextInput
+            id="decision-chosen"
+            label="Chosen Option"
+            value={field.value}
+            onChange={field.onChange}
+            style={{ marginBottom: spacing(2) }}
+          />
+        )}
+      />
+      {errors.chosenOption && (
+        <Body style={{ color: "red", marginBottom: spacing(1) }}>
+          {errors.chosenOption.message}
+        </Body>
+      )}
+
+      <Controller
+        name="rationale"
+        control={control}
+        rules={{ validate: (v) => parseLines(v).length >= 1 || "At least one rationale required." }}
+        render={({ field }) => (
+          <TextareaInput
+            id="decision-rationale"
+            label="Rationale (one per line)"
+            value={field.value}
+            onChange={field.onChange}
+            rows={4}
+            style={{ marginBottom: spacing(2) }}
+          />
+        )}
+      />
+      {errors.rationale && (
+        <Body style={{ color: "red", marginBottom: spacing(1) }}>{errors.rationale.message}</Body>
+      )}
+
+      <Controller
+        name="tradeoffs"
+        control={control}
+        render={({ field }) => (
+          <TextareaInput
+            id="decision-tradeoffs"
+            label="Tradeoffs (one per line, optional)"
+            value={field.value}
+            onChange={field.onChange}
+            rows={3}
+            style={{ marginBottom: spacing(2) }}
+          />
+        )}
+      />
+
+      <Controller
+        name="relatedTraits"
+        control={control}
+        render={({ field }) => (
+          <TextareaInput
+            id="decision-traits"
+            label="Related Core Traits (one per line, optional)"
+            value={field.value}
+            onChange={field.onChange}
+            rows={2}
+            style={{ marginBottom: spacing(1) }}
+          />
+        )}
+      />
+      <Body style={{ color: "#888", fontSize: 12, marginBottom: spacing(2) }}>
+        Available: structured_problem_solving, autonomous_execution, engineering_quality,
+        collaborative_delivery, continuous_growth
+      </Body>
+
+      <Controller
+        name="relatedTendencies"
+        control={control}
+        render={({ field }) => (
+          <TextareaInput
+            id="decision-tendencies"
+            label="Related Tendencies (one per line, optional)"
+            value={field.value}
+            onChange={field.onChange}
+            rows={2}
+            style={{ marginBottom: spacing(1) }}
+          />
+        )}
+      />
+      <Body style={{ color: "#888", fontSize: 12, marginBottom: spacing(2) }}>
+        Available: prefers_structured_solutions, comfortable_with_autonomy,
+        prioritizes_maintainability, embraces_continuous_learning,
+        values_cross_functional_collaboration
+      </Body>
+
+      <Controller
+        name="evidenceSource"
+        control={control}
+        render={({ field }) => (
+          <TextInput
+            id="decision-evidence"
+            label="Evidence Source (optional)"
+            value={field.value}
+            onChange={field.onChange}
+            style={{ marginBottom: spacing(2) }}
+          />
+        )}
+      />
+    </>
+  );
+}
+
+function DecisionCard({
+  decision,
+  onEdit,
+  onDelete,
+}: {
+  decision: StoredDecision;
+  onEdit: (d: StoredDecision) => void;
+  onDelete: (id: number) => void;
+}) {
+  return (
+    <Accordion.Root key={decision.id} aria-label={decision.title}>
+      <Accordion.Summary
+        title={{
+          textWrapper: "h3",
+          title: `${decision.title}  ·  ${decision.category}`,
+          variant: "small",
+        }}
+      />
+      <Lists.Root size="small" type="bullet" style={{ marginBottom: spacing(1) }}>
+        <Lists.Item text={`Chosen: ${decision.chosenOption}`} />
+        {decision.relatedTendencies.length > 0 && (
+          <Lists.Item text={`Tendencies: ${decision.relatedTendencies.join(", ")}`} />
+        )}
+        {decision.relatedTraits.length > 0 && (
+          <Lists.Item text={`Traits: ${decision.relatedTraits.join(", ")}`} />
+        )}
+      </Lists.Root>
+
+      <div
+        style={{
+          background: "#f8f9fa",
+          borderRadius: 6,
+          padding: `${spacing(2)}px ${spacing(2.5)}px`,
+          marginBottom: spacing(2),
+        }}
+      >
+        <Body style={{ marginBottom: spacing(1) }}>
+          <strong>Situation:</strong> {decision.situation}
+        </Body>
+
+        {decision.optionsConsidered.length > 0 && (
+          <div style={{ marginBottom: spacing(1) }}>
+            <Body>
+              <strong>Options considered:</strong>
+            </Body>
+            <Lists.Root size="small" type="bullet">
+              {decision.optionsConsidered.map((o) => (
+                <Lists.Item key={o} text={o} />
+              ))}
+            </Lists.Root>
+          </div>
+        )}
+
+        {decision.rationale.length > 0 && (
+          <div style={{ marginBottom: spacing(1) }}>
+            <Body>
+              <strong>Rationale:</strong>
+            </Body>
+            <Lists.Root size="small" type="bullet">
+              {decision.rationale.map((r) => (
+                <Lists.Item key={r} text={r} />
+              ))}
+            </Lists.Root>
+          </div>
+        )}
+
+        {decision.tradeoffs.length > 0 && (
+          <div style={{ marginBottom: spacing(1) }}>
+            <Body>
+              <strong>Tradeoffs:</strong>
+            </Body>
+            <Lists.Root size="small" type="bullet">
+              {decision.tradeoffs.map((t) => (
+                <Lists.Item key={t} text={t} />
+              ))}
+            </Lists.Root>
+          </div>
+        )}
+
+        {decision.evidenceSource && (
+          <Body>
+            <strong>Source:</strong> {decision.evidenceSource}
+          </Body>
+        )}
+      </div>
+
+      <div style={{ display: "flex", gap: spacing(1), marginBottom: spacing(2) }}>
+        <Button type="button" variant="secondary" text="Edit" onClick={() => onEdit(decision)} />
+        <Button
+          type="button"
+          variant="secondary"
+          text="Delete"
+          onClick={() => onDelete(decision.id)}
+        />
+      </div>
+    </Accordion.Root>
+  );
+}
+
+function SuggestionCard({
+  suggestion,
+  onSave,
+  isSaving,
+}: {
+  suggestion: EngineeringDecision;
+  onSave: (d: EngineeringDecision) => void;
+  isSaving: boolean;
+}) {
+  return (
+    <Accordion.Root aria-label={suggestion.title}>
+      <Accordion.Summary
+        title={{
+          textWrapper: "h3",
+          title: `${suggestion.title}  ·  ${suggestion.category}`,
+          variant: "small",
+        }}
+      />
+      <Lists.Root size="small" type="bullet" style={{ marginBottom: spacing(1) }}>
+        <Lists.Item text={`Chosen: ${suggestion.chosenOption}`} />
+        {suggestion.relatedTendencies.length > 0 && (
+          <Lists.Item text={`Tendencies: ${suggestion.relatedTendencies.join(", ")}`} />
+        )}
+      </Lists.Root>
+
+      <div
+        style={{
+          background: "#f8f9fa",
+          borderRadius: 6,
+          padding: `${spacing(2)}px ${spacing(2.5)}px`,
+          marginBottom: spacing(2),
+        }}
+      >
+        <Body style={{ marginBottom: spacing(1) }}>
+          <strong>Situation:</strong> {suggestion.situation}
+        </Body>
+        <Body style={{ marginBottom: spacing(1) }}>
+          <strong>Rationale:</strong> {suggestion.rationale.join(" · ")}
+        </Body>
+        {suggestion.tradeoffs.length > 0 && (
+          <Body>
+            <strong>Tradeoffs:</strong> {suggestion.tradeoffs.join(" · ")}
+          </Body>
+        )}
+      </div>
+
+      <Button
+        type="button"
+        variant="primary"
+        text={isSaving ? "Saving..." : "Save this Decision"}
+        disabled={isSaving}
+        onClick={() => onSave(suggestion)}
+      />
+    </Accordion.Root>
+  );
+}
+
 // ── Page ─────────────────────────────────────────────────────────────────────
 
 export default function EngineeringBehaviorPage() {
@@ -224,6 +661,17 @@ export default function EngineeringBehaviorPage() {
     queryFn: () =>
       adminGet<RecommendationsResponse>("/api/admin/engineering-behavior/recommendations"),
   });
+
+  const { data: decisionsData, isLoading: isLoadingDecisions } = useQuery({
+    queryKey: ["engineering-behavior-decisions"],
+    queryFn: () => adminGet<DecisionsResponse>("/api/admin/engineering-behavior/decisions"),
+  });
+
+  // ── Decision form state ──
+  const [showDecisionForm, setShowDecisionForm] = useState(false);
+  const [editingDecision, setEditingDecision] = useState<StoredDecision | null>(null);
+  const [suggestions, setSuggestions] = useState<EngineeringDecision[] | null>(null);
+  const [savingSuggestionTitle, setSavingSuggestionTitle] = useState<string | null>(null);
 
   // ── Mutations ──
   const extractMutation = useMutation({
@@ -248,7 +696,7 @@ export default function EngineeringBehaviorPage() {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["engineering-behavior-recommendations"] });
-      reset();
+      recFormReset();
     },
   });
 
@@ -260,12 +708,47 @@ export default function EngineeringBehaviorPage() {
     },
   });
 
-  // ── Form ──
+  const createDecisionMutation = useMutation({
+    mutationFn: (data: EngineeringDecision) =>
+      adminPost("/api/admin/engineering-behavior/decisions", data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["engineering-behavior-decisions"] });
+      decisionFormReset(EMPTY_DECISION_FORM);
+      setShowDecisionForm(false);
+    },
+  });
+
+  const updateDecisionMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: EngineeringDecision }) =>
+      adminPut(`/api/admin/engineering-behavior/decisions/${id}`, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["engineering-behavior-decisions"] });
+      setEditingDecision(null);
+      decisionFormReset(EMPTY_DECISION_FORM);
+    },
+  });
+
+  const deleteDecisionMutation = useMutation({
+    mutationFn: (id: number) => adminDelete(`/api/admin/engineering-behavior/decisions/${id}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["engineering-behavior-decisions"] });
+    },
+  });
+
+  const suggestMutation = useMutation({
+    mutationFn: () =>
+      adminGet<SuggestionsResponse>("/api/admin/engineering-behavior/decisions/suggest"),
+    onSuccess: (data) => {
+      setSuggestions(data.suggestions);
+    },
+  });
+
+  // ── Recommendation form ──
   const {
-    control,
-    handleSubmit,
-    reset,
-    formState: { errors },
+    control: recControl,
+    handleSubmit: recHandleSubmit,
+    reset: recFormReset,
+    formState: { errors: recErrors },
   } = useForm<RecForm>({
     defaultValues: {
       authorName: "",
@@ -276,11 +759,53 @@ export default function EngineeringBehaviorPage() {
     },
   });
 
+  // ── Decision form ──
+  const {
+    control: decisionControl,
+    handleSubmit: decisionHandleSubmit,
+    reset: decisionFormReset,
+    formState: { errors: decisionErrors },
+  } = useForm<DecisionForm>({ defaultValues: EMPTY_DECISION_FORM });
+
+  // ── Handlers ──
+  function handleEditDecision(d: StoredDecision) {
+    setEditingDecision(d);
+    decisionFormReset(decisionToForm(d));
+    setShowDecisionForm(true);
+  }
+
+  function handleCancelDecisionForm() {
+    setEditingDecision(null);
+    decisionFormReset(EMPTY_DECISION_FORM);
+    setShowDecisionForm(false);
+  }
+
+  function handleDecisionSubmit(form: DecisionForm) {
+    const data = formToDecision(form);
+    if (editingDecision) {
+      updateDecisionMutation.mutate({ id: editingDecision.id, data });
+    } else {
+      createDecisionMutation.mutate(data);
+    }
+  }
+
+  async function handleSaveSuggestion(suggestion: EngineeringDecision) {
+    setSavingSuggestionTitle(suggestion.title);
+    try {
+      await adminPost("/api/admin/engineering-behavior/decisions", suggestion);
+      queryClient.invalidateQueries({ queryKey: ["engineering-behavior-decisions"] });
+      setSuggestions((prev) => prev?.filter((s) => s.title !== suggestion.title) ?? null);
+    } finally {
+      setSavingSuggestionTitle(null);
+    }
+  }
+
   // ── Derived values ──
   const profile = profileData?.profile ?? null;
   const engineeringProfile = profileData?.engineeringProfile ?? null;
   const createdAt = profileData?.createdAt ?? null;
   const recommendations = recsData?.recommendations ?? [];
+  const decisions = decisionsData?.decisions ?? [];
   const uniqueSources = profile
     ? [...new Set(profile.traits.map((t) => t.sourceDocument))].length
     : 0;
@@ -290,6 +815,9 @@ export default function EngineeringBehaviorPage() {
         documentsSkipped: extractMutation.data.documentsSkipped,
       }
     : null;
+
+  const decisionMutationPending =
+    createDecisionMutation.isPending || updateDecisionMutation.isPending;
 
   return (
     <Grid.Root>
@@ -329,10 +857,10 @@ export default function EngineeringBehaviorPage() {
               title="Add Recommendation"
               style={{ marginBottom: spacing(2) }}
             />
-            <form onSubmit={handleSubmit((data) => addRecMutation.mutate(data))}>
+            <form onSubmit={recHandleSubmit((data) => addRecMutation.mutate(data))}>
               <Controller
                 name="authorName"
-                control={control}
+                control={recControl}
                 render={({ field }) => (
                   <TextInput
                     id="authorName"
@@ -345,7 +873,7 @@ export default function EngineeringBehaviorPage() {
               />
               <Controller
                 name="authorRole"
-                control={control}
+                control={recControl}
                 render={({ field }) => (
                   <TextInput
                     id="authorRole"
@@ -358,7 +886,7 @@ export default function EngineeringBehaviorPage() {
               />
               <Controller
                 name="company"
-                control={control}
+                control={recControl}
                 render={({ field }) => (
                   <TextInput
                     id="company"
@@ -371,7 +899,7 @@ export default function EngineeringBehaviorPage() {
               />
               <Controller
                 name="relationship"
-                control={control}
+                control={recControl}
                 render={({ field }) => (
                   <SelectInput
                     id="relationship"
@@ -384,7 +912,7 @@ export default function EngineeringBehaviorPage() {
               />
               <Controller
                 name="recommendationText"
-                control={control}
+                control={recControl}
                 rules={{
                   validate: (v) =>
                     v.trim().length >= 20 || "Recommendation text must be at least 20 characters.",
@@ -400,9 +928,9 @@ export default function EngineeringBehaviorPage() {
                   />
                 )}
               />
-              {errors.recommendationText && (
+              {recErrors.recommendationText && (
                 <Body style={{ color: "red", marginBottom: spacing(2) }}>
-                  {errors.recommendationText.message}
+                  {recErrors.recommendationText.message}
                 </Body>
               )}
               {addRecMutation.error && (
@@ -541,11 +1069,7 @@ export default function EngineeringBehaviorPage() {
         <>
           <Grid.Row>
             <Grid.Column>
-              <AdminCard
-                id="core-traits"
-                title="Core Traits"
-                ariaLabel="Core Traits"
-              >
+              <AdminCard id="core-traits" title="Core Traits" ariaLabel="Core Traits">
                 <Body style={{ color: "#666", marginBottom: spacing(2) }}>
                   {engineeringProfile.coreTraits.length} core trait
                   {engineeringProfile.coreTraits.length !== 1 ? "s" : ""} consolidated from
@@ -576,6 +1100,159 @@ export default function EngineeringBehaviorPage() {
           </Grid.Row>
         </>
       )}
+
+      {/* ── Engineering Decisions ── */}
+      <Grid.Row>
+        <Grid.Column>
+          <AdminCard
+            id="engineering-decisions"
+            title="Engineering Decisions"
+            ariaLabel="Engineering Decisions"
+          >
+            <Body style={{ color: "#666", marginBottom: spacing(3) }}>
+              Capture real engineering decisions and the tradeoffs behind them. These form the
+              Decision Corpus — the evidentiary foundation linking behaviour traits to concrete
+              choices.
+            </Body>
+
+            <div style={{ display: "flex", gap: spacing(1.5), marginBottom: spacing(3) }}>
+              {!showDecisionForm && (
+                <Button
+                  type="button"
+                  variant="primary"
+                  text="Add Decision"
+                  onClick={() => {
+                    setEditingDecision(null);
+                    decisionFormReset(EMPTY_DECISION_FORM);
+                    setShowDecisionForm(true);
+                  }}
+                />
+              )}
+              <Button
+                type="button"
+                variant="secondary"
+                text={suggestMutation.isPending ? "Loading..." : "Suggest Decisions From Portfolio"}
+                disabled={suggestMutation.isPending}
+                onClick={() => suggestMutation.mutate()}
+              />
+            </div>
+
+            {suggestMutation.error && (
+              <Body style={{ color: "red", marginBottom: spacing(2) }}>
+                {suggestMutation.error.message}
+              </Body>
+            )}
+
+            {suggestions !== null && suggestions.length > 0 && (
+              <div style={{ marginBottom: spacing(3) }}>
+                <Heading
+                  type="small"
+                  headerElement="h3"
+                  title="Suggested Decisions"
+                  style={{ marginBottom: spacing(1) }}
+                />
+                <Body style={{ color: "#666", marginBottom: spacing(2) }}>
+                  Review each suggestion and save the ones that apply. None are saved automatically.
+                </Body>
+                <Accordion.Group>
+                  {suggestions.map((s) => (
+                    <SuggestionCard
+                      key={s.title}
+                      suggestion={s}
+                      onSave={handleSaveSuggestion}
+                      isSaving={savingSuggestionTitle === s.title}
+                    />
+                  ))}
+                </Accordion.Group>
+              </div>
+            )}
+
+            {suggestions !== null && suggestions.length === 0 && (
+              <Body style={{ color: "#888", marginBottom: spacing(2) }}>
+                All suggestions have been saved.
+              </Body>
+            )}
+
+            {showDecisionForm && (
+              <div
+                style={{
+                  background: "#f8f9fa",
+                  borderRadius: 6,
+                  padding: `${spacing(2.5)}px ${spacing(3)}px`,
+                  marginBottom: spacing(3),
+                }}
+              >
+                <Heading
+                  type="small"
+                  headerElement="h3"
+                  title={editingDecision ? `Edit: ${editingDecision.title}` : "Add Decision"}
+                  style={{ marginBottom: spacing(2) }}
+                />
+                <form onSubmit={decisionHandleSubmit(handleDecisionSubmit)}>
+                  <DecisionFormFields control={decisionControl} errors={decisionErrors} />
+                  {(createDecisionMutation.error || updateDecisionMutation.error) && (
+                    <Body style={{ color: "red", marginBottom: spacing(2) }}>
+                      {(createDecisionMutation.error ?? updateDecisionMutation.error)?.message}
+                    </Body>
+                  )}
+                  <div style={{ display: "flex", gap: spacing(1.5) }}>
+                    <Button
+                      type="submit"
+                      variant="primary"
+                      text={
+                        decisionMutationPending
+                          ? "Saving..."
+                          : editingDecision
+                            ? "Update Decision"
+                            : "Save Decision"
+                      }
+                      disabled={decisionMutationPending}
+                    />
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      text="Cancel"
+                      onClick={handleCancelDecisionForm}
+                    />
+                  </div>
+                </form>
+              </div>
+            )}
+          </AdminCard>
+        </Grid.Column>
+      </Grid.Row>
+
+      {/* ── Decision Corpus ── */}
+      <Grid.Row>
+        <Grid.Column>
+          <AdminCard id="decision-corpus" title="Decision Corpus" ariaLabel="Decision Corpus">
+            {isLoadingDecisions ? (
+              <Body style={{ color: "#888" }}>Loading...</Body>
+            ) : decisions.length === 0 ? (
+              <Body style={{ color: "#888" }}>
+                No decisions recorded yet. Add decisions above or use &ldquo;Suggest Decisions From
+                Portfolio&rdquo; to populate the corpus.
+              </Body>
+            ) : (
+              <>
+                <Body style={{ color: "#666", marginBottom: spacing(2) }}>
+                  {decisions.length} decision{decisions.length !== 1 ? "s" : ""} in corpus.
+                </Body>
+                <Accordion.Group>
+                  {decisions.map((d) => (
+                    <DecisionCard
+                      key={d.id}
+                      decision={d}
+                      onEdit={handleEditDecision}
+                      onDelete={(id) => deleteDecisionMutation.mutate(id)}
+                    />
+                  ))}
+                </Accordion.Group>
+              </>
+            )}
+          </AdminCard>
+        </Grid.Column>
+      </Grid.Row>
     </Grid.Root>
   );
 }
