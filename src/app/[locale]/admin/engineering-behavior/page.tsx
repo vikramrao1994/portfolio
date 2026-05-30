@@ -11,14 +11,16 @@ import {
   TextareaInput,
   TextInput,
 } from "@publicplan/kern-react-kit";
-import { useEffect, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Controller, useForm } from "react-hook-form";
 import AdminCard from "@/components/Admin/Card/AdminCard";
-import type {
-  BehaviorTrait,
-  EngineeringBehaviorProfile,
-  LinkedInRecommendation,
+import {
+  type BehaviorTrait,
+  type EngineeringBehaviorProfile,
+  type LinkedInRecommendation,
+  RELATIONSHIP_OPTIONS,
 } from "@/lib/engineering-behavior/schema";
-import { RELATIONSHIP_OPTIONS } from "@/lib/engineering-behavior/schema";
+import { adminDelete, adminGet, adminPost } from "@/utils/adminFetch";
 import { spacing } from "@/utils/utils";
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -45,14 +47,6 @@ interface RecForm {
   relationship: string;
   recommendationText: string;
 }
-
-const EMPTY_REC_FORM: RecForm = {
-  authorName: "",
-  authorRole: "",
-  company: "",
-  relationship: "",
-  recommendationText: "",
-};
 
 const RELATIONSHIP_SELECT_OPTIONS = [
   { value: "", label: "— select —" },
@@ -165,148 +159,82 @@ function RecommendationList({
 // ── Page ─────────────────────────────────────────────────────────────────────
 
 export default function EngineeringBehaviorPage() {
-  // Profile state
-  const [profile, setProfile] = useState<EngineeringBehaviorProfile | null>(null);
-  const [createdAt, setCreatedAt] = useState<string | null>(null);
-  const [isLoadingProfile, setIsLoadingProfile] = useState(true);
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  // Extraction state
-  const [isExtracting, setIsExtracting] = useState(false);
-  const [extractError, setExtractError] = useState<string | null>(null);
-  const [lastExtractStats, setLastExtractStats] = useState<{
-    documentsProcessed: number;
-    documentsSkipped: number;
-  } | null>(null);
+  // ── Queries ──
+  const { data: profileData, isLoading: isLoadingProfile, error: loadError } = useQuery({
+    queryKey: ["engineering-behavior-profile"],
+    queryFn: () => adminGet<ProfileResponse>("/api/admin/engineering-behavior"),
+  });
 
-  // Recommendations state
-  const [recommendations, setRecommendations] = useState<LinkedInRecommendation[]>([]);
-  const [isLoadingRecs, setIsLoadingRecs] = useState(true);
-  const [recForm, setRecForm] = useState<RecForm>(EMPTY_REC_FORM);
-  const [isAddingRec, setIsAddingRec] = useState(false);
-  const [addRecError, setAddRecError] = useState<string | null>(null);
+  const { data: recsData, isLoading: isLoadingRecs } = useQuery({
+    queryKey: ["engineering-behavior-recommendations"],
+    queryFn: () => adminGet<RecommendationsResponse>("/api/admin/engineering-behavior/recommendations"),
+  });
 
-  // Load profile + recommendations on mount
-  useEffect(() => {
-    async function loadProfile() {
-      try {
-        const res = await fetch("/api/admin/engineering-behavior");
-        if (!res.ok) {
-          if (res.status !== 401) setLoadError("Failed to load existing profile.");
-          return;
-        }
-        const data: ProfileResponse = await res.json();
-        setProfile(data.profile);
-        setCreatedAt(data.createdAt);
-      } catch {
-        setLoadError("Network error while loading profile.");
-      } finally {
-        setIsLoadingProfile(false);
-      }
-    }
-
-    async function loadRecommendations() {
-      try {
-        const res = await fetch("/api/admin/engineering-behavior/recommendations");
-        if (!res.ok) return;
-        const data: RecommendationsResponse = await res.json();
-        setRecommendations(data.recommendations);
-      } finally {
-        setIsLoadingRecs(false);
-      }
-    }
-
-    loadProfile();
-    loadRecommendations();
-  }, []);
-
-  // Extraction
-  async function handleExtract() {
-    setIsExtracting(true);
-    setExtractError(null);
-    try {
-      const res = await fetch("/api/admin/engineering-behavior/extract", { method: "POST" });
-      if (res.status === 401) {
-        setExtractError("Not authenticated. Please log in again.");
-        return;
-      }
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        setExtractError(data.error ?? "Extraction failed. Please try again.");
-        return;
-      }
-      const data: ExtractionResponse = await res.json();
-      setProfile(data.profile);
-      setCreatedAt(data.profile.extractedAt);
-      setLastExtractStats({
-        documentsProcessed: data.documentsProcessed,
-        documentsSkipped: data.documentsSkipped,
+  // ── Mutations ──
+  const extractMutation = useMutation({
+    mutationFn: () => adminPost<ExtractionResponse>("/api/admin/engineering-behavior/extract"),
+    onSuccess: (data) => {
+      queryClient.setQueryData<ProfileResponse>(["engineering-behavior-profile"], {
+        profile: data.profile,
+        createdAt: data.profile.extractedAt,
       });
-    } catch {
-      setExtractError("Network error. Please try again.");
-    } finally {
-      setIsExtracting(false);
-    }
-  }
+    },
+  });
 
-  // Add recommendation
-  function updateRecForm<K extends keyof RecForm>(key: K, value: RecForm[K]) {
-    setRecForm((prev) => ({ ...prev, [key]: value }));
-    setAddRecError(null);
-  }
+  const addRecMutation = useMutation({
+    mutationFn: (form: RecForm) =>
+      adminPost("/api/admin/engineering-behavior/recommendations", {
+        authorName: form.authorName || undefined,
+        authorRole: form.authorRole || undefined,
+        company: form.company || undefined,
+        relationship: form.relationship || undefined,
+        recommendationText: form.recommendationText,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["engineering-behavior-recommendations"] });
+      reset();
+    },
+  });
 
-  async function handleAddRec() {
-    if (recForm.recommendationText.trim().length < 20) {
-      setAddRecError("Recommendation text must be at least 20 characters.");
-      return;
-    }
-    setIsAddingRec(true);
-    setAddRecError(null);
-    try {
-      const res = await fetch("/api/admin/engineering-behavior/recommendations", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          authorName: recForm.authorName || undefined,
-          authorRole: recForm.authorRole || undefined,
-          company: recForm.company || undefined,
-          relationship: recForm.relationship || undefined,
-          recommendationText: recForm.recommendationText,
-        }),
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        setAddRecError(data.error ?? "Failed to add recommendation.");
-        return;
-      }
-      // Refresh list
-      const listRes = await fetch("/api/admin/engineering-behavior/recommendations");
-      if (listRes.ok) {
-        const data: RecommendationsResponse = await listRes.json();
-        setRecommendations(data.recommendations);
-      }
-      setRecForm(EMPTY_REC_FORM);
-    } catch {
-      setAddRecError("Network error. Please try again.");
-    } finally {
-      setIsAddingRec(false);
-    }
-  }
+  const deleteRecMutation = useMutation({
+    mutationFn: (id: number) =>
+      adminDelete(`/api/admin/engineering-behavior/recommendations/${id}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["engineering-behavior-recommendations"] });
+    },
+  });
 
-  // Delete recommendation
-  async function handleDeleteRec(id: number) {
-    try {
-      await fetch(`/api/admin/engineering-behavior/recommendations/${id}`, { method: "DELETE" });
-      setRecommendations((prev) => prev.filter((r) => r.id !== id));
-    } catch {
-      // silently ignore — list will be stale until next load
-    }
-  }
+  // ── Form ──
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<RecForm>({
+    defaultValues: {
+      authorName: "",
+      authorRole: "",
+      company: "",
+      relationship: "",
+      recommendationText: "",
+    },
+  });
 
-  // Unique source count for status display
+  // ── Derived values ──
+  const profile = profileData?.profile ?? null;
+  const createdAt = profileData?.createdAt ?? null;
+  const recommendations = recsData?.recommendations ?? [];
   const uniqueSources = profile
     ? [...new Set(profile.traits.map((t) => t.sourceDocument))].length
     : 0;
+  const lastExtractStats = extractMutation.data
+    ? {
+        documentsProcessed: extractMutation.data.documentsProcessed,
+        documentsSkipped: extractMutation.data.documentsSkipped,
+      }
+    : null;
 
   return (
     <Grid.Root>
@@ -323,7 +251,6 @@ export default function EngineeringBehaviorPage() {
               can weight by observer role.
             </Body>
 
-            {/* Existing recommendations */}
             <div style={{ marginBottom: spacing(3) }}>
               <Heading
                 type="small"
@@ -334,64 +261,108 @@ export default function EngineeringBehaviorPage() {
               {isLoadingRecs ? (
                 <Body style={{ color: "#888" }}>Loading...</Body>
               ) : (
-                <RecommendationList recommendations={recommendations} onDelete={handleDeleteRec} />
+                <RecommendationList
+                  recommendations={recommendations}
+                  onDelete={(id) => deleteRecMutation.mutate(id)}
+                />
               )}
             </div>
 
-            {/* Add form */}
             <Heading
               type="small"
               headerElement="h3"
               title="Add Recommendation"
               style={{ marginBottom: spacing(2) }}
             />
-            <TextInput
-              id="authorName"
-              label="Author Name"
-              value={recForm.authorName}
-              onChange={(e) => updateRecForm("authorName", e.target.value)}
-              style={{ marginBottom: spacing(2) }}
-            />
-            <TextInput
-              id="authorRole"
-              label="Author Role"
-              value={recForm.authorRole}
-              onChange={(e) => updateRecForm("authorRole", e.target.value)}
-              style={{ marginBottom: spacing(2) }}
-            />
-            <TextInput
-              id="company"
-              label="Company"
-              value={recForm.company}
-              onChange={(e) => updateRecForm("company", e.target.value)}
-              style={{ marginBottom: spacing(2) }}
-            />
-            <SelectInput
-              id="relationship"
-              label="Relationship"
-              value={recForm.relationship}
-              options={RELATIONSHIP_SELECT_OPTIONS}
-              onChange={(e) => updateRecForm("relationship", e.target.value)}
-              style={{ marginBottom: spacing(2) }}
-            />
-            <TextareaInput
-              id="recommendationText"
-              label="Recommendation Text"
-              value={recForm.recommendationText}
-              onChange={(e) => updateRecForm("recommendationText", e.target.value)}
-              rows={8}
-              style={{ marginBottom: spacing(2) }}
-            />
-            {addRecError && (
-              <Body style={{ color: "red", marginBottom: spacing(2) }}>{addRecError}</Body>
-            )}
-            <Button
-              type="button"
-              variant="primary"
-              text={isAddingRec ? "Adding..." : "Add Recommendation"}
-              disabled={isAddingRec}
-              onClick={handleAddRec}
-            />
+            <form onSubmit={handleSubmit((data) => addRecMutation.mutate(data))}>
+              <Controller
+                name="authorName"
+                control={control}
+                render={({ field }) => (
+                  <TextInput
+                    id="authorName"
+                    label="Author Name"
+                    value={field.value}
+                    onChange={field.onChange}
+                    style={{ marginBottom: spacing(2) }}
+                  />
+                )}
+              />
+              <Controller
+                name="authorRole"
+                control={control}
+                render={({ field }) => (
+                  <TextInput
+                    id="authorRole"
+                    label="Author Role"
+                    value={field.value}
+                    onChange={field.onChange}
+                    style={{ marginBottom: spacing(2) }}
+                  />
+                )}
+              />
+              <Controller
+                name="company"
+                control={control}
+                render={({ field }) => (
+                  <TextInput
+                    id="company"
+                    label="Company"
+                    value={field.value}
+                    onChange={field.onChange}
+                    style={{ marginBottom: spacing(2) }}
+                  />
+                )}
+              />
+              <Controller
+                name="relationship"
+                control={control}
+                render={({ field }) => (
+                  <SelectInput
+                    id="relationship"
+                    label="Relationship"
+                    value={field.value}
+                    options={RELATIONSHIP_SELECT_OPTIONS}
+                    onChange={field.onChange}
+                    style={{ marginBottom: spacing(2) }}
+                  />
+                )}
+              />
+              <Controller
+                name="recommendationText"
+                control={control}
+                rules={{
+                  validate: (v) =>
+                    v.trim().length >= 20 || "Recommendation text must be at least 20 characters.",
+                }}
+                render={({ field }) => (
+                  <TextareaInput
+                    id="recommendationText"
+                    label="Recommendation Text"
+                    value={field.value}
+                    onChange={field.onChange}
+                    rows={8}
+                    style={{ marginBottom: spacing(2) }}
+                  />
+                )}
+              />
+              {errors.recommendationText && (
+                <Body style={{ color: "red", marginBottom: spacing(2) }}>
+                  {errors.recommendationText.message}
+                </Body>
+              )}
+              {addRecMutation.error && (
+                <Body style={{ color: "red", marginBottom: spacing(2) }}>
+                  {addRecMutation.error.message}
+                </Body>
+              )}
+              <Button
+                type="submit"
+                variant="primary"
+                text={addRecMutation.isPending ? "Adding..." : "Add Recommendation"}
+                disabled={addRecMutation.isPending}
+              />
+            </form>
           </AdminCard>
         </Grid.Column>
       </Grid.Row>
@@ -413,14 +384,16 @@ export default function EngineeringBehaviorPage() {
               <Button
                 type="button"
                 variant="primary"
-                text={isExtracting ? "Extracting..." : "Extract Behavior From Documents"}
-                disabled={isExtracting}
-                onClick={handleExtract}
+                text={extractMutation.isPending ? "Extracting..." : "Extract Behavior From Documents"}
+                disabled={extractMutation.isPending}
+                onClick={() => extractMutation.mutate()}
               />
             </div>
 
-            {extractError && (
-              <Body style={{ color: "red", marginBottom: spacing(2) }}>{extractError}</Body>
+            {extractMutation.error && (
+              <Body style={{ color: "red", marginBottom: spacing(2) }}>
+                {extractMutation.error.message}
+              </Body>
             )}
 
             <div
@@ -450,7 +423,9 @@ export default function EngineeringBehaviorPage() {
               </Body>
             </div>
 
-            {loadError && <Body style={{ color: "red", marginTop: spacing(2) }}>{loadError}</Body>}
+            {loadError && (
+              <Body style={{ color: "red", marginTop: spacing(2) }}>{loadError.message}</Body>
+            )}
           </AdminCard>
         </Grid.Column>
       </Grid.Row>
