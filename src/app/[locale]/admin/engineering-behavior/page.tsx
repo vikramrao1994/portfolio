@@ -31,6 +31,7 @@ import {
   type LinkedInRecommendation,
   RELATIONSHIP_OPTIONS,
 } from "@/lib/engineering-behavior/schema";
+import type { EngineeringStyleProfile } from "@/lib/engineering-behavior/style/schema";
 import { adminDelete, adminGet, adminPost, adminPut } from "@/utils/adminFetch";
 import { spacing } from "@/utils/utils";
 
@@ -39,7 +40,12 @@ import { spacing } from "@/utils/utils";
 interface ProfileResponse {
   profile: EngineeringBehaviorProfile | null;
   engineeringProfile: EngineeringProfile | null;
+  styleProfile: EngineeringStyleProfile | null;
   createdAt: string | null;
+}
+
+interface StyleProfileResponse {
+  styleProfile: EngineeringStyleProfile;
 }
 
 interface ExtractionResponse {
@@ -641,6 +647,100 @@ function SuggestionCard({
   );
 }
 
+function StyleProfileSection({ label, items }: { label: string; items: string[] }) {
+  if (items.length === 0) return null;
+  return (
+    <div style={{ marginBottom: spacing(3) }}>
+      <Heading type="small" headerElement="h3" title={label} style={{ marginBottom: spacing(1) }} />
+      <Lists.Root size="small" type="bullet">
+        {items.map((item) => (
+          <Lists.Item key={item} text={item} />
+        ))}
+      </Lists.Root>
+    </div>
+  );
+}
+
+function StyleProfileCard({
+  styleProfile,
+  onGenerate,
+  isGenerating,
+  error,
+}: {
+  styleProfile: EngineeringStyleProfile | null;
+  onGenerate: () => void;
+  isGenerating: boolean;
+  error: Error | null;
+}) {
+  return (
+    <AdminCard
+      id="engineering-style-profile"
+      title="Engineering Style Profile"
+      ariaLabel="Engineering Style Profile"
+    >
+      <Body style={{ color: "#666", marginBottom: spacing(3) }}>
+        Synthesizes core traits, engineering tendencies, and the decision corpus into a canonical
+        engineering identity. Fully deterministic — re-generate any time after adding decisions.
+      </Body>
+
+      <div style={{ marginBottom: spacing(3) }}>
+        <Button
+          type="button"
+          variant="primary"
+          text={isGenerating ? "Generating..." : "Generate Style Profile"}
+          disabled={isGenerating}
+          onClick={onGenerate}
+        />
+      </div>
+
+      {error && <Body style={{ color: "red", marginBottom: spacing(2) }}>{error.message}</Body>}
+
+      {styleProfile && (
+        <>
+          <StyleProfileSection label="Decision Style" items={styleProfile.decisionStyle} />
+          <StyleProfileSection label="Preferred Patterns" items={styleProfile.preferredPatterns} />
+          <StyleProfileSection label="Accepted Tradeoffs" items={styleProfile.acceptedTradeoffs} />
+          <StyleProfileSection label="Anti-Patterns" items={styleProfile.antiPatterns} />
+          <StyleProfileSection
+            label="Preferred Environments"
+            items={styleProfile.preferredEnvironments}
+          />
+          <StyleProfileSection
+            label="Representative Decisions"
+            items={styleProfile.representativeDecisions}
+          />
+
+          <div style={{ marginTop: spacing(1) }}>
+            <Heading
+              type="small"
+              headerElement="h3"
+              title="English Style Summary"
+              style={{ marginBottom: spacing(1) }}
+            />
+            <Body style={{ whiteSpace: "pre-wrap", marginBottom: spacing(3) }}>
+              {styleProfile.summary_en}
+            </Body>
+
+            <Heading
+              type="small"
+              headerElement="h3"
+              title="German Style Summary"
+              style={{ marginBottom: spacing(1) }}
+            />
+            <Body style={{ whiteSpace: "pre-wrap" }}>{styleProfile.summary_de}</Body>
+          </div>
+        </>
+      )}
+
+      {!styleProfile && (
+        <Body style={{ color: "#888" }}>
+          No style profile generated yet. Add decisions and click Generate.
+        </Body>
+      )}
+    </AdminCard>
+  );
+}
+
 // ── Page ─────────────────────────────────────────────────────────────────────
 
 export default function EngineeringBehaviorPage() {
@@ -680,8 +780,18 @@ export default function EngineeringBehaviorPage() {
       queryClient.setQueryData<ProfileResponse>(["engineering-behavior-profile"], {
         profile: data.profile,
         engineeringProfile: data.engineeringProfile,
+        styleProfile: profileData?.styleProfile ?? null,
         createdAt: data.profile.extractedAt,
       });
+    },
+  });
+
+  const generateStyleMutation = useMutation({
+    mutationFn: () => adminPost<StyleProfileResponse>("/api/admin/engineering-behavior/style"),
+    onSuccess: (data) => {
+      queryClient.setQueryData<ProfileResponse>(["engineering-behavior-profile"], (prev) =>
+        prev ? { ...prev, styleProfile: data.styleProfile } : prev,
+      );
     },
   });
 
@@ -803,6 +913,7 @@ export default function EngineeringBehaviorPage() {
   // ── Derived values ──
   const profile = profileData?.profile ?? null;
   const engineeringProfile = profileData?.engineeringProfile ?? null;
+  const styleProfile = profileData?.styleProfile ?? null;
   const createdAt = profileData?.createdAt ?? null;
   const recommendations = recsData?.recommendations ?? [];
   const decisions = decisionsData?.decisions ?? [];
@@ -1251,6 +1362,18 @@ export default function EngineeringBehaviorPage() {
               </>
             )}
           </AdminCard>
+        </Grid.Column>
+      </Grid.Row>
+
+      {/* ── Engineering Style Profile ── */}
+      <Grid.Row>
+        <Grid.Column>
+          <StyleProfileCard
+            styleProfile={styleProfile}
+            onGenerate={() => generateStyleMutation.mutate()}
+            isGenerating={generateStyleMutation.isPending}
+            error={generateStyleMutation.error}
+          />
         </Grid.Column>
       </Grid.Row>
     </Grid.Root>

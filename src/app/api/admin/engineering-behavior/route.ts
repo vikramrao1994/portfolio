@@ -21,16 +21,22 @@ export async function GET() {
   const db = getDb();
   const row = db
     .query(
-      "SELECT profile_json, engineering_profile_json, created_at FROM engineering_behavior_profile WHERE id = 1",
+      "SELECT profile_json, engineering_profile_json, engineering_style_profile_json, created_at FROM engineering_behavior_profile WHERE id = 1",
     )
     .get() as {
     profile_json: string;
     engineering_profile_json: string | null;
+    engineering_style_profile_json: string | null;
     created_at: string;
   } | null;
 
   if (!row) {
-    return NextResponse.json({ profile: null, engineeringProfile: null, createdAt: null });
+    return NextResponse.json({
+      profile: null,
+      engineeringProfile: null,
+      styleProfile: null,
+      createdAt: null,
+    });
   }
 
   try {
@@ -38,7 +44,15 @@ export async function GET() {
     const engineeringProfile = row.engineering_profile_json
       ? JSON.parse(row.engineering_profile_json)
       : null;
-    return NextResponse.json({ profile, engineeringProfile, createdAt: row.created_at });
+    const styleProfile = row.engineering_style_profile_json
+      ? JSON.parse(row.engineering_style_profile_json)
+      : null;
+    return NextResponse.json({
+      profile,
+      engineeringProfile,
+      styleProfile,
+      createdAt: row.created_at,
+    });
   } catch {
     return NextResponse.json({ error: "Stored profile is corrupted" }, { status: 500 });
   }

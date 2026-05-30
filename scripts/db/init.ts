@@ -21,6 +21,14 @@ try {
 }
 
 try {
+  db.exec(
+    "ALTER TABLE engineering_behavior_profile ADD COLUMN engineering_style_profile_json TEXT",
+  );
+} catch {
+  // Column already present
+}
+
+try {
   db.exec(`CREATE TABLE IF NOT EXISTS engineering_decision (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,

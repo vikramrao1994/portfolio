@@ -35,7 +35,10 @@ export async function POST(req: Request) {
 
   const parsed = EngineeringDecisionSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Invalid request", detail: parsed.error.issues }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid request", detail: parsed.error.issues },
+      { status: 400 },
+    );
   }
 
   const result = createDecision(parsed.data);

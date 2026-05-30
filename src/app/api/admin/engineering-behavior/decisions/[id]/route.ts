@@ -34,7 +34,10 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
   const parsed = EngineeringDecisionSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Invalid request", detail: parsed.error.issues }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid request", detail: parsed.error.issues },
+      { status: 400 },
+    );
   }
 
   const result = updateDecision(numericId, parsed.data);
