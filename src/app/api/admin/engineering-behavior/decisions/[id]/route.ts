@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { verifyJWT } from "@/lib/auth";
 import { EngineeringDecisionSchema } from "@/lib/engineering-behavior/decisions/schema";
-import { getWriteDb } from "@/server/db";
+import { deleteDecision, updateDecision } from "@/server/queries/engineeringDecisions";
 
 export const dynamic = "force-dynamic";
 
@@ -34,27 +34,13 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
   const parsed = EngineeringDecisionSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json(
-      { error: "Invalid request", detail: parsed.error.issues },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: "Invalid request", detail: parsed.error.issues }, { status: 400 });
   }
 
-  const { title, ...rest } = parsed.data;
-  const now = new Date().toISOString();
+  const result = updateDecision(numericId, parsed.data);
+  if (!result) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  const db = getWriteDb();
-  const result = db
-    .prepare(
-      "UPDATE engineering_decision SET title = ?, decision_json = ?, updated_at = ? WHERE id = ?",
-    )
-    .run(title, JSON.stringify(rest), now, numericId);
-
-  if (result.changes === 0) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
-  }
-
-  return NextResponse.json({ success: true, updatedAt: now });
+  return NextResponse.json({ success: true, updatedAt: result.updatedAt });
 }
 
 export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -68,8 +54,6 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
     return NextResponse.json({ error: "Invalid id" }, { status: 400 });
   }
 
-  const db = getWriteDb();
-  db.prepare("DELETE FROM engineering_decision WHERE id = ?").run(numericId);
-
+  deleteDecision(numericId);
   return NextResponse.json({ success: true });
 }
