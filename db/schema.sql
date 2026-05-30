@@ -166,3 +166,19 @@ CREATE TABLE IF NOT EXISTS hobbies (
   en TEXT NOT NULL,
   de TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS engineering_behavior_profile (
+  id INTEGER PRIMARY KEY CHECK (id = 1),
+  profile_json TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS linkedin_recommendation (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  author_name TEXT,
+  author_role TEXT,
+  company TEXT,
+  relationship TEXT,
+  recommendation_text TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);

@@ -46,6 +46,18 @@ export default function AdminPage() {
                   title="Cover Letter Prompt Generator"
                 />
               </Lists.Item>
+              <Lists.Item>
+                <Link
+                  href="/admin/engineering-behavior"
+                  icon={{
+                    "aria-hidden": true,
+                    name: "arrow-forward",
+                    size: "default",
+                  }}
+                  iconLeft
+                  title="Engineering Behavior"
+                />
+              </Lists.Item>
             </Lists.Root>
           </AdminCard>
         </Grid.Column>
