@@ -1,6 +1,7 @@
-import type {
-  EngineeringDecision,
-  StoredDecision,
+import {
+  type EngineeringDecision,
+  type StoredDecision,
+  StoredDecisionSchema,
 } from "@/lib/engineering-behavior/decisions/schema";
 import { getDb, getWriteDb } from "@/server/db";
 
@@ -14,13 +15,13 @@ type DecisionRow = {
 
 function rowToDecision(row: DecisionRow): StoredDecision {
   const data = JSON.parse(row.decision_json);
-  return {
+  return StoredDecisionSchema.parse({
     id: row.id,
     title: row.title,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     ...data,
-  };
+  });
 }
 
 export function listDecisions(): StoredDecision[] {

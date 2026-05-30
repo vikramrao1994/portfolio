@@ -23,6 +23,14 @@ export function suggestDecisionPatterns(): EngineeringDecision[] {
       relatedTendencies: ["prefers_structured_solutions", "prioritizes_maintainability"],
       evidenceSource:
         "Portfolio codebase — consistent Zod usage across all DB reads and API routes",
+      styleSignals: ["prefers_explicit_contracts", "values_type_safety"],
+      preferredPatterns: ["validation_at_boundaries", "typed_apis", "contract_first_design"],
+      acceptedTradeoffs: [
+        "schema_maintenance_for_type_safety",
+        "additional_structure_for_reliability",
+      ],
+      antiPatterns: ["unvalidated_boundaries", "manual_type_synchronization"],
+      preferredEnvironments: [],
     },
     {
       title: "Shared Component Library (kern-components)",
@@ -48,6 +56,14 @@ export function suggestDecisionPatterns(): EngineeringDecision[] {
       relatedTraits: ["engineering_quality", "collaboration"],
       relatedTendencies: ["prioritizes_maintainability", "values_cross_functional_collaboration"],
       evidenceSource: "Portfolio codebase — kern-react-kit used exclusively for all UI primitives",
+      styleSignals: ["prefers_shared_abstractions", "prioritizes_maintainability"],
+      preferredPatterns: ["shared_component_libraries"],
+      acceptedTradeoffs: [
+        "governance_overhead_for_consistency",
+        "upfront_complexity_for_long_term_maintainability",
+      ],
+      antiPatterns: ["duplicated_ui_implementations"],
+      preferredEnvironments: ["strong_engineering_culture", "cross_functional_product_teams"],
     },
     {
       title: "Deterministic MCP Workflow for Document Generation",
@@ -73,6 +89,18 @@ export function suggestDecisionPatterns(): EngineeringDecision[] {
       relatedTraits: ["structured_problem_solving", "engineering_quality"],
       relatedTendencies: ["prefers_structured_solutions", "prioritizes_maintainability"],
       evidenceSource: "Portfolio codebase — buildCoverLetterContext.ts pipeline architecture",
+      styleSignals: [
+        "prefers_deterministic_workflows",
+        "prioritizes_observability",
+        "prioritizes_maintainability",
+      ],
+      preferredPatterns: ["deterministic_pipelines", "structured_workflows"],
+      acceptedTradeoffs: [
+        "additional_structure_for_reliability",
+        "upfront_complexity_for_long_term_maintainability",
+      ],
+      antiPatterns: ["opaque_workflows", "ad_hoc_pipeline_design"],
+      preferredEnvironments: [],
     },
     {
       title: "Bun as Runtime and Package Manager",
@@ -93,6 +121,11 @@ export function suggestDecisionPatterns(): EngineeringDecision[] {
       relatedTraits: ["structured_problem_solving", "continuous_learning"],
       relatedTendencies: ["prefers_structured_solutions", "embraces_continuous_learning"],
       evidenceSource: "Portfolio codebase — bun.lockb, bun:sqlite imports throughout",
+      styleSignals: ["favors_reproducibility", "prioritizes_maintainability"],
+      preferredPatterns: ["reusable_infrastructure"],
+      acceptedTradeoffs: ["upfront_complexity_for_long_term_maintainability"],
+      antiPatterns: [],
+      preferredEnvironments: [],
     },
     {
       title: "tRPC + TanStack Query for Admin API Layer",
@@ -113,6 +146,11 @@ export function suggestDecisionPatterns(): EngineeringDecision[] {
       relatedTraits: ["structured_problem_solving", "engineering_quality"],
       relatedTendencies: ["prefers_structured_solutions", "prioritizes_maintainability"],
       evidenceSource: "Portfolio codebase — src/trpc/ directory",
+      styleSignals: ["prefers_explicit_contracts", "values_type_safety"],
+      preferredPatterns: ["typed_apis", "contract_first_design"],
+      acceptedTradeoffs: ["schema_maintenance_for_type_safety", "stricter_conventions_for_quality"],
+      antiPatterns: ["manual_type_synchronization"],
+      preferredEnvironments: [],
     },
     {
       title: "Docker + Fly.io for Deployment",
@@ -133,6 +171,11 @@ export function suggestDecisionPatterns(): EngineeringDecision[] {
       relatedTraits: ["ownership", "execution_under_pressure"],
       relatedTendencies: ["comfortable_with_autonomy", "prefers_structured_solutions"],
       evidenceSource: "Portfolio codebase — Dockerfile and fly.toml",
+      styleSignals: ["favors_reproducibility", "prefers_deterministic_workflows"],
+      preferredPatterns: ["reusable_infrastructure", "deterministic_pipelines"],
+      acceptedTradeoffs: ["upfront_complexity_for_long_term_maintainability"],
+      antiPatterns: ["ad_hoc_pipeline_design"],
+      preferredEnvironments: [],
     },
     {
       title: "Python ReportLab for PDF Generation",
@@ -153,6 +196,11 @@ export function suggestDecisionPatterns(): EngineeringDecision[] {
       relatedTraits: ["structured_problem_solving", "quality_focus"],
       relatedTendencies: ["prefers_structured_solutions", "prioritizes_maintainability"],
       evidenceSource: "Portfolio codebase — scripts/cv/ and scripts/cover-letter/",
+      styleSignals: ["prefers_deterministic_workflows", "favors_reproducibility"],
+      preferredPatterns: ["deterministic_pipelines"],
+      acceptedTradeoffs: ["additional_structure_for_reliability"],
+      antiPatterns: ["ad_hoc_pipeline_design"],
+      preferredEnvironments: [],
     },
     {
       title: "next-intl for Bilingual Localization",
@@ -170,6 +218,11 @@ export function suggestDecisionPatterns(): EngineeringDecision[] {
       relatedTraits: ["stakeholder_focus", "quality_focus"],
       relatedTendencies: ["prioritizes_maintainability", "values_cross_functional_collaboration"],
       evidenceSource: "Portfolio codebase — messages/ directory and next-intl config",
+      styleSignals: ["prefers_explicit_contracts", "prioritizes_maintainability"],
+      preferredPatterns: ["contract_first_design", "typed_apis"],
+      acceptedTradeoffs: ["stricter_conventions_for_quality"],
+      antiPatterns: [],
+      preferredEnvironments: ["cross_functional_product_teams"],
     },
   ];
 }

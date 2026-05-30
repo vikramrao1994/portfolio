@@ -1,6 +1,7 @@
 import type { DecisionCorpus } from "../decisions/buildDecisionCorpus";
 import type { StoredDecision } from "../decisions/schema";
 import type { EngineeringProfile } from "../profile/schema";
+import { sortByFrequency } from "./aggregateTagKeys";
 import { buildAntiPatternKeys } from "./buildAntiPatterns";
 import { buildDecisionStyleKeys } from "./buildDecisionStyle";
 import { buildPreferredEnvironmentKeys } from "./buildEnvironmentProfile";
@@ -9,6 +10,7 @@ import {
   ACCEPTED_TRADEOFF_LABELS,
   ACCEPTED_TRADEOFF_SUMMARY_PHRASES,
   ACCEPTED_TRADEOFF_SUMMARY_PHRASES_DE,
+  ACCEPTED_TRADEOFFS,
   type AcceptedTradeoff,
   ANTI_PATTERN_LABELS,
   DECISION_STYLE_LABELS,
@@ -25,7 +27,15 @@ import {
 } from "./constants";
 import type { EngineeringStyleProfile } from "./schema";
 
-function buildAcceptedTradeoffKeys(styleKeys: DecisionStylePattern[]): AcceptedTradeoff[] {
+function buildAcceptedTradeoffKeys(
+  corpus: DecisionCorpus,
+  styleKeys: DecisionStylePattern[],
+): AcceptedTradeoff[] {
+  // Primary: explicit accepted tradeoff tags from the decision corpus
+  const fromTags = sortByFrequency(corpus.acceptedTradeoffCounts, ACCEPTED_TRADEOFFS);
+  if (fromTags.length > 0) return fromTags;
+
+  // Fallback: derive from style keys when no decisions have tags yet
   const seen = new Set<AcceptedTradeoff>();
   const result: AcceptedTradeoff[] = [];
 
@@ -44,7 +54,14 @@ function buildAcceptedTradeoffKeys(styleKeys: DecisionStylePattern[]): AcceptedT
 function selectRepresentativeDecisions(decisions: StoredDecision[]): string[] {
   const scored = decisions.map((d) => ({
     title: d.title,
-    score: d.relatedTendencies.length * 2 + d.relatedTraits.length,
+    score:
+      d.styleSignals.length +
+      d.preferredPatterns.length +
+      d.acceptedTradeoffs.length +
+      d.antiPatterns.length +
+      d.preferredEnvironments.length +
+      d.relatedTendencies.length * 2 +
+      d.relatedTraits.length,
   }));
   scored.sort((a, b) => b.score - a.score);
   return scored.slice(0, 5).map((d) => d.title);
@@ -134,9 +151,9 @@ export function buildEngineeringStyleProfile(
 ): EngineeringStyleProfile {
   const styleKeys = buildDecisionStyleKeys(corpus, engineeringProfile);
   const patternKeys = buildPreferredPatternKeys(corpus, engineeringProfile);
-  const tradeoffKeys = buildAcceptedTradeoffKeys(styleKeys);
-  const antiPatternKeys = buildAntiPatternKeys(styleKeys);
-  const envKeys = buildPreferredEnvironmentKeys(engineeringProfile);
+  const tradeoffKeys = buildAcceptedTradeoffKeys(corpus, styleKeys);
+  const antiPatternKeys = buildAntiPatternKeys(corpus, styleKeys);
+  const envKeys = buildPreferredEnvironmentKeys(corpus, engineeringProfile);
   const representativeDecisions = selectRepresentativeDecisions(decisions);
 
   return {

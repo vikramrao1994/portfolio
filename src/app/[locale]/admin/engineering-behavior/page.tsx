@@ -31,6 +31,23 @@ import {
   type LinkedInRecommendation,
   RELATIONSHIP_OPTIONS,
 } from "@/lib/engineering-behavior/schema";
+import {
+  ACCEPTED_TRADEOFF_LABELS,
+  ACCEPTED_TRADEOFFS,
+  type AcceptedTradeoff,
+  ANTI_PATTERN_LABELS,
+  ANTI_PATTERNS,
+  type AntiPattern,
+  DECISION_STYLE_LABELS,
+  DECISION_STYLE_PATTERNS,
+  type DecisionStylePattern,
+  PREFERRED_ENVIRONMENT_LABELS,
+  PREFERRED_ENVIRONMENTS,
+  PREFERRED_PATTERN_LABELS,
+  PREFERRED_PATTERNS,
+  type PreferredEnvironment,
+  type PreferredPattern,
+} from "@/lib/engineering-behavior/style/constants";
 import type { EngineeringStyleProfile } from "@/lib/engineering-behavior/style/schema";
 import { adminDelete, adminGet, adminPost, adminPut } from "@/utils/adminFetch";
 import { spacing } from "@/utils/utils";
@@ -86,6 +103,11 @@ interface DecisionForm {
   relatedTraits: string;
   relatedTendencies: string;
   evidenceSource: string;
+  styleSignals: DecisionStylePattern[];
+  preferredPatterns: PreferredPattern[];
+  acceptedTradeoffs: AcceptedTradeoff[];
+  antiPatterns: AntiPattern[];
+  preferredEnvironments: PreferredEnvironment[];
 }
 
 const RELATIONSHIP_SELECT_OPTIONS = [
@@ -109,6 +131,11 @@ const EMPTY_DECISION_FORM: DecisionForm = {
   relatedTraits: "",
   relatedTendencies: "",
   evidenceSource: "",
+  styleSignals: [],
+  preferredPatterns: [],
+  acceptedTradeoffs: [],
+  antiPatterns: [],
+  preferredEnvironments: [],
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -155,6 +182,11 @@ function decisionToForm(d: EngineeringDecision): DecisionForm {
     relatedTraits: d.relatedTraits.join("\n"),
     relatedTendencies: d.relatedTendencies.join("\n"),
     evidenceSource: d.evidenceSource ?? "",
+    styleSignals: d.styleSignals ?? [],
+    preferredPatterns: d.preferredPatterns ?? [],
+    acceptedTradeoffs: d.acceptedTradeoffs ?? [],
+    antiPatterns: d.antiPatterns ?? [],
+    preferredEnvironments: d.preferredEnvironments ?? [],
   };
 }
 
@@ -170,7 +202,52 @@ function formToDecision(form: DecisionForm): EngineeringDecision {
     relatedTraits: parseLines(form.relatedTraits),
     relatedTendencies: parseLines(form.relatedTendencies),
     evidenceSource: form.evidenceSource.trim() || undefined,
+    styleSignals: form.styleSignals,
+    preferredPatterns: form.preferredPatterns,
+    acceptedTradeoffs: form.acceptedTradeoffs,
+    antiPatterns: form.antiPatterns,
+    preferredEnvironments: form.preferredEnvironments,
   };
+}
+
+// ── Tag helpers ───────────────────────────────────────────────────────────────
+
+function TagCheckboxGroup<T extends string>({
+  label,
+  value,
+  onChange,
+  options,
+  labels,
+}: {
+  label: string;
+  value: T[];
+  onChange: (v: T[]) => void;
+  options: readonly T[];
+  labels: Record<T, string>;
+}) {
+  return (
+    <div style={{ marginBottom: spacing(2) }}>
+      <Body style={{ fontWeight: 600, marginBottom: spacing(0.5) }}>{label}</Body>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: `${spacing(1)}px ${spacing(2)}px` }}>
+        {options.map((opt) => (
+          <label
+            key={opt}
+            style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer" }}
+          >
+            <input
+              type="checkbox"
+              checked={value.includes(opt)}
+              onChange={(e) => {
+                if (e.target.checked) onChange([...value, opt]);
+                else onChange(value.filter((v) => v !== opt));
+              }}
+            />
+            <Body style={{ fontSize: 13 }}>{labels[opt]}</Body>
+          </label>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 // ── Sub-components ────────────────────────────────────────────────────────────
@@ -487,6 +564,76 @@ function DecisionFormFields({
           />
         )}
       />
+
+      <Controller
+        name="styleSignals"
+        control={control}
+        render={({ field }) => (
+          <TagCheckboxGroup
+            label="Style Signals"
+            value={field.value}
+            onChange={field.onChange}
+            options={DECISION_STYLE_PATTERNS}
+            labels={DECISION_STYLE_LABELS}
+          />
+        )}
+      />
+
+      <Controller
+        name="preferredPatterns"
+        control={control}
+        render={({ field }) => (
+          <TagCheckboxGroup
+            label="Preferred Patterns"
+            value={field.value}
+            onChange={field.onChange}
+            options={PREFERRED_PATTERNS}
+            labels={PREFERRED_PATTERN_LABELS}
+          />
+        )}
+      />
+
+      <Controller
+        name="acceptedTradeoffs"
+        control={control}
+        render={({ field }) => (
+          <TagCheckboxGroup
+            label="Accepted Tradeoffs"
+            value={field.value}
+            onChange={field.onChange}
+            options={ACCEPTED_TRADEOFFS}
+            labels={ACCEPTED_TRADEOFF_LABELS}
+          />
+        )}
+      />
+
+      <Controller
+        name="antiPatterns"
+        control={control}
+        render={({ field }) => (
+          <TagCheckboxGroup
+            label="Anti-Patterns"
+            value={field.value}
+            onChange={field.onChange}
+            options={ANTI_PATTERNS}
+            labels={ANTI_PATTERN_LABELS}
+          />
+        )}
+      />
+
+      <Controller
+        name="preferredEnvironments"
+        control={control}
+        render={({ field }) => (
+          <TagCheckboxGroup
+            label="Preferred Environments"
+            value={field.value}
+            onChange={field.onChange}
+            options={PREFERRED_ENVIRONMENTS}
+            labels={PREFERRED_ENVIRONMENT_LABELS}
+          />
+        )}
+      />
     </>
   );
 }
@@ -511,11 +658,23 @@ function DecisionCard({
       />
       <Lists.Root size="small" type="bullet" style={{ marginBottom: spacing(1) }}>
         <Lists.Item text={`Chosen: ${decision.chosenOption}`} />
+        {decision.styleSignals.length > 0 && (
+          <Lists.Item
+            text={`Style: ${decision.styleSignals.map((k) => DECISION_STYLE_LABELS[k]).join(", ")}`}
+          />
+        )}
+        {decision.preferredPatterns.length > 0 && (
+          <Lists.Item
+            text={`Patterns: ${decision.preferredPatterns.map((k) => PREFERRED_PATTERN_LABELS[k]).join(", ")}`}
+          />
+        )}
+        {decision.antiPatterns.length > 0 && (
+          <Lists.Item
+            text={`Anti-patterns: ${decision.antiPatterns.map((k) => ANTI_PATTERN_LABELS[k]).join(", ")}`}
+          />
+        )}
         {decision.relatedTendencies.length > 0 && (
           <Lists.Item text={`Tendencies: ${decision.relatedTendencies.join(", ")}`} />
-        )}
-        {decision.relatedTraits.length > 0 && (
-          <Lists.Item text={`Traits: ${decision.relatedTraits.join(", ")}`} />
         )}
       </Lists.Root>
 

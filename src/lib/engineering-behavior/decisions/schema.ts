@@ -1,4 +1,11 @@
 import { z } from "zod";
+import {
+  ACCEPTED_TRADEOFFS,
+  ANTI_PATTERNS,
+  DECISION_STYLE_PATTERNS,
+  PREFERRED_ENVIRONMENTS,
+  PREFERRED_PATTERNS,
+} from "../style/constants";
 import { DECISION_CATEGORIES } from "./constants";
 
 export const EngineeringDecisionSchema = z.object({
@@ -12,6 +19,11 @@ export const EngineeringDecisionSchema = z.object({
   relatedTraits: z.array(z.string()),
   relatedTendencies: z.array(z.string()),
   evidenceSource: z.string().optional(),
+  styleSignals: z.array(z.enum(DECISION_STYLE_PATTERNS)).default([]),
+  preferredPatterns: z.array(z.enum(PREFERRED_PATTERNS)).default([]),
+  acceptedTradeoffs: z.array(z.enum(ACCEPTED_TRADEOFFS)).default([]),
+  antiPatterns: z.array(z.enum(ANTI_PATTERNS)).default([]),
+  preferredEnvironments: z.array(z.enum(PREFERRED_ENVIRONMENTS)).default([]),
 });
 
 export type EngineeringDecision = z.infer<typeof EngineeringDecisionSchema>;
