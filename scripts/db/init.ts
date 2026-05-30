@@ -13,5 +13,14 @@ const db = new Database(DB_PATH);
 db.exec("PRAGMA foreign_keys = ON;");
 db.exec(schema);
 
+// Migrate existing databases — silent no-op if column already exists
+try {
+  db.exec(
+    "ALTER TABLE engineering_behavior_profile ADD COLUMN engineering_profile_json TEXT",
+  );
+} catch {
+  // Column already present
+}
+
 db.close();
 console.log(`✅ SQLite initialized: ${DB_PATH}`);

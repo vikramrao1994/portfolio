@@ -14,6 +14,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Controller, useForm } from "react-hook-form";
 import AdminCard from "@/components/Admin/Card/AdminCard";
+import type { CoreTrait, EngineeringProfile, EngineeringTendency } from "@/lib/engineering-behavior/profile/schema";
 import {
   type BehaviorTrait,
   type EngineeringBehaviorProfile,
@@ -27,11 +28,13 @@ import { spacing } from "@/utils/utils";
 
 interface ProfileResponse {
   profile: EngineeringBehaviorProfile | null;
+  engineeringProfile: EngineeringProfile | null;
   createdAt: string | null;
 }
 
 interface ExtractionResponse {
   profile: EngineeringBehaviorProfile;
+  engineeringProfile: EngineeringProfile;
   documentsProcessed: number;
   documentsSkipped: number;
 }
@@ -113,6 +116,51 @@ function TraitCards({ traits }: { traits: BehaviorTrait[] }) {
   );
 }
 
+function CoreTraitCards({ coreTraits }: { coreTraits: CoreTrait[] }) {
+  return (
+    <Accordion.Group>
+      {coreTraits.map((ct) => (
+        <Accordion.Root key={ct.trait} aria-label={ct.trait}>
+          <Accordion.Summary
+            title={{
+              textWrapper: "h3",
+              title: `${ct.trait}  ·  ${ct.confidence.toFixed(2)}`,
+              variant: "small",
+            }}
+          />
+          <Lists.Root size="small" type="bullet" style={{ marginBottom: spacing(1) }}>
+            <Lists.Item text={`Confidence: ${ct.confidence.toFixed(2)}`} />
+            <Lists.Item text={`Supporting Traits: ${ct.supportingTraits.join(", ")}`} />
+            <Lists.Item text={`Sources: ${ct.sourceDocuments.join(", ")}`} />
+          </Lists.Root>
+        </Accordion.Root>
+      ))}
+    </Accordion.Group>
+  );
+}
+
+function TendencyCards({ tendencies }: { tendencies: EngineeringTendency[] }) {
+  return (
+    <Accordion.Group>
+      {tendencies.map((et) => (
+        <Accordion.Root key={et.tendency} aria-label={et.tendency}>
+          <Accordion.Summary
+            title={{
+              textWrapper: "h3",
+              title: `${et.tendency}  ·  ${et.confidence.toFixed(2)}`,
+              variant: "small",
+            }}
+          />
+          <Lists.Root size="small" type="bullet" style={{ marginBottom: spacing(1) }}>
+            <Lists.Item text={`Confidence: ${et.confidence.toFixed(2)}`} />
+            <Lists.Item text={`Derived From: ${et.derivedFrom.join(", ")}`} />
+          </Lists.Root>
+        </Accordion.Root>
+      ))}
+    </Accordion.Group>
+  );
+}
+
 function RecommendationList({
   recommendations,
   onDelete,
@@ -162,14 +210,19 @@ export default function EngineeringBehaviorPage() {
   const queryClient = useQueryClient();
 
   // ── Queries ──
-  const { data: profileData, isLoading: isLoadingProfile, error: loadError } = useQuery({
+  const {
+    data: profileData,
+    isLoading: isLoadingProfile,
+    error: loadError,
+  } = useQuery({
     queryKey: ["engineering-behavior-profile"],
     queryFn: () => adminGet<ProfileResponse>("/api/admin/engineering-behavior"),
   });
 
   const { data: recsData, isLoading: isLoadingRecs } = useQuery({
     queryKey: ["engineering-behavior-recommendations"],
-    queryFn: () => adminGet<RecommendationsResponse>("/api/admin/engineering-behavior/recommendations"),
+    queryFn: () =>
+      adminGet<RecommendationsResponse>("/api/admin/engineering-behavior/recommendations"),
   });
 
   // ── Mutations ──
@@ -178,6 +231,7 @@ export default function EngineeringBehaviorPage() {
     onSuccess: (data) => {
       queryClient.setQueryData<ProfileResponse>(["engineering-behavior-profile"], {
         profile: data.profile,
+        engineeringProfile: data.engineeringProfile,
         createdAt: data.profile.extractedAt,
       });
     },
@@ -224,6 +278,7 @@ export default function EngineeringBehaviorPage() {
 
   // ── Derived values ──
   const profile = profileData?.profile ?? null;
+  const engineeringProfile = profileData?.engineeringProfile ?? null;
   const createdAt = profileData?.createdAt ?? null;
   const recommendations = recsData?.recommendations ?? [];
   const uniqueSources = profile
@@ -324,7 +379,6 @@ export default function EngineeringBehaviorPage() {
                     value={field.value}
                     options={RELATIONSHIP_SELECT_OPTIONS}
                     onChange={field.onChange}
-                    style={{ marginBottom: spacing(2) }}
                   />
                 )}
               />
@@ -384,7 +438,9 @@ export default function EngineeringBehaviorPage() {
               <Button
                 type="button"
                 variant="primary"
-                text={extractMutation.isPending ? "Extracting..." : "Extract Behavior From Documents"}
+                text={
+                  extractMutation.isPending ? "Extracting..." : "Extract Behavior From Documents"
+                }
                 disabled={extractMutation.isPending}
                 onClick={() => extractMutation.mutate()}
               />
@@ -474,6 +530,47 @@ export default function EngineeringBehaviorPage() {
                   />
                   <Body style={{ whiteSpace: "pre-wrap" }}>{profile.summary_de}</Body>
                 </div>
+              </AdminCard>
+            </Grid.Column>
+          </Grid.Row>
+        </>
+      )}
+
+      {/* ── Engineering Profile ── */}
+      {engineeringProfile && (
+        <>
+          <Grid.Row>
+            <Grid.Column>
+              <AdminCard
+                id="core-traits"
+                title="Core Traits"
+                ariaLabel="Core Traits"
+              >
+                <Body style={{ color: "#666", marginBottom: spacing(2) }}>
+                  {engineeringProfile.coreTraits.length} core trait
+                  {engineeringProfile.coreTraits.length !== 1 ? "s" : ""} consolidated from
+                  extracted observations.
+                </Body>
+                <CoreTraitCards coreTraits={engineeringProfile.coreTraits} />
+              </AdminCard>
+            </Grid.Column>
+          </Grid.Row>
+
+          <Grid.Row>
+            <Grid.Column>
+              <AdminCard
+                id="engineering-tendencies"
+                title="Engineering Tendencies"
+                ariaLabel="Engineering Tendencies"
+              >
+                <Body style={{ color: "#666", marginBottom: spacing(2) }}>
+                  {engineeringProfile.engineeringTendencies.length} engineering
+                  {engineeringProfile.engineeringTendencies.length !== 1
+                    ? " tendencies"
+                    : " tendency"}{" "}
+                  derived from core traits.
+                </Body>
+                <TendencyCards tendencies={engineeringProfile.engineeringTendencies} />
               </AdminCard>
             </Grid.Column>
           </Grid.Row>

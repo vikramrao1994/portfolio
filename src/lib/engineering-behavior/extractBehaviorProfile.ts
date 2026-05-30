@@ -2,6 +2,8 @@ import { getWriteDb } from "@/server/db";
 import type { LoadedPdfDocument } from "./generateBehaviorProfileWithClaude";
 import { generateBehaviorProfileWithClaude } from "./generateBehaviorProfileWithClaude";
 import { loadDocumentsForExtraction } from "./loadDocumentsForExtraction";
+import { buildEngineeringProfile } from "./profile/buildEngineeringProfile";
+import type { EngineeringProfile } from "./profile/schema";
 import type { EngineeringBehaviorProfile } from "./schema";
 
 async function fetchPdfAsBase64(url: string): Promise<string> {
@@ -13,6 +15,7 @@ async function fetchPdfAsBase64(url: string): Promise<string> {
 
 export interface ExtractionResult {
   profile: EngineeringBehaviorProfile;
+  engineeringProfile: EngineeringProfile;
   documentsProcessed: number;
   documentsSkipped: number;
 }
@@ -50,14 +53,17 @@ export async function extractBehaviorProfile(): Promise<ExtractionResult> {
     extractedAt: new Date().toISOString(),
   };
 
+  const engineeringProfile = buildEngineeringProfile(profile);
+
   const db = getWriteDb();
   const stmt = db.prepare(
-    "INSERT OR REPLACE INTO engineering_behavior_profile (id, profile_json, created_at) VALUES (1, ?, ?)",
+    "INSERT OR REPLACE INTO engineering_behavior_profile (id, profile_json, engineering_profile_json, created_at) VALUES (1, ?, ?, ?)",
   );
-  stmt.run(JSON.stringify(profile), profile.extractedAt);
+  stmt.run(JSON.stringify(profile), JSON.stringify(engineeringProfile), profile.extractedAt);
 
   return {
     profile,
+    engineeringProfile,
     documentsProcessed: loadedPdfs.length + linkedInRecommendations.length,
     documentsSkipped: skipped,
   };

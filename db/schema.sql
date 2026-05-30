@@ -170,6 +170,7 @@ CREATE TABLE IF NOT EXISTS hobbies (
 CREATE TABLE IF NOT EXISTS engineering_behavior_profile (
   id INTEGER PRIMARY KEY CHECK (id = 1),
   profile_json TEXT NOT NULL,
+  engineering_profile_json TEXT,
   created_at TEXT NOT NULL
 );
 
